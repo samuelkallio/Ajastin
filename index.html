@@ -39,7 +39,7 @@
       width: 100%;
       max-width: 24rem;
       text-align: center;
-      position: relative; /* Jotta header voidaan asemoida */
+      position: relative;
     }
 
     .header {
@@ -177,7 +177,14 @@
       margin-top: 0.5rem;
     }
 
-    /* Modaalin yleiset tyylit */
+    .wake-lock-info {
+      color: #aaa;
+      font-size: 0.8rem;
+      margin-top: 0.75rem;
+      min-height: 1.2em;
+    }
+
+    /* Modaalit */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -214,7 +221,6 @@
       text-align: center;
     }
 
-    /* Äänivalintalistan tyylit */
     .sound-list {
       display: flex;
       flex-direction: column;
@@ -261,7 +267,6 @@
       flex-shrink: 0;
     }
 
-    /* Jaa-modalin tyylit */
     .share-url-input {
       width: 100%;
       padding: 0.75rem;
@@ -314,7 +319,6 @@
       cursor: pointer;
     }
 
-    /* Responsiivinen hienosäätö */
     @media (max-width: 400px) {
       .display {
         font-size: 3.2rem;
@@ -347,15 +351,15 @@
       <button id="pauseBtn" class="secondary" style="display:none;">Tauko</button>
       <button id="soundSettingsBtn" class="settings-btn">Summeri</button>
     </div>
+
+    <div id="wakeLockInfo" class="wake-lock-info"></div>
   </div>
 
   <!-- Modaali summeriäänen valintaan -->
   <div id="soundModal" class="modal-overlay">
     <div class="modal">
       <h2>Valitse summeriääni</h2>
-      <div id="soundList" class="sound-list">
-        <!-- Lista täytetään JavaScriptillä -->
-      </div>
+      <div id="soundList" class="sound-list"></div>
       <button id="closeModalBtn" class="close-btn">Sulje</button>
     </div>
   </div>
@@ -373,24 +377,21 @@
     </div>
   </div>
 
-  <!-- Summeriäänen toisto (src asetetaan dynaamisesti) -->
   <audio id="buzzer" preload="auto" loop></audio>
 
   <script>
-    // Määrittele tässä saatavilla olevat äänitiedostot (samassa hakemistossa)
+    // Määrittele tässä saatavilla olevat äänitiedostot
     const soundFiles = [
-      "horn.mp3",
-      "ice hockey.m4a",
-      "school bell.m4a"
+      "summeri.mp3",
+      "beep.mp3",
+      "alarm.m4a",
+      "buzz.mp3",
+      "bell.m4a"
     ];
 
-    // Oletusääni, jos mitään ei ole tallennettu
     const DEFAULT_SOUND = "summeri.mp3";
-
-    // Jakamiseen liittyvät vakiot
     const SHARE_URL = "https://samuelkallio.github.io/Ajastin/";
 
-    // Muuttujat
     let currentSound = DEFAULT_SOUND;
     let previewAudio = null;
 
@@ -411,9 +412,10 @@
     const copyUrlBtn = document.getElementById('copyUrlBtn');
     const qrCodeImg = document.getElementById('qrCode');
     const closeShareModalBtn = document.getElementById('closeShareModalBtn');
+    const wakeLockInfo = document.getElementById('wakeLockInfo');
 
     // Ajastimen tila
-    let state = 'idle'; // idle | running | paused | alarm
+    let state = 'idle';
     let initialMinutes = 5;
     let initialSeconds = 0;
     let remainingSeconds = initialMinutes * 60 + initialSeconds;
@@ -423,6 +425,14 @@
     let fallbackOscillator = null;
     let fallbackGain = null;
 
+    // Wake Lock -muuttujat
+    let wakeLock = null;
+    let wakeLockSupported = 'wakeLock' in navigator;
+
+    // Ajastimen globaalit aikatiedot (jotta visibilitychange voi laskea)
+    let timerStartTime = null;
+    let timerStartRemaining = 0;
+
     // ---------- Äänen hallinta ----------
     function loadSelectedSound() {
       try {
@@ -430,18 +440,12 @@
         if (saved && soundFiles.includes(saved)) {
           currentSound = saved;
         }
-      } catch (e) {
-        // localStorage ei käytettävissä, käytetään oletusta
-      }
+      } catch (e) {}
       buzzer.src = currentSound;
     }
 
     function saveSelectedSound(sound) {
-      try {
-        localStorage.setItem('selectedSound', sound);
-      } catch (e) {
-        // tallennus epäonnistui, mutta jatketaan
-      }
+      try { localStorage.setItem('selectedSound', sound); } catch (e) {}
       currentSound = sound;
       buzzer.src = sound;
     }
@@ -452,10 +456,7 @@
       previewAudio.preload = 'auto';
       const playPromise = previewAudio.play();
       if (playPromise !== undefined) {
-        playPromise.catch(() => {
-          // Tiedostoa ei löydy, käytetään fallback-äänimerkkiä
-          fallbackBeep();
-        });
+        playPromise.catch(() => { fallbackBeep(); });
       }
     }
 
@@ -467,7 +468,7 @@
       }
     }
 
-    // ---------- Modaalin toiminnallisuus (ääni) ----------
+    // ---------- Modaali (äänet) ----------
     function renderSoundList() {
       soundListContainer.innerHTML = '';
       soundFiles.forEach(sound => {
@@ -487,7 +488,7 @@
         previewBtn.className = 'preview-btn';
         previewBtn.textContent = 'Koesoita';
         previewBtn.addEventListener('click', (e) => {
-          e.stopPropagation(); // estä rivin valinta klikatessa koesoittoa
+          e.stopPropagation();
           playPreview(sound);
         });
 
@@ -500,7 +501,7 @@
     function openSoundModal() {
       renderSoundList();
       soundModal.classList.add('open');
-      stopPreview(); // varmista ettei edellinen koesoitto jää soimaan
+      stopPreview();
     }
 
     function closeSoundModal() {
@@ -510,18 +511,13 @@
 
     soundSettingsBtn.addEventListener('click', openSoundModal);
     closeModalBtn.addEventListener('click', closeSoundModal);
-
-    // Sulje modaali myös klikkaamalla overlayta (mutta ei itse modaalia)
     soundModal.addEventListener('click', (e) => {
-      if (e.target === soundModal) {
-        closeSoundModal();
-      }
+      if (e.target === soundModal) closeSoundModal();
     });
 
-    // ---------- Modaalin toiminnallisuus (jako) ----------
+    // ---------- Modaali (jako) ----------
     function openShareModal() {
       shareUrlInput.value = SHARE_URL;
-      // Aseta QR-koodi käyttämällä ulkoista API:a
       qrCodeImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(SHARE_URL)}`;
       shareModal.classList.add('open');
     }
@@ -532,32 +528,50 @@
 
     shareBtn.addEventListener('click', openShareModal);
     closeShareModalBtn.addEventListener('click', closeShareModal);
-
-    // Sulje modaali myös klikkaamalla overlayta
     shareModal.addEventListener('click', (e) => {
-      if (e.target === shareModal) {
-        closeShareModal();
-      }
+      if (e.target === shareModal) closeShareModal();
     });
 
-    // Kopioi linkki -toiminnallisuus
     copyUrlBtn.addEventListener('click', async () => {
       try {
         await navigator.clipboard.writeText(SHARE_URL);
         copyUrlBtn.textContent = 'Kopioitu!';
-        setTimeout(() => {
-          copyUrlBtn.textContent = 'Kopioi linkki';
-        }, 1500);
+        setTimeout(() => { copyUrlBtn.textContent = 'Kopioi linkki'; }, 1500);
       } catch (err) {
-        // Fallback vanhemmille selaimille
         shareUrlInput.select();
         document.execCommand('copy');
         copyUrlBtn.textContent = 'Kopioitu!';
-        setTimeout(() => {
-          copyUrlBtn.textContent = 'Kopioi linkki';
-        }, 1500);
+        setTimeout(() => { copyUrlBtn.textContent = 'Kopioi linkki'; }, 1500);
       }
     });
+
+    // ---------- Wake Lock ----------
+    async function requestWakeLock() {
+      if (!wakeLockSupported) {
+        wakeLockInfo.textContent = '⚠️ Laitteesi ei tue näytön hereilläpitoa. Pidä näyttö päällä ajastimen aikana.';
+        return;
+      }
+      try {
+        wakeLock = await navigator.wakeLock.request('screen');
+        wakeLockInfo.textContent = '✅ Näyttö pidetään hereillä ajastimen ajan.';
+        wakeLock.addEventListener('release', () => {
+          wakeLockInfo.textContent = '';
+        });
+      } catch (err) {
+        wakeLockInfo.textContent = '⚠️ Wake Lock ei käytettävissä: ' + err.message;
+        wakeLock = null;
+      }
+    }
+
+    async function releaseWakeLock() {
+      if (wakeLock) {
+        try {
+          await wakeLock.release();
+          wakeLock = null;
+        } catch (err) {}
+      }
+      wakeLockInfo.textContent = '';
+    }
 
     // ---------- Summerin soittaminen ----------
     function ensureAudioContext() {
@@ -570,22 +584,14 @@
         if (audioCtx.state === 'suspended') {
           audioCtx.resume().catch(() => {});
         }
-      } catch (e) {
-        // Äänen käyttö ei ole mahdollista
-      }
+      } catch (e) {}
     }
 
     function playBuzzer() {
-      // Yritä ensin toistaa valittu summeritiedosto
       buzzer.currentTime = 0;
       const playPromise = buzzer.play();
-
       if (playPromise !== undefined) {
-        playPromise.then(() => {
-          // Ulkoinen ääni toistuu
-        }).catch(() => {
-          fallbackBeep();
-        });
+        playPromise.then(() => {}).catch(() => { fallbackBeep(); });
       } else {
         fallbackBeep();
       }
@@ -603,12 +609,10 @@
           fallbackGain = null;
         }
       } catch (e) {}
-
       try {
         buzzer.pause();
         buzzer.currentTime = 0;
       } catch (e) {}
-
       if (audioCtx) {
         audioCtx.close().catch(() => {});
         audioCtx = null;
@@ -619,18 +623,14 @@
       try {
         ensureAudioContext();
         if (!audioCtx) return;
-
         fallbackOscillator = audioCtx.createOscillator();
         fallbackGain = audioCtx.createGain();
         fallbackOscillator.type = 'square';
         fallbackOscillator.frequency.value = 880;
         fallbackGain.gain.value = 0.2;
-
         fallbackOscillator.connect(fallbackGain).connect(audioCtx.destination);
         fallbackOscillator.start();
-      } catch (e) {
-        // Äänen tuottaminen ei onnistu
-      }
+      } catch (e) {}
     }
 
     // ---------- Ajastimen toiminnallisuus ----------
@@ -669,7 +669,7 @@
         pauseBtn.textContent = 'Tauko';
         pauseBtn.disabled = false;
         soundSettingsBtn.disabled = true;
-        shareBtn.disabled = false; // voi jakaa keskenkin
+        shareBtn.disabled = false;
       } else if (state === 'paused') {
         startBtn.style.display = 'none';
         pauseBtn.style.display = 'block';
@@ -700,6 +700,7 @@
       }
 
       ensureAudioContext();
+      requestWakeLock(); // Pyydä näytön hereilläpitoa
 
       state = 'running';
       display.classList.remove('flash');
@@ -707,13 +708,14 @@
       setButtonsForState();
       updateDisplay();
 
-      const startTime = Date.now();
-      const startRemaining = remainingSeconds;
+      // Tallennetaan globaalit aikatiedot
+      timerStartTime = Date.now();
+      timerStartRemaining = remainingSeconds;
 
       if (timerInterval) clearInterval(timerInterval);
       timerInterval = setInterval(() => {
-        const elapsed = Math.floor((Date.now() - startTime) / 1000);
-        remainingSeconds = Math.max(0, startRemaining - elapsed);
+        const elapsed = Math.floor((Date.now() - timerStartTime) / 1000);
+        remainingSeconds = Math.max(0, timerStartRemaining - elapsed);
         updateDisplay();
 
         if (remainingSeconds <= 0) {
@@ -729,6 +731,7 @@
         clearInterval(timerInterval);
         timerInterval = null;
         state = 'paused';
+        releaseWakeLock();
         setButtonsForState();
       } else if (state === 'paused') {
         startTimer();
@@ -759,6 +762,7 @@
       setInputsDisabled(false);
       setButtonsForState();
       display.classList.remove('flash');
+      releaseWakeLock();
 
       if (timerInterval) {
         clearInterval(timerInterval);
@@ -773,6 +777,22 @@
         startBtn.disabled = remainingSeconds <= 0;
       }
     }
+
+    // ---------- visibilitychange-käsittely ----------
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && state === 'running') {
+        // Sivu tuli näkyväksi, laske todellinen kulunut aika
+        const elapsed = Math.floor((Date.now() - timerStartTime) / 1000);
+        remainingSeconds = Math.max(0, timerStartRemaining - elapsed);
+        updateDisplay();
+
+        if (remainingSeconds <= 0) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+          handleAlarm();
+        }
+      }
+    });
 
     // ---------- Tapahtumakuuntelijat ----------
     startBtn.addEventListener('click', startTimer);
@@ -802,6 +822,11 @@
     remainingSeconds = initialMinutes * 60 + initialSeconds;
     updateDisplay();
     setButtonsForState();
+
+    // Ilmoitetaan, jos Wake Lock ei ole tuettu
+    if (!wakeLockSupported) {
+      wakeLockInfo.textContent = '⚠️ Selaimesi ei tue näytön hereilläpitoa. Pidä näyttö päällä ajastimen aikana.';
+    }
   </script>
 </body>
 </html>
