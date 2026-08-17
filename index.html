@@ -39,13 +39,36 @@
       width: 100%;
       max-width: 24rem;
       text-align: center;
+      position: relative; /* Jotta header voidaan asemoida */
     }
 
-    h1 {
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .header h1 {
       color: var(--text);
       font-size: 1.5rem;
-      margin: 0 0 1rem;
+      margin: 0;
       font-weight: 700;
+    }
+
+    .share-icon-btn {
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 1.8rem;
+      cursor: pointer;
+      padding: 0.2rem;
+      line-height: 1;
+      transition: color 0.15s;
+    }
+
+    .share-icon-btn:hover {
+      color: var(--accent);
     }
 
     .display {
@@ -154,7 +177,7 @@
       margin-top: 0.5rem;
     }
 
-    /* Modaalin tyylit */
+    /* Modaalin yleiset tyylit */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -188,8 +211,10 @@
       color: var(--text);
       margin: 0 0 1rem;
       font-size: 1.4rem;
+      text-align: center;
     }
 
+    /* Äänivalintalistan tyylit */
     .sound-list {
       display: flex;
       flex-direction: column;
@@ -236,6 +261,47 @@
       flex-shrink: 0;
     }
 
+    /* Jaa-modalin tyylit */
+    .share-url-input {
+      width: 100%;
+      padding: 0.75rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 0.8rem;
+      background: var(--display-bg);
+      color: var(--text);
+      margin: 0.5rem 0;
+      text-align: center;
+      font-weight: 500;
+    }
+
+    .copy-btn {
+      width: 100%;
+      margin: 0.5rem 0;
+      background: var(--secondary);
+      border: none;
+      color: #fff;
+      border-radius: 0.8rem;
+      padding: 0.75rem;
+      font-size: 1rem;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .qr-container {
+      display: flex;
+      justify-content: center;
+      margin: 1rem 0;
+    }
+
+    .qr-container img {
+      max-width: 200px;
+      max-height: 200px;
+      border-radius: 0.5rem;
+      background: #fff;
+      padding: 0.5rem;
+    }
+
     .close-btn {
       background: transparent;
       border: 2px solid var(--secondary);
@@ -247,11 +313,22 @@
       font-size: 1rem;
       cursor: pointer;
     }
+
+    /* Responsiivinen hienosäätö */
+    @media (max-width: 400px) {
+      .display {
+        font-size: 3.2rem;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Ajastin</h1>
+    <div class="header">
+      <h1>Ajastin</h1>
+      <button id="shareBtn" class="share-icon-btn" title="Jaa" aria-label="Jaa sovellus">🔗</button>
+    </div>
+
     <div id="display" class="display">00:00</div>
 
     <div class="inputs">
@@ -283,19 +360,37 @@
     </div>
   </div>
 
+  <!-- Modaali jakamiseen -->
+  <div id="shareModal" class="modal-overlay">
+    <div class="modal">
+      <h2>Jaa sovellus</h2>
+      <input type="text" id="shareUrlInput" class="share-url-input" value="https://samuelkallio.github.io/Ajastin/" readonly onclick="this.select()">
+      <button id="copyUrlBtn" class="copy-btn">Kopioi linkki</button>
+      <div class="qr-container">
+        <img id="qrCode" src="" alt="QR-koodi" width="200" height="200">
+      </div>
+      <button id="closeShareModalBtn" class="close-btn">Sulje</button>
+    </div>
+  </div>
+
   <!-- Summeriäänen toisto (src asetetaan dynaamisesti) -->
   <audio id="buzzer" preload="auto" loop></audio>
 
   <script>
     // Määrittele tässä saatavilla olevat äänitiedostot (samassa hakemistossa)
     const soundFiles = [
-      "horn.mp3",
-      "ice hockey.m4a",
-      "school bell.m4a"
+      "summeri.mp3",
+      "beep.mp3",
+      "alarm.m4a",
+      "buzz.mp3",
+      "bell.m4a"
     ];
 
     // Oletusääni, jos mitään ei ole tallennettu
     const DEFAULT_SOUND = "summeri.mp3";
+
+    // Jakamiseen liittyvät vakiot
+    const SHARE_URL = "https://samuelkallio.github.io/Ajastin/";
 
     // Muuttujat
     let currentSound = DEFAULT_SOUND;
@@ -312,6 +407,12 @@
     const soundModal = document.getElementById('soundModal');
     const soundListContainer = document.getElementById('soundList');
     const closeModalBtn = document.getElementById('closeModalBtn');
+    const shareBtn = document.getElementById('shareBtn');
+    const shareModal = document.getElementById('shareModal');
+    const shareUrlInput = document.getElementById('shareUrlInput');
+    const copyUrlBtn = document.getElementById('copyUrlBtn');
+    const qrCodeImg = document.getElementById('qrCode');
+    const closeShareModalBtn = document.getElementById('closeShareModalBtn');
 
     // Ajastimen tila
     let state = 'idle'; // idle | running | paused | alarm
@@ -368,7 +469,7 @@
       }
     }
 
-    // ---------- Modaalin toiminnallisuus ----------
+    // ---------- Modaalin toiminnallisuus (ääni) ----------
     function renderSoundList() {
       soundListContainer.innerHTML = '';
       soundFiles.forEach(sound => {
@@ -381,7 +482,7 @@
         nameSpan.addEventListener('click', () => {
           saveSelectedSound(sound);
           renderSoundList();
-          closeModal();
+          closeSoundModal();
         });
 
         const previewBtn = document.createElement('button');
@@ -398,24 +499,65 @@
       });
     }
 
-    function openModal() {
+    function openSoundModal() {
       renderSoundList();
       soundModal.classList.add('open');
       stopPreview(); // varmista ettei edellinen koesoitto jää soimaan
     }
 
-    function closeModal() {
+    function closeSoundModal() {
       soundModal.classList.remove('open');
       stopPreview();
     }
 
-    soundSettingsBtn.addEventListener('click', openModal);
-    closeModalBtn.addEventListener('click', closeModal);
+    soundSettingsBtn.addEventListener('click', openSoundModal);
+    closeModalBtn.addEventListener('click', closeSoundModal);
 
     // Sulje modaali myös klikkaamalla overlayta (mutta ei itse modaalia)
     soundModal.addEventListener('click', (e) => {
       if (e.target === soundModal) {
-        closeModal();
+        closeSoundModal();
+      }
+    });
+
+    // ---------- Modaalin toiminnallisuus (jako) ----------
+    function openShareModal() {
+      shareUrlInput.value = SHARE_URL;
+      // Aseta QR-koodi käyttämällä ulkoista API:a
+      qrCodeImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(SHARE_URL)}`;
+      shareModal.classList.add('open');
+    }
+
+    function closeShareModal() {
+      shareModal.classList.remove('open');
+    }
+
+    shareBtn.addEventListener('click', openShareModal);
+    closeShareModalBtn.addEventListener('click', closeShareModal);
+
+    // Sulje modaali myös klikkaamalla overlayta
+    shareModal.addEventListener('click', (e) => {
+      if (e.target === shareModal) {
+        closeShareModal();
+      }
+    });
+
+    // Kopioi linkki -toiminnallisuus
+    copyUrlBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(SHARE_URL);
+        copyUrlBtn.textContent = 'Kopioitu!';
+        setTimeout(() => {
+          copyUrlBtn.textContent = 'Kopioi linkki';
+        }, 1500);
+      } catch (err) {
+        // Fallback vanhemmille selaimille
+        shareUrlInput.select();
+        document.execCommand('copy');
+        copyUrlBtn.textContent = 'Kopioitu!';
+        setTimeout(() => {
+          copyUrlBtn.textContent = 'Kopioi linkki';
+        }, 1500);
       }
     });
 
@@ -522,22 +664,26 @@
         pauseBtn.style.display = 'none';
         startBtn.disabled = getTotalSeconds() <= 0;
         soundSettingsBtn.disabled = false;
+        shareBtn.disabled = false;
       } else if (state === 'running') {
         startBtn.style.display = 'none';
         pauseBtn.style.display = 'block';
         pauseBtn.textContent = 'Tauko';
         pauseBtn.disabled = false;
         soundSettingsBtn.disabled = true;
+        shareBtn.disabled = false; // voi jakaa keskenkin
       } else if (state === 'paused') {
         startBtn.style.display = 'none';
         pauseBtn.style.display = 'block';
         pauseBtn.textContent = 'Jatka';
         pauseBtn.disabled = false;
         soundSettingsBtn.disabled = true;
+        shareBtn.disabled = false;
       } else if (state === 'alarm') {
         startBtn.style.display = 'none';
         pauseBtn.style.display = 'none';
         soundSettingsBtn.disabled = true;
+        shareBtn.disabled = false;
       }
     }
 
