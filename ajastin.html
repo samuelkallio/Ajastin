@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Ajastin</title>
+  <style>
+    :root {
+      --bg: #1a1a2e;
+      --card: #16213e;
+      --accent: #e94560;
+      --secondary: #533483;
+      --text: #e0e0e0;
+      --display-bg: #0f3460;
+      --modal-bg: rgba(0, 0, 0, 0.7);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      padding: 1rem;
+    }
+
+    .container {
+      background: var(--card);
+      padding: 1.5rem 1.2rem;
+      border-radius: 2rem;
+      box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.4);
+      width: 100%;
+      max-width: 24rem;
+      text-align: center;
+    }
+
+    h1 {
+      color: var(--text);
+      font-size: 1.5rem;
+      margin: 0 0 1rem;
+      font-weight: 700;
+    }
+
+    .display {
+      font-size: 4rem;
+      font-weight: 700;
+      color: var(--text);
+      background: var(--display-bg);
+      padding: 0.6rem 0.5rem;
+      border-radius: 1.2rem;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.05em;
+      margin: 0.5rem 0 1rem;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .display.flash {
+      animation: blink 0.5s step-start infinite;
+      background: var(--accent);
+      color: #fff;
+    }
+
+    @keyframes blink {
+      50% {
+        opacity: 0.15;
+      }
+    }
+
+    .inputs {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      align-items: center;
+      margin: 1rem 0;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    label {
+      color: #aaa;
+      font-size: 0.9rem;
+      margin-bottom: 0.3rem;
+    }
+
+    input {
+      width: 5.5rem;
+      padding: 0.75rem;
+      font-size: 1.5rem;
+      text-align: center;
+      border: none;
+      border-radius: 0.8rem;
+      background: var(--display-bg);
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    input:disabled {
+      opacity: 0.5;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      margin-top: 1.2rem;
+      flex-wrap: wrap;
+    }
+
+    button {
+      flex: 1;
+      padding: 1rem;
+      font-size: 1.25rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 1rem;
+      cursor: pointer;
+      background: var(--accent);
+      color: #fff;
+      min-height: 3.5rem;
+      transition: background 0.15s, transform 0.05s;
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    button.secondary {
+      background: var(--secondary);
+    }
+
+    button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .settings-btn {
+      background: transparent;
+      color: var(--text);
+      border: 2px solid var(--secondary);
+      flex: 0 0 auto;
+      padding: 0.75rem 1.2rem;
+      font-size: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    /* Modaalin tyylit */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--modal-bg);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 1rem;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--card);
+      border-radius: 1.5rem;
+      padding: 1.5rem;
+      width: 100%;
+      max-width: 22rem;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.6);
+    }
+
+    .modal h2 {
+      color: var(--text);
+      margin: 0 0 1rem;
+      font-size: 1.4rem;
+    }
+
+    .sound-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .sound-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--display-bg);
+      border-radius: 0.8rem;
+      padding: 0.6rem 0.8rem;
+      gap: 0.5rem;
+    }
+
+    .sound-name {
+      flex: 1;
+      color: var(--text);
+      font-weight: 500;
+      cursor: pointer;
+      transition: color 0.15s;
+      text-align: left;
+      padding: 0.5rem 0;
+    }
+
+    .sound-name:hover {
+      color: var(--accent);
+    }
+
+    .sound-name.selected {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .preview-btn {
+      background: var(--secondary);
+      border: none;
+      color: #fff;
+      border-radius: 0.6rem;
+      padding: 0.5rem 0.8rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .close-btn {
+      background: transparent;
+      border: 2px solid var(--secondary);
+      color: var(--text);
+      border-radius: 0.8rem;
+      padding: 0.6rem;
+      width: 100%;
+      margin-top: 1rem;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Ajastin</h1>
+    <div id="display" class="display">00:00</div>
+
+    <div class="inputs">
+      <div class="input-group">
+        <label for="minutes">Minuutit</label>
+        <input id="minutes" type="number" inputmode="numeric" min="0" max="999" step="1" value="5">
+      </div>
+      <div class="input-group">
+        <label for="seconds">Sekunnit</label>
+        <input id="seconds" type="number" inputmode="numeric" min="0" max="59" step="1" value="0">
+      </div>
+    </div>
+
+    <div class="buttons">
+      <button id="startBtn">Käynnistä</button>
+      <button id="pauseBtn" class="secondary" style="display:none;">Tauko</button>
+      <button id="soundSettingsBtn" class="settings-btn">Summeri</button>
+    </div>
+  </div>
+
+  <!-- Modaali summeriäänen valintaan -->
+  <div id="soundModal" class="modal-overlay">
+    <div class="modal">
+      <h2>Valitse summeriääni</h2>
+      <div id="soundList" class="sound-list">
+        <!-- Lista täytetään JavaScriptillä -->
+      </div>
+      <button id="closeModalBtn" class="close-btn">Sulje</button>
+    </div>
+  </div>
+
+  <!-- Summeriäänen toisto (src asetetaan dynaamisesti) -->
+  <audio id="buzzer" preload="auto" loop></audio>
+
+  <script>
+    // Määrittele tässä saatavilla olevat äänitiedostot (samassa hakemistossa)
+    const soundFiles = [
+      "horn.mp3",
+      "ice hockey.m4a",
+      "school bell.m4a"
+    ];
+
+    // Oletusääni, jos mitään ei ole tallennettu
+    const DEFAULT_SOUND = "summeri.mp3";
+
+    // Muuttujat
+    let currentSound = DEFAULT_SOUND;
+    let previewAudio = null;
+
+    // DOM-elementit
+    const display = document.getElementById('display');
+    const minutesInput = document.getElementById('minutes');
+    const secondsInput = document.getElementById('seconds');
+    const startBtn = document.getElementById('startBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const buzzer = document.getElementById('buzzer');
+    const soundSettingsBtn = document.getElementById('soundSettingsBtn');
+    const soundModal = document.getElementById('soundModal');
+    const soundListContainer = document.getElementById('soundList');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+
+    // Ajastimen tila
+    let state = 'idle'; // idle | running | paused | alarm
+    let initialMinutes = 5;
+    let initialSeconds = 0;
+    let remainingSeconds = initialMinutes * 60 + initialSeconds;
+    let timerInterval = null;
+    let alarmTimeout = null;
+    let audioCtx = null;
+    let fallbackOscillator = null;
+    let fallbackGain = null;
+
+    // ---------- Äänen hallinta ----------
+    function loadSelectedSound() {
+      try {
+        const saved = localStorage.getItem('selectedSound');
+        if (saved && soundFiles.includes(saved)) {
+          currentSound = saved;
+        }
+      } catch (e) {
+        // localStorage ei käytettävissä, käytetään oletusta
+      }
+      buzzer.src = currentSound;
+    }
+
+    function saveSelectedSound(sound) {
+      try {
+        localStorage.setItem('selectedSound', sound);
+      } catch (e) {
+        // tallennus epäonnistui, mutta jatketaan
+      }
+      currentSound = sound;
+      buzzer.src = sound;
+    }
+
+    function playPreview(sound) {
+      stopPreview();
+      previewAudio = new Audio(sound);
+      previewAudio.preload = 'auto';
+      const playPromise = previewAudio.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          // Tiedostoa ei löydy, käytetään fallback-äänimerkkiä
+          fallbackBeep();
+        });
+      }
+    }
+
+    function stopPreview() {
+      if (previewAudio) {
+        previewAudio.pause();
+        previewAudio.currentTime = 0;
+        previewAudio = null;
+      }
+    }
+
+    // ---------- Modaalin toiminnallisuus ----------
+    function renderSoundList() {
+      soundListContainer.innerHTML = '';
+      soundFiles.forEach(sound => {
+        const item = document.createElement('div');
+        item.className = 'sound-item';
+
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'sound-name' + (sound === currentSound ? ' selected' : '');
+        nameSpan.textContent = sound;
+        nameSpan.addEventListener('click', () => {
+          saveSelectedSound(sound);
+          renderSoundList();
+          closeModal();
+        });
+
+        const previewBtn = document.createElement('button');
+        previewBtn.className = 'preview-btn';
+        previewBtn.textContent = 'Koesoita';
+        previewBtn.addEventListener('click', (e) => {
+          e.stopPropagation(); // estä rivin valinta klikatessa koesoittoa
+          playPreview(sound);
+        });
+
+        item.appendChild(nameSpan);
+        item.appendChild(previewBtn);
+        soundListContainer.appendChild(item);
+      });
+    }
+
+    function openModal() {
+      renderSoundList();
+      soundModal.classList.add('open');
+      stopPreview(); // varmista ettei edellinen koesoitto jää soimaan
+    }
+
+    function closeModal() {
+      soundModal.classList.remove('open');
+      stopPreview();
+    }
+
+    soundSettingsBtn.addEventListener('click', openModal);
+    closeModalBtn.addEventListener('click', closeModal);
+
+    // Sulje modaali myös klikkaamalla overlayta (mutta ei itse modaalia)
+    soundModal.addEventListener('click', (e) => {
+      if (e.target === soundModal) {
+        closeModal();
+      }
+    });
+
+    // ---------- Summerin soittaminen ----------
+    function ensureAudioContext() {
+      try {
+        if (!audioCtx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (!AudioContext) return;
+          audioCtx = new AudioContext();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume().catch(() => {});
+        }
+      } catch (e) {
+        // Äänen käyttö ei ole mahdollista
+      }
+    }
+
+    function playBuzzer() {
+      // Yritä ensin toistaa valittu summeritiedosto
+      buzzer.currentTime = 0;
+      const playPromise = buzzer.play();
+
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          // Ulkoinen ääni toistuu
+        }).catch(() => {
+          fallbackBeep();
+        });
+      } else {
+        fallbackBeep();
+      }
+    }
+
+    function stopBuzzer() {
+      try {
+        if (fallbackOscillator) {
+          fallbackOscillator.stop();
+          fallbackOscillator.disconnect();
+          fallbackOscillator = null;
+        }
+        if (fallbackGain) {
+          fallbackGain.disconnect();
+          fallbackGain = null;
+        }
+      } catch (e) {}
+
+      try {
+        buzzer.pause();
+        buzzer.currentTime = 0;
+      } catch (e) {}
+
+      if (audioCtx) {
+        audioCtx.close().catch(() => {});
+        audioCtx = null;
+      }
+    }
+
+    function fallbackBeep() {
+      try {
+        ensureAudioContext();
+        if (!audioCtx) return;
+
+        fallbackOscillator = audioCtx.createOscillator();
+        fallbackGain = audioCtx.createGain();
+        fallbackOscillator.type = 'square';
+        fallbackOscillator.frequency.value = 880;
+        fallbackGain.gain.value = 0.2;
+
+        fallbackOscillator.connect(fallbackGain).connect(audioCtx.destination);
+        fallbackOscillator.start();
+      } catch (e) {
+        // Äänen tuottaminen ei onnistu
+      }
+    }
+
+    // ---------- Ajastimen toiminnallisuus ----------
+    function formatTime(totalSec) {
+      const mins = Math.floor(totalSec / 60);
+      const secs = totalSec % 60;
+      return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+
+    function getTotalSeconds() {
+      const min = Math.max(0, Math.min(999, parseInt(minutesInput.value, 10) || 0));
+      const sec = Math.max(0, Math.min(59, parseInt(secondsInput.value, 10) || 0));
+      return min * 60 + sec;
+    }
+
+    function updateDisplay() {
+      display.textContent = formatTime(remainingSeconds);
+    }
+
+    function setInputsDisabled(disabled) {
+      minutesInput.disabled = disabled;
+      secondsInput.disabled = disabled;
+    }
+
+    function setButtonsForState() {
+      if (state === 'idle') {
+        startBtn.style.display = 'block';
+        startBtn.textContent = 'Käynnistä';
+        pauseBtn.style.display = 'none';
+        startBtn.disabled = getTotalSeconds() <= 0;
+        soundSettingsBtn.disabled = false;
+      } else if (state === 'running') {
+        startBtn.style.display = 'none';
+        pauseBtn.style.display = 'block';
+        pauseBtn.textContent = 'Tauko';
+        pauseBtn.disabled = false;
+        soundSettingsBtn.disabled = true;
+      } else if (state === 'paused') {
+        startBtn.style.display = 'none';
+        pauseBtn.style.display = 'block';
+        pauseBtn.textContent = 'Jatka';
+        pauseBtn.disabled = false;
+        soundSettingsBtn.disabled = true;
+      } else if (state === 'alarm') {
+        startBtn.style.display = 'none';
+        pauseBtn.style.display = 'none';
+        soundSettingsBtn.disabled = true;
+      }
+    }
+
+    function startTimer() {
+      if (state === 'running' || state === 'alarm') return;
+
+      if (state === 'idle') {
+        initialMinutes = Math.max(0, Math.min(999, parseInt(minutesInput.value, 10) || 0));
+        initialSeconds = Math.max(0, Math.min(59, parseInt(secondsInput.value, 10) || 0));
+        minutesInput.value = initialMinutes;
+        secondsInput.value = initialSeconds;
+        remainingSeconds = initialMinutes * 60 + initialSeconds;
+        if (remainingSeconds <= 0) return;
+      } else if (state === 'paused') {
+        // Jatketaan nykyisestä remainingSeconds-arvosta
+      }
+
+      ensureAudioContext();
+
+      state = 'running';
+      display.classList.remove('flash');
+      setInputsDisabled(true);
+      setButtonsForState();
+      updateDisplay();
+
+      const startTime = Date.now();
+      const startRemaining = remainingSeconds;
+
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        remainingSeconds = Math.max(0, startRemaining - elapsed);
+        updateDisplay();
+
+        if (remainingSeconds <= 0) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+          handleAlarm();
+        }
+      }, 100);
+    }
+
+    function pauseTimer() {
+      if (state === 'running') {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        state = 'paused';
+        setButtonsForState();
+      } else if (state === 'paused') {
+        startTimer();
+      }
+    }
+
+    function handleAlarm() {
+      state = 'alarm';
+      setButtonsForState();
+      setInputsDisabled(true);
+      display.textContent = '00:00';
+      display.classList.add('flash');
+      playBuzzer();
+
+      alarmTimeout = setTimeout(() => {
+        stopBuzzer();
+        display.classList.remove('flash');
+        resetToIdle();
+      }, 3000);
+    }
+
+    function resetToIdle() {
+      state = 'idle';
+      minutesInput.value = initialMinutes;
+      secondsInput.value = initialSeconds;
+      remainingSeconds = initialMinutes * 60 + initialSeconds;
+      display.textContent = formatTime(remainingSeconds);
+      setInputsDisabled(false);
+      setButtonsForState();
+      display.classList.remove('flash');
+
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+    }
+
+    function updateIdleDisplay() {
+      if (state === 'idle') {
+        remainingSeconds = getTotalSeconds();
+        display.textContent = formatTime(remainingSeconds);
+        startBtn.disabled = remainingSeconds <= 0;
+      }
+    }
+
+    // ---------- Tapahtumakuuntelijat ----------
+    startBtn.addEventListener('click', startTimer);
+    pauseBtn.addEventListener('click', pauseTimer);
+
+    minutesInput.addEventListener('input', updateIdleDisplay);
+    secondsInput.addEventListener('input', updateIdleDisplay);
+
+    minutesInput.addEventListener('change', function () {
+      let val = parseInt(this.value, 10);
+      if (isNaN(val) || val < 0) this.value = 0;
+      if (val > 999) this.value = 999;
+      updateIdleDisplay();
+    });
+
+    secondsInput.addEventListener('change', function () {
+      let val = parseInt(this.value, 10);
+      if (isNaN(val) || val < 0) this.value = 0;
+      if (val > 59) this.value = 59;
+      updateIdleDisplay();
+    });
+
+    // ---------- Alustus ----------
+    loadSelectedSound();
+    initialMinutes = Math.max(0, Math.min(999, parseInt(minutesInput.value, 10) || 0));
+    initialSeconds = Math.max(0, Math.min(59, parseInt(secondsInput.value, 10) || 0));
+    remainingSeconds = initialMinutes * 60 + initialSeconds;
+    updateDisplay();
+    setButtonsForState();
+  </script>
+</body>
+</html>
