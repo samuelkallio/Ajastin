@@ -51,20 +51,59 @@
             align-items: center;
         }
 
-        body.running-mode .container .header,
+        body.running-mode .container .header h1,
         body.running-mode .container .inputs,
         body.running-mode .container #soundSettingsBtn,
         body.running-mode .container .settings-btn,
-        body.running-mode .container #shareBtn,
         body.running-mode .container #startBtn {
             display: none !important;
+        }
+
+        /* Headerissa näkyvät aina vain sulku- ja jako- sekä ohjenapit */
+        body.running-mode .container .header {
+            display: flex !important;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 28rem;
+            margin-bottom: 0.5rem;
+            padding: 0 0.5rem;
+        }
+
+        body.running-mode .container .header h1 {
+            display: none !important;
+        }
+
+        body.running-mode .container .header .close-app-btn,
+        body.running-mode .container .header .help-icon-btn,
+        body.running-mode .container .header .share-icon-btn {
+            display: inline-flex !important;
+            font-size: 1.8rem;
+            background: none;
+            border: none;
+            color: var(--text);
+            cursor: pointer;
+            padding: 0.2rem 0.5rem;
+            line-height: 1;
+            transition: color 0.15s;
+        }
+
+        body.running-mode .container .header .close-app-btn:hover,
+        body.running-mode .container .header .help-icon-btn:hover,
+        body.running-mode .container .header .share-icon-btn:hover {
+            color: var(--accent);
+        }
+
+        body.running-mode .container .header .close-app-btn {
+            font-size: 1.6rem;
+            font-weight: 700;
         }
 
         body.running-mode .container .display {
             font-size: min(20vw, 12rem);
             background: transparent;
             padding: 0.2rem 0.5rem;
-            margin: 0;
+            margin: 0.5rem 0;
             flex: 0 1 auto;
             width: 100%;
             text-align: center;
@@ -148,6 +187,19 @@
             align-items: center;
             justify-content: space-between;
             margin-bottom: 1rem;
+            gap: 0.25rem;
+        }
+
+        .header .left-group {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .header .right-group {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
         }
 
         .header h1 {
@@ -155,21 +207,40 @@
             font-size: 1.5rem;
             margin: 0;
             font-weight: 700;
+            flex: 1;
+            text-align: center;
         }
 
+        .close-app-btn,
+        .help-icon-btn,
         .share-icon-btn {
             background: none;
             border: none;
             color: var(--text);
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             cursor: pointer;
-            padding: 0.2rem;
+            padding: 0.2rem 0.4rem;
             line-height: 1;
             transition: color 0.15s;
+            font-weight: 400;
+            min-width: 2.2rem;
+            text-align: center;
         }
 
+        .close-app-btn:hover,
+        .help-icon-btn:hover,
         .share-icon-btn:hover {
             color: var(--accent);
+        }
+
+        .close-app-btn {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .help-icon-btn {
+            font-weight: 700;
+            font-size: 1.5rem;
         }
 
         .display {
@@ -553,6 +624,51 @@
             line-height: 1.5;
         }
 
+        /* Ohjemodaali */
+        .help-content {
+            color: var(--text);
+            text-align: left;
+            padding: 0 0.2rem;
+        }
+
+        .help-content ul {
+            padding-left: 1.2rem;
+            margin: 0.5rem 0 1rem;
+            line-height: 1.7;
+        }
+
+        .help-content ul li {
+            margin-bottom: 0.3rem;
+        }
+
+        .version-info {
+            text-align: center;
+            padding: 0.8rem 0 0.2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            margin-top: 0.8rem;
+        }
+
+        .version-info .version-label {
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        .version-info .version-link {
+            color: var(--accent);
+            font-weight: 600;
+            text-decoration: underline;
+            cursor: pointer;
+            transition: color 0.15s;
+            font-size: 1rem;
+            background: none;
+            border: none;
+            padding: 0.2rem 0.6rem;
+        }
+
+        .version-info .version-link:hover {
+            color: #ff7a92;
+        }
+
         /* Responsiivisuus */
         @media (max-width: 400px) {
             .display {
@@ -565,6 +681,12 @@
                 font-size: 1.5rem;
                 padding: 1rem 2.5rem;
                 min-width: 10rem;
+            }
+            .close-app-btn,
+            .help-icon-btn,
+            .share-icon-btn {
+                font-size: 1.3rem;
+                min-width: 1.8rem;
             }
         }
 
@@ -647,10 +769,8 @@
             display: inline-block;
         }
 
-        /* Headerin piilotus running-tilassa tapahtuu body.running-mode .header */
-        body.running-mode .container .header {
-            display: none !important;
-        }
+        /* Headerin piilotus running-tilassa tapahtuu body.running-mode .header h1 */
+        /* mutta header itse näytetään aina */
 
         /* Inputit piiloon running-tilassa */
         body.running-mode .container .inputs {
@@ -671,13 +791,59 @@
         body.running-mode .container .display {
             display: block !important;
         }
+
+        /* Päivitysdialogi */
+        .update-dialog .dialog-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .update-dialog .dialog-actions button {
+            flex: 1;
+            padding: 0.8rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 0.8rem;
+            cursor: pointer;
+            transition: background 0.15s, transform 0.05s;
+        }
+
+        .update-dialog .dialog-actions button:active {
+            transform: scale(0.97);
+        }
+
+        .update-dialog .dialog-actions .btn-yes {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .update-dialog .dialog-actions .btn-no {
+            background: var(--secondary);
+            color: #fff;
+        }
+
+        .update-dialog p {
+            color: var(--text);
+            font-size: 1.1rem;
+            text-align: center;
+            margin: 0.5rem 0;
+            line-height: 1.5;
+        }
     </style>
 </head>
 <body>
     <div class="container" id="appContainer">
         <div class="header">
+            <div class="left-group">
+                <button id="closeAppBtn" class="close-app-btn" title="Sulje sovellus" aria-label="Sulje sovellus">✕</button>
+            </div>
             <h1>Ajastin</h1>
-            <button id="shareBtn" class="share-icon-btn" title="Jaa" aria-label="Jaa sovellus">🔗</button>
+            <div class="right-group">
+                <button id="helpBtn" class="help-icon-btn" title="Ohje" aria-label="Käyttöohje">?</button>
+                <button id="shareBtn" class="share-icon-btn" title="Jaa" aria-label="Jaa sovellus">🔗</button>
+            </div>
         </div>
 
         <div id="display" class="display">00:00</div>
@@ -746,6 +912,42 @@
         </div>
     </div>
 
+    <!-- Ohjemodaali -->
+    <div id="helpModal" class="modal-overlay">
+        <div class="modal">
+            <h2>📖 Käyttöohje</h2>
+            <div class="help-content">
+                <ul>
+                    <li>Aseta haluamasi aika <strong>minuutteina</strong> ja <strong>sekunteina</strong>.</li>
+                    <li>Paina <strong>Käynnistä</strong> aloittaaksesi ajastuksen.</li>
+                    <li>Käynnissä ollessa näet vain <strong>kellon</strong> ja <strong>Tauko</strong>-painikkeen.</li>
+                    <li>Tauon aikana voit <strong>Jatkaa</strong> tai <strong>Keskeyttää</strong> ajastuksen.</li>
+                    <li>Keskeytys vaatii vahvistuksen.</li>
+                    <li>Valitse haluamasi summeriääni <strong>Summeri</strong>-painikkeesta.</li>
+                    <li>Jaa sovellus <strong>linkin</strong> tai <strong>QR-koodin</strong> avulla.</li>
+                </ul>
+            </div>
+            <div class="version-info">
+                <span class="version-label">Versio </span>
+                <button id="versionLink" class="version-link">1.2.0</button>
+                <span style="color:#666; font-size:0.8rem; display:block; margin-top:0.2rem;">Päivitä sovellus klikkaamalla versiota</span>
+            </div>
+            <button id="closeHelpBtn" class="close-btn">Sulje</button>
+        </div>
+    </div>
+
+    <!-- Päivitysvarmistus-dialogi -->
+    <div id="updateModal" class="modal-overlay">
+        <div class="modal update-dialog">
+            <h2>🔄 Päivitys</h2>
+            <p>Haluatko varmasti päivittää sovelluksen uusimpaan versioon?</p>
+            <div class="dialog-actions">
+                <button id="updateYes" class="btn-yes">Kyllä</button>
+                <button id="updateNo" class="btn-no">Ei</button>
+            </div>
+        </div>
+    </div>
+
     <audio id="buzzer" preload="auto" loop></audio>
 
     <script>
@@ -758,6 +960,7 @@
 
         const DEFAULT_SOUND = 'school bell.m4a';
         const SHARE_URL = 'https://samuelkallio.github.io/Ajastin/';
+        const APP_VERSION = '1.2.0';
 
         let currentSound = DEFAULT_SOUND;
         let previewAudio = null;
@@ -788,6 +991,14 @@
         const confirmModal = document.getElementById('confirmModal');
         const confirmYes = document.getElementById('confirmYes');
         const confirmNo = document.getElementById('confirmNo');
+        const helpBtn = document.getElementById('helpBtn');
+        const helpModal = document.getElementById('helpModal');
+        const closeHelpBtn = document.getElementById('closeHelpBtn');
+        const versionLink = document.getElementById('versionLink');
+        const updateModal = document.getElementById('updateModal');
+        const updateYes = document.getElementById('updateYes');
+        const updateNo = document.getElementById('updateNo');
+        const closeAppBtn = document.getElementById('closeAppBtn');
 
         // Ajastimen tila
         let state = 'idle'; // 'idle' | 'running' | 'paused' | 'alarm'
@@ -807,6 +1018,51 @@
         // Aikatiedot visibilitychange varten
         let timerStartTime = null;
         let timerStartRemaining = 0;
+
+        // ---------- Wake Lock - aina päällä ----------
+        async function requestWakeLock() {
+            if (!wakeLockSupported) {
+                wakeLockInfo.textContent = '⚠️ Laitteesi ei tue näytön hereilläpitoa. Pidä näyttö päällä manuaalisesti.';
+                return;
+            }
+            try {
+                if (wakeLock) {
+                    // Jos jo olemassa, ei tehdä mitään
+                    return;
+                }
+                wakeLock = await navigator.wakeLock.request('screen');
+                wakeLockInfo.textContent = '✅ Näyttö pidetään hereillä.';
+                wakeLock.addEventListener('release', () => {
+                    wakeLockInfo.textContent = '⚠️ Näytön hereilläpito vapautui. Yritetään uudelleen...';
+                    wakeLock = null;
+                    // Yritetään uudelleen pienen viiveen jälkeen
+                    setTimeout(() => {
+                        if (!wakeLock) {
+                            requestWakeLock();
+                        }
+                    }, 1000);
+                });
+            } catch (err) {
+                wakeLockInfo.textContent = '⚠️ Wake Lock ei käytettävissä: ' + err.message;
+                wakeLock = null;
+                // Yritetään uudelleen
+                setTimeout(() => {
+                    if (!wakeLock) {
+                        requestWakeLock();
+                    }
+                }, 3000);
+            }
+        }
+
+        async function releaseWakeLock() {
+            if (wakeLock) {
+                try {
+                    await wakeLock.release();
+                    wakeLock = null;
+                } catch (err) {}
+            }
+            wakeLockInfo.textContent = '';
+        }
 
         // ---------- Äänen hallinta ----------
         function loadSelectedSound() {
@@ -950,7 +1206,6 @@
                 fallbackGain.gain.value = 0.2;
                 fallbackOscillator.connect(fallbackGain).connect(audioCtx.destination);
                 fallbackOscillator.start();
-                // Auto-stop 3s päästä
                 setTimeout(() => {
                     if (fallbackOscillator) {
                         try {
@@ -1008,7 +1263,6 @@
                     if (radio.checked) {
                         saveSelectedSound(opt.file);
                         renderSoundList();
-                        // Sulje modaali automaattisesti valinnan jälkeen
                         closeSoundModal();
                     }
                 });
@@ -1018,8 +1272,6 @@
                 item.appendChild(previewBtn);
                 soundListContainer.appendChild(item);
             });
-
-            // Päivitä play-nappien tila
             updatePlayButtons();
         }
 
@@ -1071,16 +1323,57 @@
             }
         });
 
-        // ---------- Keskeytysdialogi ----------
-        let pendingCancel = false;
+        // ---------- Ohjemodaali ----------
+        function openHelpModal() {
+            helpModal.classList.add('open');
+        }
 
+        function closeHelpModal() {
+            helpModal.classList.remove('open');
+        }
+
+        helpBtn.addEventListener('click', openHelpModal);
+        closeHelpBtn.addEventListener('click', closeHelpModal);
+        helpModal.addEventListener('click', (e) => {
+            if (e.target === helpModal) closeHelpModal();
+        });
+
+        // ---------- Päivitys ----------
+        let updatePending = false;
+
+        function openUpdateModal() {
+            updateModal.classList.add('open');
+        }
+
+        function closeUpdateModal() {
+            updateModal.classList.remove('open');
+            updatePending = false;
+        }
+
+        versionLink.addEventListener('click', () => {
+            openUpdateModal();
+        });
+
+        updateYes.addEventListener('click', () => {
+            closeUpdateModal();
+            // Päivitä sovellus: reload with cache busting
+            const url = window.location.href.split('?')[0];
+            const cacheBuster = 'v=' + Date.now();
+            window.location.href = url + '?' + cacheBuster;
+        });
+
+        updateNo.addEventListener('click', closeUpdateModal);
+        updateModal.addEventListener('click', (e) => {
+            if (e.target === updateModal) closeUpdateModal();
+        });
+
+        // ---------- Keskeytysdialogi ----------
         function openConfirmDialog() {
             confirmModal.classList.add('open');
         }
 
         function closeConfirmDialog() {
             confirmModal.classList.remove('open');
-            pendingCancel = false;
         }
 
         confirmYes.addEventListener('click', () => {
@@ -1094,34 +1387,6 @@
         confirmModal.addEventListener('click', (e) => {
             if (e.target === confirmModal) closeConfirmDialog();
         });
-
-        // ---------- Wake Lock ----------
-        async function requestWakeLock() {
-            if (!wakeLockSupported) {
-                wakeLockInfo.textContent = '⚠️ Laitteesi ei tue näytön hereilläpitoa. Pidä näyttö päällä ajastimen aikana.';
-                return;
-            }
-            try {
-                wakeLock = await navigator.wakeLock.request('screen');
-                wakeLockInfo.textContent = '✅ Näyttö pidetään hereillä ajastimen ajan.';
-                wakeLock.addEventListener('release', () => {
-                    wakeLockInfo.textContent = '';
-                });
-            } catch (err) {
-                wakeLockInfo.textContent = '⚠️ Wake Lock ei käytettävissä: ' + err.message;
-                wakeLock = null;
-            }
-        }
-
-        async function releaseWakeLock() {
-            if (wakeLock) {
-                try {
-                    await wakeLock.release();
-                    wakeLock = null;
-                } catch (err) {}
-            }
-            wakeLockInfo.textContent = '';
-        }
 
         // ---------- Apufunktiot ----------
         function formatTime(totalSec) {
@@ -1149,54 +1414,34 @@
         function updateUI() {
             const isRunning = state === 'running' || state === 'paused' || state === 'alarm';
 
-            // Aseta body-luokka
             document.body.classList.toggle('running-mode', isRunning);
             document.body.classList.toggle('paused-mode', state === 'paused');
             document.body.classList.toggle('alarm-mode', state === 'alarm');
 
-            // Näytä/piilota napit
-            // Idle: startBtn + soundSettingsBtn näkyvissä
             startBtn.style.display = (state === 'idle') ? 'inline-block' : 'none';
             soundSettingsBtn.style.display = (state === 'idle') ? 'inline-block' : 'none';
 
-            // Running: pauseBtn
             pauseBtn.style.display = (state === 'running') ? 'inline-block' : 'none';
-
-            // Paused: resumeBtn + cancelBtn
             resumeBtn.style.display = (state === 'paused') ? 'inline-block' : 'none';
             cancelBtn.style.display = (state === 'paused') ? 'inline-block' : 'none';
-
-            // Alarm: alarmResetBtn
             alarmResetBtn.style.display = (state === 'alarm') ? 'inline-block' : 'none';
 
-            // Inputit
             setInputsDisabled(isRunning);
 
-            // Summeri-nappi idle-tilassa
             if (state === 'idle') {
                 soundSettingsBtn.disabled = false;
             } else {
                 soundSettingsBtn.disabled = true;
             }
 
-            // Start-nappi idle-tilassa: disable jos aikaa 0
             if (state === 'idle') {
                 startBtn.disabled = getTotalSeconds() <= 0;
             }
 
-            // Päivitä display
             updateDisplay();
 
-            // Flash pois päältä ellei alarm
             if (state !== 'alarm') {
                 display.classList.remove('flash');
-            }
-
-            // Wake lock -info näkyvyys
-            if (isRunning) {
-                // Piilotetaan info (CSS hoitaa)
-            } else {
-                // Näytetään info
             }
         }
 
@@ -1212,11 +1457,14 @@
                 remainingSeconds = initialMinutes * 60 + initialSeconds;
                 if (remainingSeconds <= 0) return;
             } else if (state === 'paused') {
-                // Jatketaan nykyisestä
+                // jatketaan
             }
 
             ensureAudioContext();
-            requestWakeLock();
+            // Wake Lock on jo aktiivinen, mutta varmistetaan
+            if (!wakeLock) {
+                requestWakeLock();
+            }
 
             state = 'running';
             display.classList.remove('flash');
@@ -1244,7 +1492,6 @@
                 clearInterval(timerInterval);
                 timerInterval = null;
                 state = 'paused';
-                releaseWakeLock();
                 updateUI();
             }
         }
@@ -1268,7 +1515,6 @@
             updateUI();
             playBuzzer();
 
-            // Auto-reset 3 sekunnin jälkeen
             alarmTimeout = setTimeout(() => {
                 stopBuzzer();
                 display.classList.remove('flash');
@@ -1283,7 +1529,6 @@
             remainingSeconds = initialMinutes * 60 + initialSeconds;
             display.textContent = formatTime(remainingSeconds);
             display.classList.remove('flash');
-            releaseWakeLock();
             stopBuzzer();
 
             if (timerInterval) {
@@ -1296,6 +1541,7 @@
             }
 
             updateUI();
+            // Wake Lock pysyy aktiivisena
         }
 
         function updateIdleDisplay() {
@@ -1347,7 +1593,32 @@
                     handleAlarm();
                 }
             }
+            // Wake Lock - yritetään uudelleen jos sivu tulee näkyviin
+            if (document.visibilityState === 'visible' && !wakeLock && wakeLockSupported) {
+                requestWakeLock();
+            }
         });
+
+        // ---------- Sovelluksen sulkeminen (PWA) ----------
+        function closeApp() {
+            // Yritetään sulkea ikkuna (toimii PWA:ssa standalone-tilassa)
+            try {
+                if (window.close) {
+                    window.close();
+                }
+                // Jos window.close ei toimi, näytetään ohje
+                setTimeout(() => {
+                    // Jos ikkuna ei sulkeutunut, näytetään viesti
+                    if (!window.closed) {
+                        alert('Sulje sovellus manuaalisesti selaimen tai laitteen sovellusnäkymästä.');
+                    }
+                }, 500);
+            } catch (e) {
+                alert('Sulje sovellus manuaalisesti selaimen tai laitteen sovellusnäkymästä.');
+            }
+        }
+
+        closeAppBtn.addEventListener('click', closeApp);
 
         // ---------- Alustus ----------
         loadSelectedSound();
@@ -1357,12 +1628,17 @@
         updateUI();
         updateIdleDisplay();
 
+        // Aseta versio
+        versionLink.textContent = APP_VERSION;
+
         if (!wakeLockSupported) {
-            wakeLockInfo.textContent = '⚠️ Selaimesi ei tue näytön hereilläpitoa. Pidä näyttö päällä ajastimen aikana.';
+            wakeLockInfo.textContent = '⚠️ Selaimesi ei tue näytön hereilläpitoa. Pidä näyttö päällä manuaalisesti.';
+        } else {
+            // Pyydä Wake Lock heti alussa
+            requestWakeLock();
         }
 
-        // Päivitetään play-napit kun modaali avataan
-        console.log('Ajastin ladattu. Oletusääni:', currentSound);
+        console.log('Ajastin ladattu. Versio:', APP_VERSION, 'Ääni:', currentSound);
     </script>
 </body>
 </html>
