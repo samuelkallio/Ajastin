@@ -1,830 +1,1368 @@
 <!DOCTYPE html>
 <html lang="fi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Ajastin</title>
-  <style>
-    :root {
-      --bg: #1a1a2e;
-      --card: #16213e;
-      --accent: #e94560;
-      --secondary: #533483;
-      --text: #e0e0e0;
-      --display-bg: #0f3460;
-      --modal-bg: rgba(0, 0, 0, 0.7);
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Ajastin</title>
+    <style>
+        :root {
+            --bg: #1a1a2e;
+            --card: #16213e;
+            --accent: #e94560;
+            --secondary: #533483;
+            --text: #e0e0e0;
+            --display-bg: #0f3460;
+            --modal-bg: rgba(0, 0, 0, 0.7);
+        }
 
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: var(--bg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      padding: 1rem;
-    }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            padding: 1rem;
+            transition: background 0.3s;
+        }
 
-    .container {
-      background: var(--card);
-      padding: 1.5rem 1.2rem;
-      border-radius: 2rem;
-      box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.4);
-      width: 100%;
-      max-width: 24rem;
-      text-align: center;
-      position: relative;
-    }
+        /* Kun ajastin käy, tausta tummenee ja kello näkyy isosti */
+        body.running-mode {
+            padding: 0;
+            background: #0d0d1a;
+        }
 
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 1rem;
-    }
+        body.running-mode .container {
+            max-width: 100%;
+            border-radius: 0;
+            box-shadow: none;
+            background: #0d0d1a;
+            padding: 1rem 0.5rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
 
-    .header h1 {
-      color: var(--text);
-      font-size: 1.5rem;
-      margin: 0;
-      font-weight: 700;
-    }
+        body.running-mode .container .header,
+        body.running-mode .container .inputs,
+        body.running-mode .container #soundSettingsBtn,
+        body.running-mode .container .settings-btn,
+        body.running-mode .container #shareBtn,
+        body.running-mode .container #startBtn {
+            display: none !important;
+        }
 
-    .share-icon-btn {
-      background: none;
-      border: none;
-      color: var(--text);
-      font-size: 1.8rem;
-      cursor: pointer;
-      padding: 0.2rem;
-      line-height: 1;
-      transition: color 0.15s;
-    }
+        body.running-mode .container .display {
+            font-size: min(20vw, 12rem);
+            background: transparent;
+            padding: 0.2rem 0.5rem;
+            margin: 0;
+            flex: 0 1 auto;
+            width: 100%;
+            text-align: center;
+            letter-spacing: 0.03em;
+            color: #fff;
+        }
 
-    .share-icon-btn:hover {
-      color: var(--accent);
-    }
+        body.running-mode .container .buttons {
+            margin-top: 1.5rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+            max-width: 28rem;
+        }
 
-    .display {
-      font-size: 4rem;
-      font-weight: 700;
-      color: var(--text);
-      background: var(--display-bg);
-      padding: 0.6rem 0.5rem;
-      border-radius: 1.2rem;
-      font-variant-numeric: tabular-nums;
-      letter-spacing: 0.05em;
-      margin: 0.5rem 0 1rem;
-      transition: background 0.15s, color 0.15s;
-    }
+        body.running-mode .container .buttons .pause-btn {
+            font-size: 2rem;
+            padding: 1.2rem 3.5rem;
+            min-height: 5rem;
+            flex: 0 1 auto;
+            min-width: 12rem;
+            border-radius: 3rem;
+            background: var(--accent);
+            color: #fff;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.1s, background 0.15s;
+        }
 
-    .display.flash {
-      animation: blink 0.5s step-start infinite;
-      background: var(--accent);
-      color: #fff;
-    }
+        body.running-mode .container .buttons .pause-btn:active {
+            transform: scale(0.95);
+        }
 
-    @keyframes blink {
-      50% {
-        opacity: 0.15;
-      }
-    }
+        body.running-mode .container .buttons .pause-btn.secondary {
+            background: var(--secondary);
+        }
 
-    .inputs {
-      display: flex;
-      gap: 0.75rem;
-      justify-content: center;
-      align-items: center;
-      margin: 1rem 0;
-    }
+        body.running-mode .container .buttons .pause-btn.cancel-btn {
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            font-size: 1.2rem;
+            padding: 0.8rem 1.8rem;
+            min-height: 3.5rem;
+            min-width: 8rem;
+        }
 
-    .input-group {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+        body.running-mode .container .buttons .pause-btn.cancel-btn:active {
+            background: rgba(233, 69, 96, 0.15);
+        }
 
-    label {
-      color: #aaa;
-      font-size: 0.9rem;
-      margin-bottom: 0.3rem;
-    }
+        /* Display flash - päivitetty toimimaan isossa tilassa */
+        .display.flash {
+            animation: blink 0.5s step-start infinite;
+            color: #ff6b6b !important;
+            background: transparent !important;
+        }
 
-    input {
-      width: 5.5rem;
-      padding: 0.75rem;
-      font-size: 1.5rem;
-      text-align: center;
-      border: none;
-      border-radius: 0.8rem;
-      background: var(--display-bg);
-      color: var(--text);
-      font-weight: 600;
-    }
+        @keyframes blink {
+            50% {
+                opacity: 0.2;
+            }
+        }
 
-    input:disabled {
-      opacity: 0.5;
-    }
+        .container {
+            background: var(--card);
+            padding: 1.5rem 1.2rem;
+            border-radius: 2rem;
+            box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.4);
+            width: 100%;
+            max-width: 24rem;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
 
-    .buttons {
-      display: flex;
-      gap: 0.75rem;
-      justify-content: center;
-      margin-top: 1.2rem;
-      flex-wrap: wrap;
-    }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
 
-    button {
-      flex: 1;
-      padding: 1rem;
-      font-size: 1.25rem;
-      font-weight: 600;
-      border: none;
-      border-radius: 1rem;
-      cursor: pointer;
-      background: var(--accent);
-      color: #fff;
-      min-height: 3.5rem;
-      transition: background 0.15s, transform 0.05s;
-    }
+        .header h1 {
+            color: var(--text);
+            font-size: 1.5rem;
+            margin: 0;
+            font-weight: 700;
+        }
 
-    button:active {
-      transform: scale(0.97);
-    }
+        .share-icon-btn {
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 1.8rem;
+            cursor: pointer;
+            padding: 0.2rem;
+            line-height: 1;
+            transition: color 0.15s;
+        }
 
-    button.secondary {
-      background: var(--secondary);
-    }
+        .share-icon-btn:hover {
+            color: var(--accent);
+        }
 
-    button:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
+        .display {
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--text);
+            background: var(--display-bg);
+            padding: 0.6rem 0.5rem;
+            border-radius: 1.2rem;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.05em;
+            margin: 0.5rem 0 1rem;
+            transition: font-size 0.3s, background 0.15s, color 0.15s, padding 0.3s;
+        }
 
-    .settings-btn {
-      background: transparent;
-      color: var(--text);
-      border: 2px solid var(--secondary);
-      flex: 0 0 auto;
-      padding: 0.75rem 1.2rem;
-      font-size: 1rem;
-      margin-top: 0.5rem;
-    }
+        .inputs {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            align-items: center;
+            margin: 1rem 0;
+            transition: opacity 0.3s, max-height 0.3s;
+        }
 
-    .wake-lock-info {
-      color: #aaa;
-      font-size: 0.8rem;
-      margin-top: 0.75rem;
-      min-height: 1.2em;
-    }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-    /* Modaalit */
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: var(--modal-bg);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      padding: 1rem;
-    }
+        label {
+            color: #aaa;
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+        }
 
-    .modal-overlay.open {
-      display: flex;
-    }
+        input {
+            width: 5.5rem;
+            padding: 0.75rem;
+            font-size: 1.5rem;
+            text-align: center;
+            border: none;
+            border-radius: 0.8rem;
+            background: var(--display-bg);
+            color: var(--text);
+            font-weight: 600;
+        }
 
-    .modal {
-      background: var(--card);
-      border-radius: 1.5rem;
-      padding: 1.5rem;
-      width: 100%;
-      max-width: 22rem;
-      max-height: 80vh;
-      overflow-y: auto;
-      box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.6);
-    }
+        input:disabled {
+            opacity: 0.5;
+        }
 
-    .modal h2 {
-      color: var(--text);
-      margin: 0 0 1rem;
-      font-size: 1.4rem;
-      text-align: center;
-    }
+        .buttons {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            margin-top: 1.2rem;
+            flex-wrap: wrap;
+            transition: all 0.3s;
+        }
 
-    .sound-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
+        .buttons button {
+            flex: 1;
+            padding: 1rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 1rem;
+            cursor: pointer;
+            background: var(--accent);
+            color: #fff;
+            min-height: 3.5rem;
+            transition: background 0.15s, transform 0.05s, opacity 0.3s;
+        }
 
-    .sound-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: var(--display-bg);
-      border-radius: 0.8rem;
-      padding: 0.6rem 0.8rem;
-      gap: 0.5rem;
-    }
+        .buttons button:active {
+            transform: scale(0.97);
+        }
 
-    .sound-name {
-      flex: 1;
-      color: var(--text);
-      font-weight: 500;
-      cursor: pointer;
-      transition: color 0.15s;
-      text-align: left;
-      padding: 0.5rem 0;
-    }
+        .buttons button.secondary {
+            background: var(--secondary);
+        }
 
-    .sound-name:hover {
-      color: var(--accent);
-    }
+        .buttons button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
 
-    .sound-name.selected {
-      color: var(--accent);
-      font-weight: 700;
-    }
+        .settings-btn {
+            background: transparent !important;
+            color: var(--text) !important;
+            border: 2px solid var(--secondary) !important;
+            flex: 0 0 auto !important;
+            padding: 0.75rem 1.2rem !important;
+            font-size: 1rem !important;
+            margin-top: 0.5rem;
+            min-height: 3.5rem;
+        }
 
-    .preview-btn {
-      background: var(--secondary);
-      border: none;
-      color: #fff;
-      border-radius: 0.6rem;
-      padding: 0.5rem 0.8rem;
-      font-size: 0.9rem;
-      cursor: pointer;
-      flex-shrink: 0;
-    }
+        .settings-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
 
-    .share-url-input {
-      width: 100%;
-      padding: 0.75rem;
-      font-size: 1rem;
-      border: none;
-      border-radius: 0.8rem;
-      background: var(--display-bg);
-      color: var(--text);
-      margin: 0.5rem 0;
-      text-align: center;
-      font-weight: 500;
-    }
+        .wake-lock-info {
+            color: #aaa;
+            font-size: 0.8rem;
+            margin-top: 0.75rem;
+            min-height: 1.2em;
+            transition: opacity 0.3s;
+        }
 
-    .copy-btn {
-      width: 100%;
-      margin: 0.5rem 0;
-      background: var(--secondary);
-      border: none;
-      color: #fff;
-      border-radius: 0.8rem;
-      padding: 0.75rem;
-      font-size: 1rem;
-      cursor: pointer;
-      font-weight: 600;
-    }
+        /* Piilotetaan wake-lock-info running-tilassa */
+        body.running-mode .wake-lock-info {
+            opacity: 0;
+            pointer-events: none;
+            height: 0;
+            margin: 0;
+            min-height: 0;
+        }
 
-    .qr-container {
-      display: flex;
-      justify-content: center;
-      margin: 1rem 0;
-    }
+        /* ---------- Modaalit ---------- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--modal-bg);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 1rem;
+            backdrop-filter: blur(4px);
+        }
 
-    .qr-container img {
-      max-width: 200px;
-      max-height: 200px;
-      border-radius: 0.5rem;
-      background: #fff;
-      padding: 0.5rem;
-    }
+        .modal-overlay.open {
+            display: flex;
+        }
 
-    .close-btn {
-      background: transparent;
-      border: 2px solid var(--secondary);
-      color: var(--text);
-      border-radius: 0.8rem;
-      padding: 0.6rem;
-      width: 100%;
-      margin-top: 1rem;
-      font-size: 1rem;
-      cursor: pointer;
-    }
+        .modal {
+            background: var(--card);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 22rem;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.6);
+            animation: modalIn 0.2s ease;
+        }
 
-    @media (max-width: 400px) {
-      .display {
-        font-size: 3.2rem;
-      }
-    }
-  </style>
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal h2 {
+            color: var(--text);
+            margin: 0 0 1rem;
+            font-size: 1.4rem;
+            text-align: center;
+        }
+
+        /* Summeriäänen valinta – radio buttonit */
+        .sound-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .sound-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: var(--display-bg);
+            border-radius: 0.8rem;
+            padding: 0.5rem 0.8rem;
+            transition: background 0.15s;
+            cursor: pointer;
+        }
+
+        .sound-item:hover {
+            background: #1a3a6a;
+        }
+
+        .sound-item input[type="radio"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 1.2rem;
+            height: 1.2rem;
+            border: 2px solid #666;
+            border-radius: 50%;
+            flex-shrink: 0;
+            transition: border 0.15s, background 0.15s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .sound-item input[type="radio"]:checked {
+            border-color: var(--accent);
+            background: var(--accent);
+        }
+
+        .sound-item input[type="radio"]:checked::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 0.4rem;
+            height: 0.4rem;
+            border-radius: 50%;
+            background: #fff;
+        }
+
+        .sound-item label {
+            color: var(--text);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            flex: 1;
+            text-align: left;
+            padding: 0.3rem 0;
+            margin: 0;
+        }
+
+        .sound-item label.selected-label {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .play-preview-btn {
+            background: var(--secondary);
+            border: none;
+            color: #fff;
+            border-radius: 50%;
+            width: 2.4rem;
+            height: 2.4rem;
+            font-size: 1.1rem;
+            cursor: pointer;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s, transform 0.1s;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .play-preview-btn:active {
+            transform: scale(0.9);
+        }
+
+        .play-preview-btn:hover {
+            background: var(--accent);
+        }
+
+        .play-preview-btn.playing {
+            background: var(--accent);
+        }
+
+        .play-preview-btn.playing::after {
+            content: '⏹';
+            font-size: 0.9rem;
+        }
+
+        .play-preview-btn:not(.playing)::after {
+            content: '▶';
+            font-size: 1rem;
+        }
+
+        .play-preview-btn .btn-text {
+            display: none;
+        }
+
+        /* Jakomodaali */
+        .share-url-input {
+            width: 100%;
+            padding: 0.75rem;
+            font-size: 1rem;
+            border: none;
+            border-radius: 0.8rem;
+            background: var(--display-bg);
+            color: var(--text);
+            margin: 0.5rem 0;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .copy-btn {
+            width: 100%;
+            margin: 0.5rem 0;
+            background: var(--secondary);
+            border: none;
+            color: #fff;
+            border-radius: 0.8rem;
+            padding: 0.75rem;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .qr-container {
+            display: flex;
+            justify-content: center;
+            margin: 1rem 0;
+        }
+
+        .qr-container img {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 0.5rem;
+            background: #fff;
+            padding: 0.5rem;
+        }
+
+        .close-btn {
+            background: transparent;
+            border: 2px solid var(--secondary);
+            color: var(--text);
+            border-radius: 0.8rem;
+            padding: 0.6rem;
+            width: 100%;
+            margin-top: 0.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .close-btn:hover {
+            background: rgba(83, 52, 131, 0.2);
+        }
+
+        /* Keskeytys-dialogi */
+        .confirm-dialog .dialog-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .confirm-dialog .dialog-actions button {
+            flex: 1;
+            padding: 0.8rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 0.8rem;
+            cursor: pointer;
+            transition: background 0.15s, transform 0.05s;
+        }
+
+        .confirm-dialog .dialog-actions button:active {
+            transform: scale(0.97);
+        }
+
+        .confirm-dialog .dialog-actions .btn-yes {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .confirm-dialog .dialog-actions .btn-no {
+            background: var(--secondary);
+            color: #fff;
+        }
+
+        .confirm-dialog p {
+            color: var(--text);
+            font-size: 1.1rem;
+            text-align: center;
+            margin: 0.5rem 0;
+            line-height: 1.5;
+        }
+
+        /* Responsiivisuus */
+        @media (max-width: 400px) {
+            .display {
+                font-size: 3.2rem;
+            }
+            body.running-mode .container .display {
+                font-size: min(18vw, 8rem);
+            }
+            body.running-mode .container .buttons .pause-btn {
+                font-size: 1.5rem;
+                padding: 1rem 2.5rem;
+                min-width: 10rem;
+            }
+        }
+
+        @media (min-width: 600px) {
+            body.running-mode .container .display {
+                font-size: min(16vw, 14rem);
+            }
+            body.running-mode .container .buttons .pause-btn {
+                font-size: 2.5rem;
+                padding: 1.5rem 4rem;
+                min-width: 14rem;
+            }
+        }
+
+        /* Pieni nollausnappula alarm-tilassa */
+        .alarm-reset-btn {
+            background: var(--secondary) !important;
+            color: #fff !important;
+            border: none !important;
+            padding: 0.8rem 2rem !important;
+            font-size: 1.2rem !important;
+            border-radius: 2rem !important;
+            cursor: pointer !important;
+            font-weight: 600 !important;
+            transition: background 0.15s, transform 0.05s !important;
+        }
+
+        .alarm-reset-btn:active {
+            transform: scale(0.95) !important;
+        }
+
+        /* Näytetään keskeytysnappula vain paused-tilassa */
+        #cancelBtn {
+            display: none;
+        }
+
+        body.running-mode .container .buttons #cancelBtn {
+            display: inline-block;
+        }
+
+        /* Piilotetaan startBtn ja soundSettingsBtn running-tilassa */
+        body.running-mode .container #startBtn,
+        body.running-mode .container #soundSettingsBtn {
+            display: none !important;
+        }
+
+        /* Näytetään oikeat napit */
+        #pauseBtn,
+        #resumeBtn,
+        #cancelBtn,
+        #alarmResetBtn {
+            display: none;
+        }
+
+        body.running-mode .container #pauseBtn {
+            display: inline-block;
+        }
+
+        /* paused-tila: näytetään resume + cancel */
+        body.running-mode.paused-mode .container #pauseBtn {
+            display: none !important;
+        }
+
+        body.running-mode.paused-mode .container #resumeBtn {
+            display: inline-block;
+        }
+
+        body.running-mode.paused-mode .container #cancelBtn {
+            display: inline-block;
+        }
+
+        /* alarm-tila: näytetään reset-nappi */
+        body.running-mode.alarm-mode .container #pauseBtn,
+        body.running-mode.alarm-mode .container #resumeBtn,
+        body.running-mode.alarm-mode .container #cancelBtn {
+            display: none !important;
+        }
+
+        body.running-mode.alarm-mode .container #alarmResetBtn {
+            display: inline-block;
+        }
+
+        /* Headerin piilotus running-tilassa tapahtuu body.running-mode .header */
+        body.running-mode .container .header {
+            display: none !important;
+        }
+
+        /* Inputit piiloon running-tilassa */
+        body.running-mode .container .inputs {
+            display: none !important;
+        }
+
+        /* Wake lock -info piiloon running-tilassa */
+        body.running-mode .container .wake-lock-info {
+            display: none !important;
+        }
+
+        /* Summeri-nappi piiloon running-tilassa */
+        body.running-mode .container #soundSettingsBtn {
+            display: none !important;
+        }
+
+        /* Varmistetaan että display on aina näkyvissä */
+        body.running-mode .container .display {
+            display: block !important;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>Ajastin</h1>
-      <button id="shareBtn" class="share-icon-btn" title="Jaa" aria-label="Jaa sovellus">🔗</button>
+    <div class="container" id="appContainer">
+        <div class="header">
+            <h1>Ajastin</h1>
+            <button id="shareBtn" class="share-icon-btn" title="Jaa" aria-label="Jaa sovellus">🔗</button>
+        </div>
+
+        <div id="display" class="display">00:00</div>
+
+        <div class="inputs">
+            <div class="input-group">
+                <label for="minutes">Minuutit</label>
+                <input id="minutes" type="number" inputmode="numeric" min="0" max="999" step="1" value="5">
+            </div>
+            <div class="input-group">
+                <label for="seconds">Sekunnit</label>
+                <input id="seconds" type="number" inputmode="numeric" min="0" max="59" step="1" value="0">
+            </div>
+        </div>
+
+        <div class="buttons" id="buttonsArea">
+            <!-- Idle -->
+            <button id="startBtn">Käynnistä</button>
+            <button id="soundSettingsBtn" class="settings-btn">Summeri</button>
+
+            <!-- Running -->
+            <button id="pauseBtn" class="pause-btn">Tauko</button>
+
+            <!-- Paused -->
+            <button id="resumeBtn" class="pause-btn">Jatka</button>
+            <button id="cancelBtn" class="pause-btn cancel-btn">Keskeytä</button>
+
+            <!-- Alarm -->
+            <button id="alarmResetBtn" class="alarm-reset-btn">Nollaa</button>
+        </div>
+
+        <div id="wakeLockInfo" class="wake-lock-info"></div>
     </div>
 
-    <div id="display" class="display">00:00</div>
-
-    <div class="inputs">
-      <div class="input-group">
-        <label for="minutes">Minuutit</label>
-        <input id="minutes" type="number" inputmode="numeric" min="0" max="999" step="1" value="5">
-      </div>
-      <div class="input-group">
-        <label for="seconds">Sekunnit</label>
-        <input id="seconds" type="number" inputmode="numeric" min="0" max="59" step="1" value="0">
-      </div>
+    <!-- Modaali summeriäänen valintaan -->
+    <div id="soundModal" class="modal-overlay">
+        <div class="modal">
+            <h2>Valitse summeriääni</h2>
+            <div id="soundList" class="sound-list"></div>
+            <button id="closeModalBtn" class="close-btn">Sulje</button>
+        </div>
     </div>
 
-    <div class="buttons">
-      <button id="startBtn">Käynnistä</button>
-      <button id="pauseBtn" class="secondary" style="display:none;">Tauko</button>
-      <button id="soundSettingsBtn" class="settings-btn">Summeri</button>
+    <!-- Modaali jakamiseen -->
+    <div id="shareModal" class="modal-overlay">
+        <div class="modal">
+            <h2>Jaa sovellus</h2>
+            <input type="text" id="shareUrlInput" class="share-url-input" value="https://samuelkallio.github.io/Ajastin/" readonly onclick="this.select()">
+            <button id="copyUrlBtn" class="copy-btn">Kopioi linkki</button>
+            <div class="qr-container">
+                <img id="qrCode" src="" alt="QR-koodi" width="200" height="200">
+            </div>
+            <button id="closeShareModalBtn" class="close-btn">Sulje</button>
+        </div>
     </div>
 
-    <div id="wakeLockInfo" class="wake-lock-info"></div>
-  </div>
-
-  <!-- Modaali summeriäänen valintaan -->
-  <div id="soundModal" class="modal-overlay">
-    <div class="modal">
-      <h2>Valitse summeriääni</h2>
-      <div id="soundList" class="sound-list"></div>
-      <button id="closeModalBtn" class="close-btn">Sulje</button>
+    <!-- Keskeytysvarmistus-dialogi -->
+    <div id="confirmModal" class="modal-overlay">
+        <div class="modal confirm-dialog">
+            <h2>Vahvista</h2>
+            <p>Haluatko varmasti pysäyttää ajastimen?</p>
+            <div class="dialog-actions">
+                <button id="confirmYes" class="btn-yes">Kyllä</button>
+                <button id="confirmNo" class="btn-no">Ei</button>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <!-- Modaali jakamiseen -->
-  <div id="shareModal" class="modal-overlay">
-    <div class="modal">
-      <h2>Jaa sovellus</h2>
-      <input type="text" id="shareUrlInput" class="share-url-input" value="https://samuelkallio.github.io/Ajastin/" readonly onclick="this.select()">
-      <button id="copyUrlBtn" class="copy-btn">Kopioi linkki</button>
-      <div class="qr-container">
-        <img id="qrCode" src="" alt="QR-koodi" width="200" height="200">
-      </div>
-      <button id="closeShareModalBtn" class="close-btn">Sulje</button>
-    </div>
-  </div>
+    <audio id="buzzer" preload="auto" loop></audio>
 
-  <audio id="buzzer" preload="auto" loop></audio>
+    <script>
+        // ---------- Äänivalinnat ----------
+        const soundOptions = [
+            { file: 'horn.mp3', label: 'horn' },
+            { file: 'ice hockey.m4a', label: 'ice hockey' },
+            { file: 'school bell.m4a', label: 'school bell' }
+        ];
 
-  <script>
-    // Määrittele tässä saatavilla olevat äänitiedostot
-    const soundFiles = [
-      "horn.mp3",
-      "ice hockey.m4a",
-      "school bell.m4a"
-    ];
+        const DEFAULT_SOUND = 'school bell.m4a';
+        const SHARE_URL = 'https://samuelkallio.github.io/Ajastin/';
 
-    const DEFAULT_SOUND = "summeri.mp3";
-    const SHARE_URL = "https://samuelkallio.github.io/Ajastin/";
+        let currentSound = DEFAULT_SOUND;
+        let previewAudio = null;
+        let previewPlaying = false;
 
-    let currentSound = DEFAULT_SOUND;
-    let previewAudio = null;
+        // DOM-elementit
+        const container = document.getElementById('appContainer');
+        const display = document.getElementById('display');
+        const minutesInput = document.getElementById('minutes');
+        const secondsInput = document.getElementById('seconds');
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resumeBtn = document.getElementById('resumeBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const alarmResetBtn = document.getElementById('alarmResetBtn');
+        const soundSettingsBtn = document.getElementById('soundSettingsBtn');
+        const buzzer = document.getElementById('buzzer');
+        const soundModal = document.getElementById('soundModal');
+        const soundListContainer = document.getElementById('soundList');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const shareBtn = document.getElementById('shareBtn');
+        const shareModal = document.getElementById('shareModal');
+        const shareUrlInput = document.getElementById('shareUrlInput');
+        const copyUrlBtn = document.getElementById('copyUrlBtn');
+        const qrCodeImg = document.getElementById('qrCode');
+        const closeShareModalBtn = document.getElementById('closeShareModalBtn');
+        const wakeLockInfo = document.getElementById('wakeLockInfo');
+        const confirmModal = document.getElementById('confirmModal');
+        const confirmYes = document.getElementById('confirmYes');
+        const confirmNo = document.getElementById('confirmNo');
 
-    // DOM-elementit
-    const display = document.getElementById('display');
-    const minutesInput = document.getElementById('minutes');
-    const secondsInput = document.getElementById('seconds');
-    const startBtn = document.getElementById('startBtn');
-    const pauseBtn = document.getElementById('pauseBtn');
-    const buzzer = document.getElementById('buzzer');
-    const soundSettingsBtn = document.getElementById('soundSettingsBtn');
-    const soundModal = document.getElementById('soundModal');
-    const soundListContainer = document.getElementById('soundList');
-    const closeModalBtn = document.getElementById('closeModalBtn');
-    const shareBtn = document.getElementById('shareBtn');
-    const shareModal = document.getElementById('shareModal');
-    const shareUrlInput = document.getElementById('shareUrlInput');
-    const copyUrlBtn = document.getElementById('copyUrlBtn');
-    const qrCodeImg = document.getElementById('qrCode');
-    const closeShareModalBtn = document.getElementById('closeShareModalBtn');
-    const wakeLockInfo = document.getElementById('wakeLockInfo');
+        // Ajastimen tila
+        let state = 'idle'; // 'idle' | 'running' | 'paused' | 'alarm'
+        let initialMinutes = 5;
+        let initialSeconds = 0;
+        let remainingSeconds = initialMinutes * 60 + initialSeconds;
+        let timerInterval = null;
+        let alarmTimeout = null;
+        let audioCtx = null;
+        let fallbackOscillator = null;
+        let fallbackGain = null;
 
-    // Ajastimen tila
-    let state = 'idle';
-    let initialMinutes = 5;
-    let initialSeconds = 0;
-    let remainingSeconds = initialMinutes * 60 + initialSeconds;
-    let timerInterval = null;
-    let alarmTimeout = null;
-    let audioCtx = null;
-    let fallbackOscillator = null;
-    let fallbackGain = null;
+        // Wake Lock
+        let wakeLock = null;
+        let wakeLockSupported = 'wakeLock' in navigator;
 
-    // Wake Lock -muuttujat
-    let wakeLock = null;
-    let wakeLockSupported = 'wakeLock' in navigator;
+        // Aikatiedot visibilitychange varten
+        let timerStartTime = null;
+        let timerStartRemaining = 0;
 
-    // Ajastimen globaalit aikatiedot (jotta visibilitychange voi laskea)
-    let timerStartTime = null;
-    let timerStartRemaining = 0;
-
-    // ---------- Äänen hallinta ----------
-    function loadSelectedSound() {
-      try {
-        const saved = localStorage.getItem('selectedSound');
-        if (saved && soundFiles.includes(saved)) {
-          currentSound = saved;
+        // ---------- Äänen hallinta ----------
+        function loadSelectedSound() {
+            try {
+                const saved = localStorage.getItem('selectedSound');
+                if (saved && soundOptions.some(s => s.file === saved)) {
+                    currentSound = saved;
+                } else {
+                    currentSound = DEFAULT_SOUND;
+                }
+            } catch (e) {
+                currentSound = DEFAULT_SOUND;
+            }
+            buzzer.src = currentSound;
         }
-      } catch (e) {}
-      buzzer.src = currentSound;
-    }
 
-    function saveSelectedSound(sound) {
-      try { localStorage.setItem('selectedSound', sound); } catch (e) {}
-      currentSound = sound;
-      buzzer.src = sound;
-    }
+        function saveSelectedSound(file) {
+            try { localStorage.setItem('selectedSound', file); } catch (e) {}
+            currentSound = file;
+            buzzer.src = file;
+        }
 
-    function playPreview(sound) {
-      stopPreview();
-      previewAudio = new Audio(sound);
-      previewAudio.preload = 'auto';
-      const playPromise = previewAudio.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(() => { fallbackBeep(); });
-      }
-    }
+        function getSoundLabel(file) {
+            const opt = soundOptions.find(s => s.file === file);
+            return opt ? opt.label : file;
+        }
 
-    function stopPreview() {
-      if (previewAudio) {
-        previewAudio.pause();
-        previewAudio.currentTime = 0;
-        previewAudio = null;
-      }
-    }
+        function playPreview(file) {
+            stopPreview();
+            previewAudio = new Audio(file);
+            previewAudio.preload = 'auto';
+            const playPromise = previewAudio.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    previewPlaying = true;
+                    updatePlayButtons();
+                }).catch(() => {
+                    fallbackBeep();
+                    previewPlaying = true;
+                    updatePlayButtons();
+                });
+            } else {
+                fallbackBeep();
+                previewPlaying = true;
+                updatePlayButtons();
+            }
+            // Automaattinen stop 3 sekunnin jälkeen
+            if (previewAudio) {
+                setTimeout(() => {
+                    if (previewPlaying) stopPreview();
+                }, 3000);
+            }
+        }
 
-    // ---------- Modaali (äänet) ----------
-    function renderSoundList() {
-      soundListContainer.innerHTML = '';
-      soundFiles.forEach(sound => {
-        const item = document.createElement('div');
-        item.className = 'sound-item';
+        function stopPreview() {
+            if (previewAudio) {
+                previewAudio.pause();
+                previewAudio.currentTime = 0;
+                previewAudio = null;
+            }
+            if (fallbackOscillator) {
+                try {
+                    fallbackOscillator.stop();
+                    fallbackOscillator.disconnect();
+                } catch (e) {}
+                fallbackOscillator = null;
+            }
+            if (fallbackGain) {
+                try { fallbackGain.disconnect(); } catch (e) {}
+                fallbackGain = null;
+            }
+            previewPlaying = false;
+            updatePlayButtons();
+        }
 
-        const nameSpan = document.createElement('span');
-        nameSpan.className = 'sound-name' + (sound === currentSound ? ' selected' : '');
-        nameSpan.textContent = sound;
-        nameSpan.addEventListener('click', () => {
-          saveSelectedSound(sound);
-          renderSoundList();
-          closeSoundModal();
+        function updatePlayButtons() {
+            document.querySelectorAll('.play-preview-btn').forEach(btn => {
+                const file = btn.dataset.file;
+                if (previewPlaying && previewAudio && previewAudio.src && previewAudio.src.includes(file)) {
+                    btn.classList.add('playing');
+                } else {
+                    btn.classList.remove('playing');
+                }
+            });
+        }
+
+        // ---------- Summerin soitto (varsinainen hälytys) ----------
+        function ensureAudioContext() {
+            try {
+                if (!audioCtx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    if (!AudioContext) return;
+                    audioCtx = new AudioContext();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume().catch(() => {});
+                }
+            } catch (e) {}
+        }
+
+        function playBuzzer() {
+            buzzer.currentTime = 0;
+            const playPromise = buzzer.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {}).catch(() => { fallbackBeep(); });
+            } else {
+                fallbackBeep();
+            }
+        }
+
+        function stopBuzzer() {
+            try {
+                if (fallbackOscillator) {
+                    fallbackOscillator.stop();
+                    fallbackOscillator.disconnect();
+                    fallbackOscillator = null;
+                }
+                if (fallbackGain) {
+                    fallbackGain.disconnect();
+                    fallbackGain = null;
+                }
+            } catch (e) {}
+            try {
+                buzzer.pause();
+                buzzer.currentTime = 0;
+            } catch (e) {}
+            if (audioCtx) {
+                audioCtx.close().catch(() => {});
+                audioCtx = null;
+            }
+        }
+
+        function fallbackBeep() {
+            try {
+                ensureAudioContext();
+                if (!audioCtx) return;
+                fallbackOscillator = audioCtx.createOscillator();
+                fallbackGain = audioCtx.createGain();
+                fallbackOscillator.type = 'square';
+                fallbackOscillator.frequency.value = 880;
+                fallbackGain.gain.value = 0.2;
+                fallbackOscillator.connect(fallbackGain).connect(audioCtx.destination);
+                fallbackOscillator.start();
+                // Auto-stop 3s päästä
+                setTimeout(() => {
+                    if (fallbackOscillator) {
+                        try {
+                            fallbackOscillator.stop();
+                            fallbackOscillator.disconnect();
+                        } catch (e) {}
+                        fallbackOscillator = null;
+                    }
+                    if (fallbackGain) {
+                        try { fallbackGain.disconnect(); } catch (e) {}
+                        fallbackGain = null;
+                    }
+                }, 3000);
+            } catch (e) {}
+        }
+
+        // ---------- Modaali (äänet) ----------
+        function renderSoundList() {
+            soundListContainer.innerHTML = '';
+            soundOptions.forEach(opt => {
+                const item = document.createElement('div');
+                item.className = 'sound-item';
+
+                const radio = document.createElement('input');
+                radio.type = 'radio';
+                radio.name = 'soundSelect';
+                radio.value = opt.file;
+                radio.id = 'sound_' + opt.file.replace(/\./g, '_');
+                if (opt.file === currentSound) {
+                    radio.checked = true;
+                }
+
+                const label = document.createElement('label');
+                label.htmlFor = radio.id;
+                label.textContent = opt.label;
+                if (opt.file === currentSound) {
+                    label.classList.add('selected-label');
+                }
+
+                const previewBtn = document.createElement('button');
+                previewBtn.className = 'play-preview-btn';
+                previewBtn.dataset.file = opt.file;
+                previewBtn.setAttribute('aria-label', 'Koesoita ' + opt.label);
+                previewBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (previewPlaying && previewAudio && previewAudio.src && previewAudio.src.includes(opt
+                        .file)) {
+                        stopPreview();
+                    } else {
+                        playPreview(opt.file);
+                    }
+                });
+
+                radio.addEventListener('change', () => {
+                    if (radio.checked) {
+                        saveSelectedSound(opt.file);
+                        renderSoundList();
+                        // Sulje modaali automaattisesti valinnan jälkeen
+                        closeSoundModal();
+                    }
+                });
+
+                item.appendChild(radio);
+                item.appendChild(label);
+                item.appendChild(previewBtn);
+                soundListContainer.appendChild(item);
+            });
+
+            // Päivitä play-nappien tila
+            updatePlayButtons();
+        }
+
+        function openSoundModal() {
+            renderSoundList();
+            soundModal.classList.add('open');
+            stopPreview();
+        }
+
+        function closeSoundModal() {
+            soundModal.classList.remove('open');
+            stopPreview();
+        }
+
+        soundSettingsBtn.addEventListener('click', openSoundModal);
+        closeModalBtn.addEventListener('click', closeSoundModal);
+        soundModal.addEventListener('click', (e) => {
+            if (e.target === soundModal) closeSoundModal();
         });
 
-        const previewBtn = document.createElement('button');
-        previewBtn.className = 'preview-btn';
-        previewBtn.textContent = 'Koesoita';
-        previewBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          playPreview(sound);
+        // ---------- Modaali (jako) ----------
+        function openShareModal() {
+            shareUrlInput.value = SHARE_URL;
+            qrCodeImg.src =
+                `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(SHARE_URL)}`;
+            shareModal.classList.add('open');
+        }
+
+        function closeShareModal() {
+            shareModal.classList.remove('open');
+        }
+
+        shareBtn.addEventListener('click', openShareModal);
+        closeShareModalBtn.addEventListener('click', closeShareModal);
+        shareModal.addEventListener('click', (e) => {
+            if (e.target === shareModal) closeShareModal();
         });
 
-        item.appendChild(nameSpan);
-        item.appendChild(previewBtn);
-        soundListContainer.appendChild(item);
-      });
-    }
-
-    function openSoundModal() {
-      renderSoundList();
-      soundModal.classList.add('open');
-      stopPreview();
-    }
-
-    function closeSoundModal() {
-      soundModal.classList.remove('open');
-      stopPreview();
-    }
-
-    soundSettingsBtn.addEventListener('click', openSoundModal);
-    closeModalBtn.addEventListener('click', closeSoundModal);
-    soundModal.addEventListener('click', (e) => {
-      if (e.target === soundModal) closeSoundModal();
-    });
-
-    // ---------- Modaali (jako) ----------
-    function openShareModal() {
-      shareUrlInput.value = SHARE_URL;
-      qrCodeImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(SHARE_URL)}`;
-      shareModal.classList.add('open');
-    }
-
-    function closeShareModal() {
-      shareModal.classList.remove('open');
-    }
-
-    shareBtn.addEventListener('click', openShareModal);
-    closeShareModalBtn.addEventListener('click', closeShareModal);
-    shareModal.addEventListener('click', (e) => {
-      if (e.target === shareModal) closeShareModal();
-    });
-
-    copyUrlBtn.addEventListener('click', async () => {
-      try {
-        await navigator.clipboard.writeText(SHARE_URL);
-        copyUrlBtn.textContent = 'Kopioitu!';
-        setTimeout(() => { copyUrlBtn.textContent = 'Kopioi linkki'; }, 1500);
-      } catch (err) {
-        shareUrlInput.select();
-        document.execCommand('copy');
-        copyUrlBtn.textContent = 'Kopioitu!';
-        setTimeout(() => { copyUrlBtn.textContent = 'Kopioi linkki'; }, 1500);
-      }
-    });
-
-    // ---------- Wake Lock ----------
-    async function requestWakeLock() {
-      if (!wakeLockSupported) {
-        wakeLockInfo.textContent = '⚠️ Laitteesi ei tue näytön hereilläpitoa. Pidä näyttö päällä ajastimen aikana.';
-        return;
-      }
-      try {
-        wakeLock = await navigator.wakeLock.request('screen');
-        wakeLockInfo.textContent = '✅ Näyttö pidetään hereillä ajastimen ajan.';
-        wakeLock.addEventListener('release', () => {
-          wakeLockInfo.textContent = '';
+        copyUrlBtn.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(SHARE_URL);
+                copyUrlBtn.textContent = 'Kopioitu!';
+                setTimeout(() => { copyUrlBtn.textContent = 'Kopioi linkki'; }, 1500);
+            } catch (err) {
+                shareUrlInput.select();
+                document.execCommand('copy');
+                copyUrlBtn.textContent = 'Kopioitu!';
+                setTimeout(() => { copyUrlBtn.textContent = 'Kopioi linkki'; }, 1500);
+            }
         });
-      } catch (err) {
-        wakeLockInfo.textContent = '⚠️ Wake Lock ei käytettävissä: ' + err.message;
-        wakeLock = null;
-      }
-    }
 
-    async function releaseWakeLock() {
-      if (wakeLock) {
-        try {
-          await wakeLock.release();
-          wakeLock = null;
-        } catch (err) {}
-      }
-      wakeLockInfo.textContent = '';
-    }
+        // ---------- Keskeytysdialogi ----------
+        let pendingCancel = false;
 
-    // ---------- Summerin soittaminen ----------
-    function ensureAudioContext() {
-      try {
-        if (!audioCtx) {
-          const AudioContext = window.AudioContext || window.webkitAudioContext;
-          if (!AudioContext) return;
-          audioCtx = new AudioContext();
+        function openConfirmDialog() {
+            confirmModal.classList.add('open');
         }
-        if (audioCtx.state === 'suspended') {
-          audioCtx.resume().catch(() => {});
+
+        function closeConfirmDialog() {
+            confirmModal.classList.remove('open');
+            pendingCancel = false;
         }
-      } catch (e) {}
-    }
 
-    function playBuzzer() {
-      buzzer.currentTime = 0;
-      const playPromise = buzzer.play();
-      if (playPromise !== undefined) {
-        playPromise.then(() => {}).catch(() => { fallbackBeep(); });
-      } else {
-        fallbackBeep();
-      }
-    }
+        confirmYes.addEventListener('click', () => {
+            closeConfirmDialog();
+            if (state === 'paused') {
+                resetToIdle();
+            }
+        });
 
-    function stopBuzzer() {
-      try {
-        if (fallbackOscillator) {
-          fallbackOscillator.stop();
-          fallbackOscillator.disconnect();
-          fallbackOscillator = null;
+        confirmNo.addEventListener('click', closeConfirmDialog);
+        confirmModal.addEventListener('click', (e) => {
+            if (e.target === confirmModal) closeConfirmDialog();
+        });
+
+        // ---------- Wake Lock ----------
+        async function requestWakeLock() {
+            if (!wakeLockSupported) {
+                wakeLockInfo.textContent = '⚠️ Laitteesi ei tue näytön hereilläpitoa. Pidä näyttö päällä ajastimen aikana.';
+                return;
+            }
+            try {
+                wakeLock = await navigator.wakeLock.request('screen');
+                wakeLockInfo.textContent = '✅ Näyttö pidetään hereillä ajastimen ajan.';
+                wakeLock.addEventListener('release', () => {
+                    wakeLockInfo.textContent = '';
+                });
+            } catch (err) {
+                wakeLockInfo.textContent = '⚠️ Wake Lock ei käytettävissä: ' + err.message;
+                wakeLock = null;
+            }
         }
-        if (fallbackGain) {
-          fallbackGain.disconnect();
-          fallbackGain = null;
+
+        async function releaseWakeLock() {
+            if (wakeLock) {
+                try {
+                    await wakeLock.release();
+                    wakeLock = null;
+                } catch (err) {}
+            }
+            wakeLockInfo.textContent = '';
         }
-      } catch (e) {}
-      try {
-        buzzer.pause();
-        buzzer.currentTime = 0;
-      } catch (e) {}
-      if (audioCtx) {
-        audioCtx.close().catch(() => {});
-        audioCtx = null;
-      }
-    }
 
-    function fallbackBeep() {
-      try {
-        ensureAudioContext();
-        if (!audioCtx) return;
-        fallbackOscillator = audioCtx.createOscillator();
-        fallbackGain = audioCtx.createGain();
-        fallbackOscillator.type = 'square';
-        fallbackOscillator.frequency.value = 880;
-        fallbackGain.gain.value = 0.2;
-        fallbackOscillator.connect(fallbackGain).connect(audioCtx.destination);
-        fallbackOscillator.start();
-      } catch (e) {}
-    }
+        // ---------- Apufunktiot ----------
+        function formatTime(totalSec) {
+            const mins = Math.floor(totalSec / 60);
+            const secs = totalSec % 60;
+            return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
 
-    // ---------- Ajastimen toiminnallisuus ----------
-    function formatTime(totalSec) {
-      const mins = Math.floor(totalSec / 60);
-      const secs = totalSec % 60;
-      return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-    }
+        function getTotalSeconds() {
+            const min = Math.max(0, Math.min(999, parseInt(minutesInput.value, 10) || 0));
+            const sec = Math.max(0, Math.min(59, parseInt(secondsInput.value, 10) || 0));
+            return min * 60 + sec;
+        }
 
-    function getTotalSeconds() {
-      const min = Math.max(0, Math.min(999, parseInt(minutesInput.value, 10) || 0));
-      const sec = Math.max(0, Math.min(59, parseInt(secondsInput.value, 10) || 0));
-      return min * 60 + sec;
-    }
+        function updateDisplay() {
+            display.textContent = formatTime(remainingSeconds);
+        }
 
-    function updateDisplay() {
-      display.textContent = formatTime(remainingSeconds);
-    }
+        function setInputsDisabled(disabled) {
+            minutesInput.disabled = disabled;
+            secondsInput.disabled = disabled;
+        }
 
-    function setInputsDisabled(disabled) {
-      minutesInput.disabled = disabled;
-      secondsInput.disabled = disabled;
-    }
+        // ---------- UI-tilan päivitys ----------
+        function updateUI() {
+            const isRunning = state === 'running' || state === 'paused' || state === 'alarm';
 
-    function setButtonsForState() {
-      if (state === 'idle') {
-        startBtn.style.display = 'block';
-        startBtn.textContent = 'Käynnistä';
-        pauseBtn.style.display = 'none';
-        startBtn.disabled = getTotalSeconds() <= 0;
-        soundSettingsBtn.disabled = false;
-        shareBtn.disabled = false;
-      } else if (state === 'running') {
-        startBtn.style.display = 'none';
-        pauseBtn.style.display = 'block';
-        pauseBtn.textContent = 'Tauko';
-        pauseBtn.disabled = false;
-        soundSettingsBtn.disabled = true;
-        shareBtn.disabled = false;
-      } else if (state === 'paused') {
-        startBtn.style.display = 'none';
-        pauseBtn.style.display = 'block';
-        pauseBtn.textContent = 'Jatka';
-        pauseBtn.disabled = false;
-        soundSettingsBtn.disabled = true;
-        shareBtn.disabled = false;
-      } else if (state === 'alarm') {
-        startBtn.style.display = 'none';
-        pauseBtn.style.display = 'none';
-        soundSettingsBtn.disabled = true;
-        shareBtn.disabled = false;
-      }
-    }
+            // Aseta body-luokka
+            document.body.classList.toggle('running-mode', isRunning);
+            document.body.classList.toggle('paused-mode', state === 'paused');
+            document.body.classList.toggle('alarm-mode', state === 'alarm');
 
-    function startTimer() {
-      if (state === 'running' || state === 'alarm') return;
+            // Näytä/piilota napit
+            // Idle: startBtn + soundSettingsBtn näkyvissä
+            startBtn.style.display = (state === 'idle') ? 'inline-block' : 'none';
+            soundSettingsBtn.style.display = (state === 'idle') ? 'inline-block' : 'none';
 
-      if (state === 'idle') {
+            // Running: pauseBtn
+            pauseBtn.style.display = (state === 'running') ? 'inline-block' : 'none';
+
+            // Paused: resumeBtn + cancelBtn
+            resumeBtn.style.display = (state === 'paused') ? 'inline-block' : 'none';
+            cancelBtn.style.display = (state === 'paused') ? 'inline-block' : 'none';
+
+            // Alarm: alarmResetBtn
+            alarmResetBtn.style.display = (state === 'alarm') ? 'inline-block' : 'none';
+
+            // Inputit
+            setInputsDisabled(isRunning);
+
+            // Summeri-nappi idle-tilassa
+            if (state === 'idle') {
+                soundSettingsBtn.disabled = false;
+            } else {
+                soundSettingsBtn.disabled = true;
+            }
+
+            // Start-nappi idle-tilassa: disable jos aikaa 0
+            if (state === 'idle') {
+                startBtn.disabled = getTotalSeconds() <= 0;
+            }
+
+            // Päivitä display
+            updateDisplay();
+
+            // Flash pois päältä ellei alarm
+            if (state !== 'alarm') {
+                display.classList.remove('flash');
+            }
+
+            // Wake lock -info näkyvyys
+            if (isRunning) {
+                // Piilotetaan info (CSS hoitaa)
+            } else {
+                // Näytetään info
+            }
+        }
+
+        // ---------- Ajastimen toiminnallisuus ----------
+        function startTimer() {
+            if (state === 'running' || state === 'alarm') return;
+
+            if (state === 'idle') {
+                initialMinutes = Math.max(0, Math.min(999, parseInt(minutesInput.value, 10) || 0));
+                initialSeconds = Math.max(0, Math.min(59, parseInt(secondsInput.value, 10) || 0));
+                minutesInput.value = initialMinutes;
+                secondsInput.value = initialSeconds;
+                remainingSeconds = initialMinutes * 60 + initialSeconds;
+                if (remainingSeconds <= 0) return;
+            } else if (state === 'paused') {
+                // Jatketaan nykyisestä
+            }
+
+            ensureAudioContext();
+            requestWakeLock();
+
+            state = 'running';
+            display.classList.remove('flash');
+            updateUI();
+
+            timerStartTime = Date.now();
+            timerStartRemaining = remainingSeconds;
+
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - timerStartTime) / 1000);
+                remainingSeconds = Math.max(0, timerStartRemaining - elapsed);
+                updateDisplay();
+
+                if (remainingSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    handleAlarm();
+                }
+            }, 100);
+        }
+
+        function pauseTimer() {
+            if (state === 'running') {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                state = 'paused';
+                releaseWakeLock();
+                updateUI();
+            }
+        }
+
+        function resumeTimer() {
+            if (state === 'paused') {
+                startTimer();
+            }
+        }
+
+        function cancelTimer() {
+            if (state === 'paused') {
+                openConfirmDialog();
+            }
+        }
+
+        function handleAlarm() {
+            state = 'alarm';
+            display.textContent = '00:00';
+            display.classList.add('flash');
+            updateUI();
+            playBuzzer();
+
+            // Auto-reset 3 sekunnin jälkeen
+            alarmTimeout = setTimeout(() => {
+                stopBuzzer();
+                display.classList.remove('flash');
+                resetToIdle();
+            }, 3000);
+        }
+
+        function resetToIdle() {
+            state = 'idle';
+            minutesInput.value = initialMinutes;
+            secondsInput.value = initialSeconds;
+            remainingSeconds = initialMinutes * 60 + initialSeconds;
+            display.textContent = formatTime(remainingSeconds);
+            display.classList.remove('flash');
+            releaseWakeLock();
+            stopBuzzer();
+
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            if (alarmTimeout) {
+                clearTimeout(alarmTimeout);
+                alarmTimeout = null;
+            }
+
+            updateUI();
+        }
+
+        function updateIdleDisplay() {
+            if (state === 'idle') {
+                remainingSeconds = getTotalSeconds();
+                display.textContent = formatTime(remainingSeconds);
+                startBtn.disabled = remainingSeconds <= 0;
+            }
+        }
+
+        // ---------- Tapahtumakuuntelijat ----------
+        startBtn.addEventListener('click', startTimer);
+        pauseBtn.addEventListener('click', pauseTimer);
+        resumeBtn.addEventListener('click', resumeTimer);
+        cancelBtn.addEventListener('click', cancelTimer);
+        alarmResetBtn.addEventListener('click', () => {
+            stopBuzzer();
+            display.classList.remove('flash');
+            resetToIdle();
+        });
+
+        minutesInput.addEventListener('input', updateIdleDisplay);
+        secondsInput.addEventListener('input', updateIdleDisplay);
+
+        minutesInput.addEventListener('change', function() {
+            let val = parseInt(this.value, 10);
+            if (isNaN(val) || val < 0) this.value = 0;
+            if (val > 999) this.value = 999;
+            updateIdleDisplay();
+        });
+
+        secondsInput.addEventListener('change', function() {
+            let val = parseInt(this.value, 10);
+            if (isNaN(val) || val < 0) this.value = 0;
+            if (val > 59) this.value = 59;
+            updateIdleDisplay();
+        });
+
+        // ---------- visibilitychange ----------
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible' && state === 'running') {
+                const elapsed = Math.floor((Date.now() - timerStartTime) / 1000);
+                remainingSeconds = Math.max(0, timerStartRemaining - elapsed);
+                updateDisplay();
+
+                if (remainingSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    handleAlarm();
+                }
+            }
+        });
+
+        // ---------- Alustus ----------
+        loadSelectedSound();
         initialMinutes = Math.max(0, Math.min(999, parseInt(minutesInput.value, 10) || 0));
         initialSeconds = Math.max(0, Math.min(59, parseInt(secondsInput.value, 10) || 0));
-        minutesInput.value = initialMinutes;
-        secondsInput.value = initialSeconds;
         remainingSeconds = initialMinutes * 60 + initialSeconds;
-        if (remainingSeconds <= 0) return;
-      } else if (state === 'paused') {
-        // Jatketaan nykyisestä remainingSeconds-arvosta
-      }
+        updateUI();
+        updateIdleDisplay();
 
-      ensureAudioContext();
-      requestWakeLock(); // Pyydä näytön hereilläpitoa
-
-      state = 'running';
-      display.classList.remove('flash');
-      setInputsDisabled(true);
-      setButtonsForState();
-      updateDisplay();
-
-      // Tallennetaan globaalit aikatiedot
-      timerStartTime = Date.now();
-      timerStartRemaining = remainingSeconds;
-
-      if (timerInterval) clearInterval(timerInterval);
-      timerInterval = setInterval(() => {
-        const elapsed = Math.floor((Date.now() - timerStartTime) / 1000);
-        remainingSeconds = Math.max(0, timerStartRemaining - elapsed);
-        updateDisplay();
-
-        if (remainingSeconds <= 0) {
-          clearInterval(timerInterval);
-          timerInterval = null;
-          handleAlarm();
+        if (!wakeLockSupported) {
+            wakeLockInfo.textContent = '⚠️ Selaimesi ei tue näytön hereilläpitoa. Pidä näyttö päällä ajastimen aikana.';
         }
-      }, 100);
-    }
 
-    function pauseTimer() {
-      if (state === 'running') {
-        clearInterval(timerInterval);
-        timerInterval = null;
-        state = 'paused';
-        releaseWakeLock();
-        setButtonsForState();
-      } else if (state === 'paused') {
-        startTimer();
-      }
-    }
-
-    function handleAlarm() {
-      state = 'alarm';
-      setButtonsForState();
-      setInputsDisabled(true);
-      display.textContent = '00:00';
-      display.classList.add('flash');
-      playBuzzer();
-
-      alarmTimeout = setTimeout(() => {
-        stopBuzzer();
-        display.classList.remove('flash');
-        resetToIdle();
-      }, 3000);
-    }
-
-    function resetToIdle() {
-      state = 'idle';
-      minutesInput.value = initialMinutes;
-      secondsInput.value = initialSeconds;
-      remainingSeconds = initialMinutes * 60 + initialSeconds;
-      display.textContent = formatTime(remainingSeconds);
-      setInputsDisabled(false);
-      setButtonsForState();
-      display.classList.remove('flash');
-      releaseWakeLock();
-
-      if (timerInterval) {
-        clearInterval(timerInterval);
-        timerInterval = null;
-      }
-    }
-
-    function updateIdleDisplay() {
-      if (state === 'idle') {
-        remainingSeconds = getTotalSeconds();
-        display.textContent = formatTime(remainingSeconds);
-        startBtn.disabled = remainingSeconds <= 0;
-      }
-    }
-
-    // ---------- visibilitychange-käsittely ----------
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible' && state === 'running') {
-        // Sivu tuli näkyväksi, laske todellinen kulunut aika
-        const elapsed = Math.floor((Date.now() - timerStartTime) / 1000);
-        remainingSeconds = Math.max(0, timerStartRemaining - elapsed);
-        updateDisplay();
-
-        if (remainingSeconds <= 0) {
-          clearInterval(timerInterval);
-          timerInterval = null;
-          handleAlarm();
-        }
-      }
-    });
-
-    // ---------- Tapahtumakuuntelijat ----------
-    startBtn.addEventListener('click', startTimer);
-    pauseBtn.addEventListener('click', pauseTimer);
-
-    minutesInput.addEventListener('input', updateIdleDisplay);
-    secondsInput.addEventListener('input', updateIdleDisplay);
-
-    minutesInput.addEventListener('change', function () {
-      let val = parseInt(this.value, 10);
-      if (isNaN(val) || val < 0) this.value = 0;
-      if (val > 999) this.value = 999;
-      updateIdleDisplay();
-    });
-
-    secondsInput.addEventListener('change', function () {
-      let val = parseInt(this.value, 10);
-      if (isNaN(val) || val < 0) this.value = 0;
-      if (val > 59) this.value = 59;
-      updateIdleDisplay();
-    });
-
-    // ---------- Alustus ----------
-    loadSelectedSound();
-    initialMinutes = Math.max(0, Math.min(999, parseInt(minutesInput.value, 10) || 0));
-    initialSeconds = Math.max(0, Math.min(59, parseInt(secondsInput.value, 10) || 0));
-    remainingSeconds = initialMinutes * 60 + initialSeconds;
-    updateDisplay();
-    setButtonsForState();
-
-    // Ilmoitetaan, jos Wake Lock ei ole tuettu
-    if (!wakeLockSupported) {
-      wakeLockInfo.textContent = '⚠️ Selaimesi ei tue näytön hereilläpitoa. Pidä näyttö päällä ajastimen aikana.';
-    }
-  </script>
+        // Päivitetään play-napit kun modaali avataan
+        console.log('Ajastin ladattu. Oletusääni:', currentSound);
+    </script>
 </body>
 </html>
