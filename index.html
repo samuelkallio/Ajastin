@@ -1,1598 +1,1544 @@
 <!DOCTYPE html>
 <html lang="fi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Ajastin</title>
-  <!-- Favicon ja Apple Touch Icon -->
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏱️</text></svg>">
-  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏱️</text></svg>">
-  <style>
-    /* (Sama CSS kuin aiemmin, ei muutoksia) */
-    :root {
-      --bg: #1a1a2e;
-      --card: #16213e;
-      --accent: #e94560;
-      --secondary: #533483;
-      --text: #e0e0e0;
-      --display-bg: #0f3460;
-      --modal-bg: rgba(0, 0, 0, 0.7);
-    }
-
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: var(--bg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      padding: 1rem;
-      transition: background 0.3s;
-    }
-
-    body.running-mode {
-      padding: 0;
-      background: #0d0d1a;
-    }
-
-    body.running-mode .container {
-      max-width: 100%;
-      border-radius: 0;
-      box-shadow: none;
-      background: #0d0d1a;
-      padding: 1rem 0.5rem;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-    }
-
-    body.running-mode .container .header h1,
-    body.running-mode .container .inputs,
-    body.running-mode .container #soundSettingsBtn,
-    body.running-mode .container #startBtn {
-      display: none !important;
-    }
-
-    body.running-mode .container .header {
-      display: flex !important;
-      justify-content: space-between;
-      align-items: center;
-      width: 100%;
-      max-width: 28rem;
-      margin-bottom: 0.5rem;
-      padding: 0 0.5rem;
-    }
-
-    body.running-mode .container .header h1 {
-      display: none !important;
-    }
-
-    body.running-mode .container .header .close-app-btn,
-    body.running-mode .container .header .help-icon-btn,
-    body.running-mode .container .header .share-icon-btn {
-      display: inline-flex !important;
-      font-size: 1.8rem;
-      background: none;
-      border: none;
-      color: var(--text);
-      cursor: pointer;
-      padding: 0.2rem 0.5rem;
-      line-height: 1;
-      transition: color 0.15s;
-    }
-
-    body.running-mode .container .header .close-app-btn:hover,
-    body.running-mode .container .header .help-icon-btn:hover,
-    body.running-mode .container .header .share-icon-btn:hover {
-      color: var(--accent);
-    }
-
-    body.running-mode .container .header .close-app-btn {
-      font-size: 1.6rem;
-      font-weight: 700;
-    }
-
-    body.running-mode .container .display {
-      font-size: min(20vw, 12rem);
-      background: transparent;
-      padding: 0.2rem 0.5rem;
-      margin: 0.5rem 0;
-      flex: 0 1 auto;
-      width: 100%;
-      text-align: center;
-      letter-spacing: 0.03em;
-      color: #fff;
-    }
-
-    body.running-mode .container .buttons {
-      margin-top: 1.5rem;
-      gap: 1rem;
-      flex-wrap: wrap;
-      justify-content: center;
-      width: 100%;
-      max-width: 28rem;
-    }
-
-    body.running-mode .container .buttons .pause-btn {
-      font-size: 2rem;
-      padding: 1.2rem 3.5rem;
-      min-height: 5rem;
-      flex: 0 1 auto;
-      min-width: 12rem;
-      border-radius: 3rem;
-      background: var(--accent);
-      color: #fff;
-      font-weight: 700;
-      border: none;
-      cursor: pointer;
-      transition: transform 0.1s, background 0.15s;
-    }
-
-    body.running-mode .container .buttons .pause-btn:active {
-      transform: scale(0.95);
-    }
-
-    body.running-mode .container .buttons .pause-btn.secondary {
-      background: var(--secondary);
-    }
-
-    body.running-mode .container .buttons .pause-btn.cancel-btn {
-      background: transparent;
-      border: 2px solid var(--accent);
-      color: var(--accent);
-      font-size: 1.2rem;
-      padding: 0.8rem 1.8rem;
-      min-height: 3.5rem;
-      min-width: 8rem;
-    }
-
-    body.running-mode .container .buttons .pause-btn.cancel-btn:active {
-      background: rgba(233, 69, 96, 0.15);
-    }
-
-    .display.flash {
-      animation: blink 0.5s step-start infinite;
-      color: #ff6b6b !important;
-      background: transparent !important;
-    }
-
-    @keyframes blink {
-      50% {
-        opacity: 0.2;
-      }
-    }
-
-    .container {
-      background: var(--card);
-      padding: 1.5rem 1.2rem;
-      border-radius: 2rem;
-      box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.4);
-      width: 100%;
-      max-width: 24rem;
-      text-align: center;
-      position: relative;
-      transition: all 0.3s ease;
-    }
-
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 1rem;
-      gap: 0.25rem;
-    }
-
-    .header .left-group {
-      display: flex;
-      align-items: center;
-      gap: 0.25rem;
-    }
-
-    .header .right-group {
-      display: flex;
-      align-items: center;
-      gap: 0.25rem;
-    }
-
-    .header h1 {
-      color: var(--text);
-      font-size: 1.5rem;
-      margin: 0;
-      font-weight: 700;
-      flex: 1;
-      text-align: center;
-    }
-
-    .close-app-btn,
-    .help-icon-btn,
-    .share-icon-btn {
-      background: none;
-      border: none;
-      color: var(--text);
-      font-size: 1.6rem;
-      cursor: pointer;
-      padding: 0.2rem 0.4rem;
-      line-height: 1;
-      transition: color 0.15s;
-      font-weight: 400;
-      min-width: 2.2rem;
-      text-align: center;
-    }
-
-    .close-app-btn:hover,
-    .help-icon-btn:hover,
-    .share-icon-btn:hover {
-      color: var(--accent);
-    }
-
-    .close-app-btn {
-      font-weight: 700;
-      font-size: 1.5rem;
-    }
-
-    .help-icon-btn {
-      font-weight: 700;
-      font-size: 1.5rem;
-    }
-
-    .display {
-      font-size: 4rem;
-      font-weight: 700;
-      color: var(--text);
-      background: var(--display-bg);
-      padding: 0.6rem 0.5rem;
-      border-radius: 1.2rem;
-      font-variant-numeric: tabular-nums;
-      letter-spacing: 0.05em;
-      margin: 0.5rem 0 1rem;
-      transition: font-size 0.3s, background 0.15s, color 0.15s, padding 0.3s;
-    }
-
-    .inputs {
-      display: flex;
-      gap: 0.75rem;
-      justify-content: center;
-      align-items: center;
-      margin: 1rem 0;
-      transition: opacity 0.3s, max-height 0.3s;
-    }
-
-    .input-group {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    label {
-      color: #aaa;
-      font-size: 0.9rem;
-      margin-bottom: 0.3rem;
-    }
-
-    input {
-      width: 5.5rem;
-      padding: 0.75rem;
-      font-size: 1.5rem;
-      text-align: center;
-      border: none;
-      border-radius: 0.8rem;
-      background: var(--display-bg);
-      color: var(--text);
-      font-weight: 600;
-    }
-
-    input:disabled {
-      opacity: 0.5;
-    }
-
-    .buttons {
-      display: flex;
-      gap: 0.75rem;
-      justify-content: center;
-      margin-top: 1.2rem;
-      flex-wrap: wrap;
-      transition: all 0.3s;
-    }
-
-    .buttons button {
-      flex: 1;
-      padding: 1rem;
-      font-size: 1.25rem;
-      font-weight: 600;
-      border: none;
-      border-radius: 1rem;
-      cursor: pointer;
-      background: var(--accent);
-      color: #fff;
-      min-height: 3.5rem;
-      transition: background 0.15s, transform 0.05s, opacity 0.3s;
-    }
-
-    .buttons button:active {
-      transform: scale(0.97);
-    }
-
-    .buttons button.secondary {
-      background: var(--secondary);
-    }
-
-    .buttons button:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .settings-btn {
-      background: transparent !important;
-      color: var(--text) !important;
-      border: 2px solid var(--secondary) !important;
-      flex: 0 0 auto !important;
-      padding: 0.75rem 1.2rem !important;
-      font-size: 1rem !important;
-      margin-top: 0.5rem;
-      min-height: 3.5rem;
-    }
-
-    .settings-btn:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
-
-    .wake-lock-info {
-      color: #aaa;
-      font-size: 0.8rem;
-      margin-top: 0.75rem;
-      min-height: 1.2em;
-      transition: opacity 0.3s;
-    }
-
-    body.running-mode .wake-lock-info {
-      opacity: 0;
-      pointer-events: none;
-      height: 0;
-      margin: 0;
-      min-height: 0;
-    }
-
-    /* Modaalit */
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: var(--modal-bg);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      padding: 1rem;
-      backdrop-filter: blur(4px);
-    }
-
-    .modal-overlay.open {
-      display: flex;
-    }
-
-    .modal {
-      background: var(--card);
-      border-radius: 1.5rem;
-      padding: 1.5rem;
-      width: 100%;
-      max-width: 22rem;
-      max-height: 80vh;
-      overflow-y: auto;
-      box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.6);
-      animation: modalIn 0.2s ease;
-    }
-
-    @keyframes modalIn {
-      from {
-        opacity: 0;
-        transform: scale(0.95);
-      }
-      to {
-        opacity: 1;
-        transform: scale(1);
-      }
-    }
-
-    .modal h2 {
-      color: var(--text);
-      margin: 0 0 1rem;
-      font-size: 1.4rem;
-      text-align: center;
-    }
-
-    .sound-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-    }
-
-    .sound-item {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      background: var(--display-bg);
-      border-radius: 0.8rem;
-      padding: 0.5rem 0.8rem;
-      transition: background 0.15s;
-      cursor: pointer;
-    }
-
-    .sound-item:hover {
-      background: #1a3a6a;
-    }
-
-    .sound-item input[type="radio"] {
-      appearance: none;
-      -webkit-appearance: none;
-      width: 1.2rem;
-      height: 1.2rem;
-      border: 2px solid #666;
-      border-radius: 50%;
-      flex-shrink: 0;
-      transition: border 0.15s, background 0.15s;
-      cursor: pointer;
-      position: relative;
-    }
-
-    .sound-item input[type="radio"]:checked {
-      border-color: var(--accent);
-      background: var(--accent);
-    }
-
-    .sound-item input[type="radio"]:checked::after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 0.4rem;
-      height: 0.4rem;
-      border-radius: 50%;
-      background: #fff;
-    }
-
-    .sound-item label {
-      color: var(--text);
-      font-size: 1rem;
-      font-weight: 500;
-      cursor: pointer;
-      flex: 1;
-      text-align: left;
-      padding: 0.3rem 0;
-      margin: 0;
-    }
-
-    .sound-item label.selected-label {
-      color: var(--accent);
-      font-weight: 700;
-    }
-
-    .play-preview-btn {
-      background: var(--secondary);
-      border: none;
-      color: #fff;
-      border-radius: 50%;
-      width: 2.4rem;
-      height: 2.4rem;
-      font-size: 1.1rem;
-      cursor: pointer;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.15s, transform 0.1s;
-      padding: 0;
-      line-height: 1;
-    }
-
-    .play-preview-btn:active {
-      transform: scale(0.9);
-    }
-
-    .play-preview-btn:hover {
-      background: var(--accent);
-    }
-
-    .play-preview-btn.playing {
-      background: var(--accent);
-    }
-
-    .play-preview-btn.playing::after {
-      content: '⏹';
-      font-size: 0.9rem;
-    }
-
-    .play-preview-btn:not(.playing)::after {
-      content: '▶';
-      font-size: 1rem;
-    }
-
-    .play-preview-btn .btn-text {
-      display: none;
-    }
-
-    .share-url-input {
-      width: 100%;
-      padding: 0.75rem;
-      font-size: 1rem;
-      border: none;
-      border-radius: 0.8rem;
-      background: var(--display-bg);
-      color: var(--text);
-      margin: 0.5rem 0;
-      text-align: center;
-      font-weight: 500;
-    }
-
-    .copy-btn {
-      width: 100%;
-      margin: 0.5rem 0;
-      background: var(--secondary);
-      border: none;
-      color: #fff;
-      border-radius: 0.8rem;
-      padding: 0.75rem;
-      font-size: 1rem;
-      cursor: pointer;
-      font-weight: 600;
-    }
-
-    .qr-container {
-      display: flex;
-      justify-content: center;
-      margin: 1rem 0;
-    }
-
-    .qr-container img {
-      max-width: 200px;
-      max-height: 200px;
-      border-radius: 0.5rem;
-      background: #fff;
-      padding: 0.5rem;
-    }
-
-    .close-btn {
-      background: transparent;
-      border: 2px solid var(--secondary);
-      color: var(--text);
-      border-radius: 0.8rem;
-      padding: 0.6rem;
-      width: 100%;
-      margin-top: 0.5rem;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background 0.15s;
-    }
-
-    .close-btn:hover {
-      background: rgba(83, 52, 131, 0.2);
-    }
-
-    .confirm-dialog .dialog-actions {
-      display: flex;
-      gap: 0.75rem;
-      margin-top: 1.5rem;
-    }
-
-    .confirm-dialog .dialog-actions button {
-      flex: 1;
-      padding: 0.8rem;
-      font-size: 1.1rem;
-      font-weight: 600;
-      border: none;
-      border-radius: 0.8rem;
-      cursor: pointer;
-      transition: background 0.15s, transform 0.05s;
-    }
-
-    .confirm-dialog .dialog-actions button:active {
-      transform: scale(0.97);
-    }
-
-    .confirm-dialog .dialog-actions .btn-yes {
-      background: var(--accent);
-      color: #fff;
-    }
-
-    .confirm-dialog .dialog-actions .btn-no {
-      background: var(--secondary);
-      color: #fff;
-    }
-
-    .confirm-dialog p {
-      color: var(--text);
-      font-size: 1.1rem;
-      text-align: center;
-      margin: 0.5rem 0;
-      line-height: 1.5;
-    }
-
-    .help-content {
-      color: var(--text);
-      text-align: left;
-      padding: 0 0.2rem;
-    }
-
-    .help-content ul {
-      padding-left: 1.2rem;
-      margin: 0.5rem 0 1rem;
-      line-height: 1.7;
-    }
-
-    .help-content ul li {
-      margin-bottom: 0.3rem;
-    }
-
-    .version-info {
-      text-align: center;
-      padding: 0.8rem 0 0.2rem;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-      margin-top: 0.8rem;
-    }
-
-    .version-info .version-label {
-      color: #888;
-      font-size: 0.85rem;
-    }
-
-    .version-info .version-link {
-      color: var(--accent);
-      font-weight: 600;
-      text-decoration: underline;
-      cursor: pointer;
-      transition: color 0.15s;
-      font-size: 1rem;
-      background: none;
-      border: none;
-      padding: 0.2rem 0.6rem;
-    }
-
-    .version-info .version-link:hover {
-      color: #ff7a92;
-    }
-
-    @media (max-width: 400px) {
-      .display {
-        font-size: 3.2rem;
-      }
-      body.running-mode .container .display {
-        font-size: min(18vw, 8rem);
-      }
-      body.running-mode .container .buttons .pause-btn {
-        font-size: 1.5rem;
-        padding: 1rem 2.5rem;
-        min-width: 10rem;
-      }
-      .close-app-btn,
-      .help-icon-btn,
-      .share-icon-btn {
-        font-size: 1.3rem;
-        min-width: 1.8rem;
-      }
-    }
-
-    @media (min-width: 600px) {
-      body.running-mode .container .display {
-        font-size: min(16vw, 14rem);
-      }
-      body.running-mode .container .buttons .pause-btn {
-        font-size: 2.5rem;
-        padding: 1.5rem 4rem;
-        min-width: 14rem;
-      }
-    }
-
-    .alarm-reset-btn {
-      background: var(--secondary) !important;
-      color: #fff !important;
-      border: none !important;
-      padding: 0.8rem 2rem !important;
-      font-size: 1.2rem !important;
-      border-radius: 2rem !important;
-      cursor: pointer !important;
-      font-weight: 600 !important;
-      transition: background 0.15s, transform 0.05s !important;
-    }
-
-    .alarm-reset-btn:active {
-      transform: scale(0.95) !important;
-    }
-
-    #cancelBtn {
-      display: none;
-    }
-
-    body.running-mode .container .buttons #cancelBtn {
-      display: inline-block;
-    }
-
-    body.running-mode .container #startBtn,
-    body.running-mode .container #soundSettingsBtn {
-      display: none !important;
-    }
-
-    #pauseBtn,
-    #resumeBtn,
-    #cancelBtn,
-    #alarmResetBtn {
-      display: none;
-    }
-
-    body.running-mode .container #pauseBtn {
-      display: inline-block;
-    }
-
-    body.running-mode.paused-mode .container #pauseBtn {
-      display: none !important;
-    }
-
-    body.running-mode.paused-mode .container #resumeBtn {
-      display: inline-block;
-    }
-
-    body.running-mode.paused-mode .container #cancelBtn {
-      display: inline-block;
-    }
-
-    body.running-mode.alarm-mode .container #pauseBtn,
-    body.running-mode.alarm-mode .container #resumeBtn,
-    body.running-mode.alarm-mode .container #cancelBtn {
-      display: none !important;
-    }
-
-    body.running-mode.alarm-mode .container #alarmResetBtn {
-      display: inline-block;
-    }
-
-    body.running-mode .container .inputs {
-      display: none !important;
-    }
-
-    body.running-mode .container .wake-lock-info {
-      display: none !important;
-    }
-
-    body.running-mode .container #soundSettingsBtn {
-      display: none !important;
-    }
-
-    body.running-mode .container .display {
-      display: block !important;
-    }
-
-    .update-dialog .dialog-actions {
-      display: flex;
-      gap: 0.75rem;
-      margin-top: 1.5rem;
-    }
-
-    .update-dialog .dialog-actions button {
-      flex: 1;
-      padding: 0.8rem;
-      font-size: 1.1rem;
-      font-weight: 600;
-      border: none;
-      border-radius: 0.8rem;
-      cursor: pointer;
-      transition: background 0.15s, transform 0.05s;
-    }
-
-    .update-dialog .dialog-actions button:active {
-      transform: scale(0.97);
-    }
-
-    .update-dialog .dialog-actions .btn-yes {
-      background: var(--accent);
-      color: #fff;
-    }
-
-    .update-dialog .dialog-actions .btn-no {
-      background: var(--secondary);
-      color: #fff;
-    }
-
-    .update-dialog p {
-      color: var(--text);
-      font-size: 1.1rem;
-      text-align: center;
-      margin: 0.5rem 0;
-      line-height: 1.5;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Ajastin</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏱️</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏱️</text></svg>">
+    <style>
+        :root {
+            --bg: #1a1a2e;
+            --card: #16213e;
+            --accent: #e94560;
+            --secondary: #533483;
+            --text: #e0e0e0;
+            --display-bg: #0f3460;
+            --modal-bg: rgba(0, 0, 0, 0.7);
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            padding: 1rem;
+            transition: background 0.3s;
+            overflow: hidden;
+        }
+
+        /* Kun ajastin käy, tausta tummenee ja kello täyttää koko näytön */
+        body.running-mode {
+            padding: 0;
+            background: #0d0d1a;
+        }
+
+        body.running-mode .container {
+            max-width: 100%;
+            border-radius: 0;
+            box-shadow: none;
+            background: #0d0d1a;
+            padding: 0.5rem;
+            min-height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        /* Piilotetaan kaikki paitsi kello ja ohjauspainikkeet running-tilassa */
+        body.running-mode .container .header,
+        body.running-mode .container .inputs,
+        body.running-mode .container #soundSettingsBtn,
+        body.running-mode .container .settings-btn,
+        body.running-mode .container #startBtn,
+        body.running-mode .container .wake-lock-info {
+            display: none !important;
+        }
+
+        body.running-mode .container .display {
+            font-size: min(30vw, 30vh, 20rem);
+            background: transparent;
+            padding: 0.2rem 0.5rem;
+            margin: 0;
+            flex: 0 1 auto;
+            width: 100%;
+            text-align: center;
+            letter-spacing: 0.03em;
+            color: #fff;
+            line-height: 1.2;
+            /* Skaalautuu dynaamisesti */
+            max-height: 70vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        body.running-mode .container .buttons {
+            margin-top: 1.5rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+            max-width: 28rem;
+            flex-shrink: 0;
+        }
+
+        body.running-mode .container .buttons .pause-btn {
+            font-size: 2rem;
+            padding: 1.2rem 3.5rem;
+            min-height: 5rem;
+            flex: 0 1 auto;
+            min-width: 12rem;
+            border-radius: 3rem;
+            background: var(--accent);
+            color: #fff;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.1s, background 0.15s;
+        }
+
+        body.running-mode .container .buttons .pause-btn:active {
+            transform: scale(0.95);
+        }
+
+        body.running-mode .container .buttons .pause-btn.secondary {
+            background: var(--secondary);
+        }
+
+        body.running-mode .container .buttons .pause-btn.cancel-btn {
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            font-size: 1.2rem;
+            padding: 0.8rem 1.8rem;
+            min-height: 3.5rem;
+            min-width: 8rem;
+        }
+
+        body.running-mode .container .buttons .pause-btn.cancel-btn:active {
+            background: rgba(233, 69, 96, 0.15);
+        }
+
+        .display.flash {
+            animation: blink 0.5s step-start infinite;
+            color: #ff6b6b !important;
+            background: transparent !important;
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0.2;
+            }
+        }
+
+        .container {
+            background: var(--card);
+            padding: 1.5rem 1.2rem;
+            border-radius: 2rem;
+            box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.4);
+            width: 100%;
+            max-width: 24rem;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        /* Normaali header (ei running-tilassa) */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            gap: 0.25rem;
+        }
+
+        .header .left-group {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .header .right-group {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .header h1 {
+            color: var(--text);
+            font-size: 1.5rem;
+            margin: 0;
+            font-weight: 700;
+            flex: 1;
+            text-align: center;
+        }
+
+        .close-app-btn,
+        .help-icon-btn,
+        .share-icon-btn {
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 1.6rem;
+            cursor: pointer;
+            padding: 0.2rem 0.4rem;
+            line-height: 1;
+            transition: color 0.15s;
+            font-weight: 400;
+            min-width: 2.2rem;
+            text-align: center;
+        }
+
+        .close-app-btn:hover,
+        .help-icon-btn:hover,
+        .share-icon-btn:hover {
+            color: var(--accent);
+        }
+
+        .close-app-btn {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .help-icon-btn {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .display {
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--text);
+            background: var(--display-bg);
+            padding: 0.6rem 0.5rem;
+            border-radius: 1.2rem;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.05em;
+            margin: 0.5rem 0 1rem;
+            transition: font-size 0.3s, background 0.15s, color 0.15s, padding 0.3s;
+        }
+
+        .inputs {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            align-items: center;
+            margin: 1rem 0;
+            transition: opacity 0.3s, max-height 0.3s;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        label {
+            color: #aaa;
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+        }
+
+        input {
+            width: 5.5rem;
+            padding: 0.75rem;
+            font-size: 1.5rem;
+            text-align: center;
+            border: none;
+            border-radius: 0.8rem;
+            background: var(--display-bg);
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        input:disabled {
+            opacity: 0.5;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            margin-top: 1.2rem;
+            flex-wrap: wrap;
+            transition: all 0.3s;
+        }
+
+        .buttons button {
+            flex: 1;
+            padding: 1rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 1rem;
+            cursor: pointer;
+            background: var(--accent);
+            color: #fff;
+            min-height: 3.5rem;
+            transition: background 0.15s, transform 0.05s, opacity 0.3s;
+        }
+
+        .buttons button:active {
+            transform: scale(0.97);
+        }
+
+        .buttons button.secondary {
+            background: var(--secondary);
+        }
+
+        .buttons button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .settings-btn {
+            background: transparent !important;
+            color: var(--text) !important;
+            border: 2px solid var(--secondary) !important;
+            flex: 0 0 auto !important;
+            padding: 0.75rem 1.2rem !important;
+            font-size: 1rem !important;
+            margin-top: 0.5rem;
+            min-height: 3.5rem;
+        }
+
+        .settings-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .wake-lock-info {
+            display: none !important;
+            /* Piilotetaan kokonaan */
+        }
+
+        /* Modaalit */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--modal-bg);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 1rem;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--card);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 22rem;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.6);
+            animation: modalIn 0.2s ease;
+        }
+
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal h2 {
+            color: var(--text);
+            margin: 0 0 1rem;
+            font-size: 1.4rem;
+            text-align: center;
+        }
+
+        .sound-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .sound-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: var(--display-bg);
+            border-radius: 0.8rem;
+            padding: 0.5rem 0.8rem;
+            transition: background 0.15s;
+            cursor: pointer;
+        }
+
+        .sound-item:hover {
+            background: #1a3a6a;
+        }
+
+        .sound-item input[type="radio"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 1.2rem;
+            height: 1.2rem;
+            border: 2px solid #666;
+            border-radius: 50%;
+            flex-shrink: 0;
+            transition: border 0.15s, background 0.15s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .sound-item input[type="radio"]:checked {
+            border-color: var(--accent);
+            background: var(--accent);
+        }
+
+        .sound-item input[type="radio"]:checked::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 0.4rem;
+            height: 0.4rem;
+            border-radius: 50%;
+            background: #fff;
+        }
+
+        .sound-item label {
+            color: var(--text);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            flex: 1;
+            text-align: left;
+            padding: 0.3rem 0;
+            margin: 0;
+        }
+
+        .sound-item label.selected-label {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .play-preview-btn {
+            background: var(--secondary);
+            border: none;
+            color: #fff;
+            border-radius: 50%;
+            width: 2.4rem;
+            height: 2.4rem;
+            font-size: 1.1rem;
+            cursor: pointer;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s, transform 0.1s;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .play-preview-btn:active {
+            transform: scale(0.9);
+        }
+
+        .play-preview-btn:hover {
+            background: var(--accent);
+        }
+
+        .play-preview-btn.playing {
+            background: var(--accent);
+        }
+
+        .play-preview-btn.playing::after {
+            content: '⏹';
+            font-size: 0.9rem;
+        }
+
+        .play-preview-btn:not(.playing)::after {
+            content: '▶';
+            font-size: 1rem;
+        }
+
+        .share-url-input {
+            width: 100%;
+            padding: 0.75rem;
+            font-size: 1rem;
+            border: none;
+            border-radius: 0.8rem;
+            background: var(--display-bg);
+            color: var(--text);
+            margin: 0.5rem 0;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .copy-btn {
+            width: 100%;
+            margin: 0.5rem 0;
+            background: var(--secondary);
+            border: none;
+            color: #fff;
+            border-radius: 0.8rem;
+            padding: 0.75rem;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .qr-container {
+            display: flex;
+            justify-content: center;
+            margin: 1rem 0;
+        }
+
+        .qr-container img {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 0.5rem;
+            background: #fff;
+            padding: 0.5rem;
+        }
+
+        .close-btn {
+            background: transparent;
+            border: 2px solid var(--secondary);
+            color: var(--text);
+            border-radius: 0.8rem;
+            padding: 0.6rem;
+            width: 100%;
+            margin-top: 0.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .close-btn:hover {
+            background: rgba(83, 52, 131, 0.2);
+        }
+
+        .confirm-dialog .dialog-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .confirm-dialog .dialog-actions button {
+            flex: 1;
+            padding: 0.8rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 0.8rem;
+            cursor: pointer;
+            transition: background 0.15s, transform 0.05s;
+        }
+
+        .confirm-dialog .dialog-actions button:active {
+            transform: scale(0.97);
+        }
+
+        .confirm-dialog .dialog-actions .btn-yes {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .confirm-dialog .dialog-actions .btn-no {
+            background: var(--secondary);
+            color: #fff;
+        }
+
+        .confirm-dialog p {
+            color: var(--text);
+            font-size: 1.1rem;
+            text-align: center;
+            margin: 0.5rem 0;
+            line-height: 1.5;
+        }
+
+        .help-content {
+            color: var(--text);
+            text-align: left;
+            padding: 0 0.2rem;
+        }
+
+        .help-content ul {
+            padding-left: 1.2rem;
+            margin: 0.5rem 0 1rem;
+            line-height: 1.7;
+        }
+
+        .help-content ul li {
+            margin-bottom: 0.3rem;
+        }
+
+        .version-info {
+            text-align: center;
+            padding: 0.8rem 0 0.2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            margin-top: 0.8rem;
+        }
+
+        .version-info .version-label {
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        .version-info .version-link {
+            color: var(--accent);
+            font-weight: 600;
+            text-decoration: underline;
+            cursor: pointer;
+            transition: color 0.15s;
+            font-size: 1rem;
+            background: none;
+            border: none;
+            padding: 0.2rem 0.6rem;
+        }
+
+        .version-info .version-link:hover {
+            color: #ff7a92;
+        }
+
+        @media (max-width: 400px) {
+            .display {
+                font-size: 3.2rem;
+            }
+            body.running-mode .container .display {
+                font-size: min(25vw, 25vh, 12rem);
+            }
+            body.running-mode .container .buttons .pause-btn {
+                font-size: 1.5rem;
+                padding: 1rem 2.5rem;
+                min-width: 10rem;
+            }
+        }
+
+        @media (min-width: 600px) {
+            body.running-mode .container .display {
+                font-size: min(25vw, 25vh, 20rem);
+            }
+            body.running-mode .container .buttons .pause-btn {
+                font-size: 2.5rem;
+                padding: 1.5rem 4rem;
+                min-width: 14rem;
+            }
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            body.running-mode .container .display {
+                font-size: min(25vh, 30vw, 12rem);
+            }
+            body.running-mode .container .buttons .pause-btn {
+                font-size: 1.5rem;
+                padding: 0.8rem 2rem;
+                min-height: 3.5rem;
+                min-width: 8rem;
+            }
+        }
+
+        .alarm-reset-btn {
+            background: var(--secondary) !important;
+            color: #fff !important;
+            border: none !important;
+            padding: 0.8rem 2rem !important;
+            font-size: 1.2rem !important;
+            border-radius: 2rem !important;
+            cursor: pointer !important;
+            font-weight: 600 !important;
+            transition: background 0.15s, transform 0.05s !important;
+        }
+
+        .alarm-reset-btn:active {
+            transform: scale(0.95) !important;
+        }
+
+        #cancelBtn {
+            display: none;
+        }
+
+        body.running-mode .container .buttons #cancelBtn {
+            display: inline-block;
+        }
+
+        body.running-mode .container #startBtn,
+        body.running-mode .container #soundSettingsBtn {
+            display: none !important;
+        }
+
+        #pauseBtn,
+        #resumeBtn,
+        #cancelBtn,
+        #alarmResetBtn {
+            display: none;
+        }
+
+        body.running-mode .container #pauseBtn {
+            display: inline-block;
+        }
+
+        body.running-mode.paused-mode .container #pauseBtn {
+            display: none !important;
+        }
+
+        body.running-mode.paused-mode .container #resumeBtn {
+            display: inline-block;
+        }
+
+        body.running-mode.paused-mode .container #cancelBtn {
+            display: inline-block;
+        }
+
+        body.running-mode.alarm-mode .container #pauseBtn,
+        body.running-mode.alarm-mode .container #resumeBtn,
+        body.running-mode.alarm-mode .container #cancelBtn {
+            display: none !important;
+        }
+
+        body.running-mode.alarm-mode .container #alarmResetBtn {
+            display: inline-block;
+        }
+
+        body.running-mode .container .inputs {
+            display: none !important;
+        }
+
+        body.running-mode .container .wake-lock-info {
+            display: none !important;
+        }
+
+        body.running-mode .container #soundSettingsBtn {
+            display: none !important;
+        }
+
+        body.running-mode .container .display {
+            display: flex !important;
+        }
+
+        .update-dialog .dialog-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .update-dialog .dialog-actions button {
+            flex: 1;
+            padding: 0.8rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 0.8rem;
+            cursor: pointer;
+            transition: background 0.15s, transform 0.05s;
+        }
+
+        .update-dialog .dialog-actions button:active {
+            transform: scale(0.97);
+        }
+
+        .update-dialog .dialog-actions .btn-yes {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .update-dialog .dialog-actions .btn-no {
+            background: var(--secondary);
+            color: #fff;
+        }
+
+        .update-dialog p {
+            color: var(--text);
+            font-size: 1.1rem;
+            text-align: center;
+            margin: 0.5rem 0;
+            line-height: 1.5;
+        }
+
+        /* Piilotetaan header-kokonaan running-tilassa */
+        body.running-mode .container .header {
+            display: none !important;
+        }
+    </style>
 </head>
 <body>
-  <div class="container" id="appContainer">
-    <div class="header">
-      <div class="left-group">
-        <button id="closeAppBtn" class="close-app-btn" title="Sulje sovellus" aria-label="Sulje sovellus">✕</button>
-      </div>
-      <h1>Ajastin</h1>
-      <div class="right-group">
-        <button id="helpBtn" class="help-icon-btn" title="Ohje" aria-label="Käyttöohje">?</button>
-        <button id="shareBtn" class="share-icon-btn" title="Jaa" aria-label="Jaa sovellus">🔗</button>
-      </div>
+    <div class="container" id="appContainer">
+        <div class="header">
+            <div class="left-group">
+                <button id="closeAppBtn" class="close-app-btn" title="Sulje sovellus" aria-label="Sulje sovellus">✕</button>
+            </div>
+            <h1>Ajastin</h1>
+            <div class="right-group">
+                <button id="helpBtn" class="help-icon-btn" title="Ohje" aria-label="Käyttöohje">?</button>
+                <button id="shareBtn" class="share-icon-btn" title="Jaa" aria-label="Jaa sovellus">🔗</button>
+            </div>
+        </div>
+
+        <div id="display" class="display">00:00</div>
+
+        <div class="inputs">
+            <div class="input-group">
+                <label for="minutes">Minuutit</label>
+                <input id="minutes" type="number" inputmode="numeric" min="0" max="999" step="1" value="5">
+            </div>
+            <div class="input-group">
+                <label for="seconds">Sekunnit</label>
+                <input id="seconds" type="number" inputmode="numeric" min="0" max="59" step="1" value="0">
+            </div>
+        </div>
+
+        <div class="buttons" id="buttonsArea">
+            <button id="startBtn">Käynnistä</button>
+            <button id="soundSettingsBtn" class="settings-btn">Summeri</button>
+            <button id="pauseBtn" class="pause-btn">Tauko</button>
+            <button id="resumeBtn" class="pause-btn">Jatka</button>
+            <button id="cancelBtn" class="pause-btn cancel-btn">Keskeytä</button>
+            <button id="alarmResetBtn" class="alarm-reset-btn">Nollaa</button>
+        </div>
+
+        <div id="wakeLockInfo" class="wake-lock-info"></div>
     </div>
 
-    <div id="display" class="display">00:00</div>
-
-    <div class="inputs">
-      <div class="input-group">
-        <label for="minutes">Minuutit</label>
-        <input id="minutes" type="number" inputmode="numeric" min="0" max="999" step="1" value="5">
-      </div>
-      <div class="input-group">
-        <label for="seconds">Sekunnit</label>
-        <input id="seconds" type="number" inputmode="numeric" min="0" max="59" step="1" value="0">
-      </div>
+    <!-- Modaalit -->
+    <div id="soundModal" class="modal-overlay">
+        <div class="modal">
+            <h2>Valitse summeriääni</h2>
+            <div id="soundList" class="sound-list"></div>
+            <button id="closeModalBtn" class="close-btn">Sulje</button>
+        </div>
     </div>
 
-    <div class="buttons" id="buttonsArea">
-      <button id="startBtn">Käynnistä</button>
-      <button id="soundSettingsBtn" class="settings-btn">Summeri</button>
-      <button id="pauseBtn" class="pause-btn">Tauko</button>
-      <button id="resumeBtn" class="pause-btn">Jatka</button>
-      <button id="cancelBtn" class="pause-btn cancel-btn">Keskeytä</button>
-      <button id="alarmResetBtn" class="alarm-reset-btn">Nollaa</button>
+    <div id="shareModal" class="modal-overlay">
+        <div class="modal">
+            <h2>Jaa sovellus</h2>
+            <input type="text" id="shareUrlInput" class="share-url-input" value="https://samuelkallio.github.io/Ajastin/" readonly onclick="this.select()">
+            <button id="copyUrlBtn" class="copy-btn">Kopioi linkki</button>
+            <div class="qr-container">
+                <img id="qrCode" src="" alt="QR-koodi" width="200" height="200">
+            </div>
+            <button id="closeShareModalBtn" class="close-btn">Sulje</button>
+        </div>
     </div>
 
-    <div id="wakeLockInfo" class="wake-lock-info"></div>
-  </div>
-
-  <!-- Modaalit -->
-  <div id="soundModal" class="modal-overlay">
-    <div class="modal">
-      <h2>Valitse summeriääni</h2>
-      <div id="soundList" class="sound-list"></div>
-      <button id="closeModalBtn" class="close-btn">Sulje</button>
+    <div id="confirmModal" class="modal-overlay">
+        <div class="modal confirm-dialog">
+            <h2>Vahvista</h2>
+            <p>Haluatko varmasti pysäyttää ajastimen?</p>
+            <div class="dialog-actions">
+                <button id="confirmYes" class="btn-yes">Kyllä</button>
+                <button id="confirmNo" class="btn-no">Ei</button>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <div id="shareModal" class="modal-overlay">
-    <div class="modal">
-      <h2>Jaa sovellus</h2>
-      <input type="text" id="shareUrlInput" class="share-url-input" value="https://samuelkallio.github.io/Ajastin/" readonly onclick="this.select()">
-      <button id="copyUrlBtn" class="copy-btn">Kopioi linkki</button>
-      <div class="qr-container">
-        <img id="qrCode" src="" alt="QR-koodi" width="200" height="200">
-      </div>
-      <button id="closeShareModalBtn" class="close-btn">Sulje</button>
+    <div id="helpModal" class="modal-overlay">
+        <div class="modal">
+            <h2>📖 Käyttöohje</h2>
+            <div class="help-content">
+                <ul>
+                    <li>Aseta haluamasi aika <strong>minuutteina</strong> ja <strong>sekunteina</strong>.</li>
+                    <li>Paina <strong>Käynnistä</strong> aloittaaksesi ajastuksen.</li>
+                    <li>Käynnissä ollessa näet vain <strong>kellon</strong> ja <strong>Tauko</strong>-painikkeen.</li>
+                    <li>Tauon aikana voit <strong>Jatkaa</strong> tai <strong>Keskeyttää</strong> ajastuksen.</li>
+                    <li>Keskeytys vaatii vahvistuksen.</li>
+                    <li>Valitse haluamasi summeriääni <strong>Summeri</strong>-painikkeesta.</li>
+                    <li>Jaa sovellus <strong>linkin</strong> tai <strong>QR-koodin</strong> avulla.</li>
+                </ul>
+            </div>
+            <div class="version-info">
+                <span class="version-label">Versio </span>
+                <button id="versionLink" class="version-link">1.2.2</button>
+                <span style="color:#666; font-size:0.8rem; display:block; margin-top:0.2rem;">Päivitä sovellus klikkaamalla versiota</span>
+            </div>
+            <button id="closeHelpBtn" class="close-btn">Sulje</button>
+        </div>
     </div>
-  </div>
 
-  <div id="confirmModal" class="modal-overlay">
-    <div class="modal confirm-dialog">
-      <h2>Vahvista</h2>
-      <p>Haluatko varmasti pysäyttää ajastimen?</p>
-      <div class="dialog-actions">
-        <button id="confirmYes" class="btn-yes">Kyllä</button>
-        <button id="confirmNo" class="btn-no">Ei</button>
-      </div>
+    <div id="updateModal" class="modal-overlay">
+        <div class="modal update-dialog">
+            <h2>🔄 Päivitys</h2>
+            <p>Haluatko varmasti päivittää sovelluksen uusimpaan versioon?</p>
+            <div class="dialog-actions">
+                <button id="updateYes" class="btn-yes">Kyllä</button>
+                <button id="updateNo" class="btn-no">Ei</button>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <div id="helpModal" class="modal-overlay">
-    <div class="modal">
-      <h2>📖 Käyttöohje</h2>
-      <div class="help-content">
-        <ul>
-          <li>Aseta haluamasi aika <strong>minuutteina</strong> ja <strong>sekunteina</strong>.</li>
-          <li>Paina <strong>Käynnistä</strong> aloittaaksesi ajastuksen.</li>
-          <li>Käynnissä ollessa näet vain <strong>kellon</strong> ja <strong>Tauko</strong>-painikkeen.</li>
-          <li>Tauon aikana voit <strong>Jatkaa</strong> tai <strong>Keskeyttää</strong> ajastuksen.</li>
-          <li>Keskeytys vaatii vahvistuksen.</li>
-          <li>Valitse haluamasi summeriääni <strong>Summeri</strong>-painikkeesta.</li>
-          <li>Jaa sovellus <strong>linkin</strong> tai <strong>QR-koodin</strong> avulla.</li>
-        </ul>
-      </div>
-      <div class="version-info">
-        <span class="version-label">Versio </span>
-        <button id="versionLink" class="version-link">1.2.1</button>
-        <span style="color:#666; font-size:0.8rem; display:block; margin-top:0.2rem;">Päivitä sovellus klikkaamalla versiota</span>
-      </div>
-      <button id="closeHelpBtn" class="close-btn">Sulje</button>
-    </div>
-  </div>
+    <audio id="buzzer" preload="auto" loop></audio>
 
-  <div id="updateModal" class="modal-overlay">
-    <div class="modal update-dialog">
-      <h2>🔄 Päivitys</h2>
-      <p>Haluatko varmasti päivittää sovelluksen uusimpaan versioon?</p>
-      <div class="dialog-actions">
-        <button id="updateYes" class="btn-yes">Kyllä</button>
-        <button id="updateNo" class="btn-no">Ei</button>
-      </div>
-    </div>
-  </div>
+    <script>
+        // ---------- Äänivalinnat ----------
+        const soundOptions = [
+            { file: 'horn.mp3', label: 'horn' },
+            { file: 'ice hockey.m4a', label: 'ice hockey' },
+            { file: 'school bell.m4a', label: 'school bell' }
+        ];
 
-  <audio id="buzzer" preload="auto" loop></audio>
+        const DEFAULT_SOUND = 'school bell.m4a';
+        const SHARE_URL = 'https://samuelkallio.github.io/Ajastin/';
+        const APP_VERSION = '1.2.2';
 
-  <script>
-    // ---------- Äänivalinnat ----------
-    const soundOptions = [
-      { file: 'horn.mp3', label: 'horn' },
-      { file: 'ice hockey.m4a', label: 'ice hockey' },
-      { file: 'school bell.m4a', label: 'school bell' }
-    ];
+        let currentSound = DEFAULT_SOUND;
+        let previewAudio = null;
+        let previewPlaying = false;
 
-    const DEFAULT_SOUND = 'school bell.m4a';
-    const SHARE_URL = 'https://samuelkallio.github.io/Ajastin/';
-    const APP_VERSION = '1.2.1';
+        // DOM-elementit
+        const container = document.getElementById('appContainer');
+        const display = document.getElementById('display');
+        const minutesInput = document.getElementById('minutes');
+        const secondsInput = document.getElementById('seconds');
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resumeBtn = document.getElementById('resumeBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const alarmResetBtn = document.getElementById('alarmResetBtn');
+        const soundSettingsBtn = document.getElementById('soundSettingsBtn');
+        const buzzer = document.getElementById('buzzer');
+        const soundModal = document.getElementById('soundModal');
+        const soundListContainer = document.getElementById('soundList');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const shareBtn = document.getElementById('shareBtn');
+        const shareModal = document.getElementById('shareModal');
+        const shareUrlInput = document.getElementById('shareUrlInput');
+        const copyUrlBtn = document.getElementById('copyUrlBtn');
+        const qrCodeImg = document.getElementById('qrCode');
+        const closeShareModalBtn = document.getElementById('closeShareModalBtn');
+        const confirmModal = document.getElementById('confirmModal');
+        const confirmYes = document.getElementById('confirmYes');
+        const confirmNo = document.getElementById('confirmNo');
+        const helpBtn = document.getElementById('helpBtn');
+        const helpModal = document.getElementById('helpModal');
+        const closeHelpBtn = document.getElementById('closeHelpBtn');
+        const versionLink = document.getElementById('versionLink');
+        const updateModal = document.getElementById('updateModal');
+        const updateYes = document.getElementById('updateYes');
+        const updateNo = document.getElementById('updateNo');
+        const closeAppBtn = document.getElementById('closeAppBtn');
 
-    let currentSound = DEFAULT_SOUND;
-    let previewAudio = null;
-    let previewPlaying = false;
+        // Ajastimen tila
+        let state = 'idle'; // 'idle' | 'running' | 'paused' | 'alarm'
+        let initialMinutes = 5;
+        let initialSeconds = 0;
+        let remainingSeconds = initialMinutes * 60 + initialSeconds;
+        let timerInterval = null;
+        let alarmTimeout = null;
+        let audioCtx = null;
+        let fallbackOscillator = null;
+        let fallbackGain = null;
 
-    // DOM-elementit
-    const container = document.getElementById('appContainer');
-    const display = document.getElementById('display');
-    const minutesInput = document.getElementById('minutes');
-    const secondsInput = document.getElementById('seconds');
-    const startBtn = document.getElementById('startBtn');
-    const pauseBtn = document.getElementById('pauseBtn');
-    const resumeBtn = document.getElementById('resumeBtn');
-    const cancelBtn = document.getElementById('cancelBtn');
-    const alarmResetBtn = document.getElementById('alarmResetBtn');
-    const soundSettingsBtn = document.getElementById('soundSettingsBtn');
-    const buzzer = document.getElementById('buzzer');
-    const soundModal = document.getElementById('soundModal');
-    const soundListContainer = document.getElementById('soundList');
-    const closeModalBtn = document.getElementById('closeModalBtn');
-    const shareBtn = document.getElementById('shareBtn');
-    const shareModal = document.getElementById('shareModal');
-    const shareUrlInput = document.getElementById('shareUrlInput');
-    const copyUrlBtn = document.getElementById('copyUrlBtn');
-    const qrCodeImg = document.getElementById('qrCode');
-    const closeShareModalBtn = document.getElementById('closeShareModalBtn');
-    const wakeLockInfo = document.getElementById('wakeLockInfo');
-    const confirmModal = document.getElementById('confirmModal');
-    const confirmYes = document.getElementById('confirmYes');
-    const confirmNo = document.getElementById('confirmNo');
-    const helpBtn = document.getElementById('helpBtn');
-    const helpModal = document.getElementById('helpModal');
-    const closeHelpBtn = document.getElementById('closeHelpBtn');
-    const versionLink = document.getElementById('versionLink');
-    const updateModal = document.getElementById('updateModal');
-    const updateYes = document.getElementById('updateYes');
-    const updateNo = document.getElementById('updateNo');
-    const closeAppBtn = document.getElementById('closeAppBtn');
+        // Wake Lock
+        let wakeLock = null;
+        let wakeLockSupported = 'wakeLock' in navigator;
 
-    // Ajastimen tila
-    let state = 'idle'; // 'idle' | 'running' | 'paused' | 'alarm'
-    let initialMinutes = 5;
-    let initialSeconds = 0;
-    let remainingSeconds = initialMinutes * 60 + initialSeconds;
-    let timerInterval = null;
-    let alarmTimeout = null;
-    let audioCtx = null;
-    let fallbackOscillator = null;
-    let fallbackGain = null;
+        let timerStartTime = null;
+        let timerStartRemaining = 0;
 
-    // Wake Lock
-    let wakeLock = null;
-    let wakeLockSupported = 'wakeLock' in navigator;
-
-    // Aikatiedot
-    let timerStartTime = null;
-    let timerStartRemaining = 0;
-
-    // ---------- Wake Lock - vain käyttäjän eleestä ----------
-    async function requestWakeLock() {
-      if (!wakeLockSupported) {
-        wakeLockInfo.textContent = '⚠️ Selaimesi ei tue näytön hereilläpitoa. Pidä näyttö päällä manuaalisesti.';
-        return false;
-      }
-      try {
-        if (wakeLock) {
-          // Jo olemassa, ei tarvitse tehdä mitään
-          return true;
-        }
-        wakeLock = await navigator.wakeLock.request('screen');
-        wakeLockInfo.textContent = '✅ Näyttö pidetään hereillä.';
-        wakeLock.addEventListener('release', () => {
-          wakeLockInfo.textContent = '⚠️ Näytön hereilläpito vapautui.';
-          wakeLock = null;
-          // Yritetään uudelleen, jos ajastin on käynnissä tai tauolla (mutta ei automaattisesti)
-          if (state === 'running' || state === 'paused') {
-            // Käyttäjän on painettava jotain nappia, jotta voidaan pyytää uudelleen
-            wakeLockInfo.textContent = '⚠️ Näytön hereilläpito katkesi. Paina "Jatka" tai "Käynnistä" uudelleenaktivoidaksesi.';
-          }
-        });
-        return true;
-      } catch (err) {
-        wakeLockInfo.textContent = '⚠️ Näytön hereilläpito ei onnistu: ' + (err.message || 'tuntematon virhe') +
-          '. Pidä näyttö päällä manuaalisesti.';
-        wakeLock = null;
-        return false;
-      }
-    }
-
-    async function releaseWakeLock() {
-      if (wakeLock) {
-        try {
-          await wakeLock.release();
-          wakeLock = null;
-        } catch (err) {}
-      }
-      // Emme tyhjennä infotekstiä, jotta käyttäjä tietää tilanteen
-    }
-
-    // ---------- Äänen hallinta ----------
-    function loadSelectedSound() {
-      try {
-        const saved = localStorage.getItem('selectedSound');
-        if (saved && soundOptions.some(s => s.file === saved)) {
-          currentSound = saved;
-        } else {
-          currentSound = DEFAULT_SOUND;
-        }
-      } catch (e) {
-        currentSound = DEFAULT_SOUND;
-      }
-      buzzer.src = currentSound;
-    }
-
-    function saveSelectedSound(file) {
-      try { localStorage.setItem('selectedSound', file); } catch (e) {}
-      currentSound = file;
-      buzzer.src = file;
-    }
-
-    function getSoundLabel(file) {
-      const opt = soundOptions.find(s => s.file === file);
-      return opt ? opt.label : file;
-    }
-
-    function playPreview(file) {
-      stopPreview();
-      previewAudio = new Audio(file);
-      previewAudio.preload = 'auto';
-      const playPromise = previewAudio.play();
-      if (playPromise !== undefined) {
-        playPromise.then(() => {
-          previewPlaying = true;
-          updatePlayButtons();
-        }).catch(() => {
-          fallbackBeep();
-          previewPlaying = true;
-          updatePlayButtons();
-        });
-      } else {
-        fallbackBeep();
-        previewPlaying = true;
-        updatePlayButtons();
-      }
-      setTimeout(() => {
-        if (previewPlaying) stopPreview();
-      }, 3000);
-    }
-
-    function stopPreview() {
-      if (previewAudio) {
-        previewAudio.pause();
-        previewAudio.currentTime = 0;
-        previewAudio = null;
-      }
-      if (fallbackOscillator) {
-        try {
-          fallbackOscillator.stop();
-          fallbackOscillator.disconnect();
-        } catch (e) {}
-        fallbackOscillator = null;
-      }
-      if (fallbackGain) {
-        try { fallbackGain.disconnect(); } catch (e) {}
-        fallbackGain = null;
-      }
-      previewPlaying = false;
-      updatePlayButtons();
-    }
-
-    function updatePlayButtons() {
-      document.querySelectorAll('.play-preview-btn').forEach(btn => {
-        const file = btn.dataset.file;
-        if (previewPlaying && previewAudio && previewAudio.src && previewAudio.src.includes(file)) {
-          btn.classList.add('playing');
-        } else {
-          btn.classList.remove('playing');
-        }
-      });
-    }
-
-    // ---------- Summerin soitto ----------
-    function ensureAudioContext() {
-      try {
-        if (!audioCtx) {
-          const AudioContext = window.AudioContext || window.webkitAudioContext;
-          if (!AudioContext) return;
-          audioCtx = new AudioContext();
-        }
-        if (audioCtx.state === 'suspended') {
-          audioCtx.resume().catch(() => {});
-        }
-      } catch (e) {}
-    }
-
-    function playBuzzer() {
-      buzzer.currentTime = 0;
-      const playPromise = buzzer.play();
-      if (playPromise !== undefined) {
-        playPromise.then(() => {}).catch(() => { fallbackBeep(); });
-      } else {
-        fallbackBeep();
-      }
-    }
-
-    function stopBuzzer() {
-      try {
-        if (fallbackOscillator) {
-          fallbackOscillator.stop();
-          fallbackOscillator.disconnect();
-          fallbackOscillator = null;
-        }
-        if (fallbackGain) {
-          fallbackGain.disconnect();
-          fallbackGain = null;
-        }
-      } catch (e) {}
-      try {
-        buzzer.pause();
-        buzzer.currentTime = 0;
-      } catch (e) {}
-      if (audioCtx) {
-        audioCtx.close().catch(() => {});
-        audioCtx = null;
-      }
-    }
-
-    function fallbackBeep() {
-      try {
-        ensureAudioContext();
-        if (!audioCtx) return;
-        fallbackOscillator = audioCtx.createOscillator();
-        fallbackGain = audioCtx.createGain();
-        fallbackOscillator.type = 'square';
-        fallbackOscillator.frequency.value = 880;
-        fallbackGain.gain.value = 0.2;
-        fallbackOscillator.connect(fallbackGain).connect(audioCtx.destination);
-        fallbackOscillator.start();
-        setTimeout(() => {
-          if (fallbackOscillator) {
+        // ---------- Wake Lock - vain käyttäjän eleestä, ei ilmoituksia ----------
+        async function requestWakeLock() {
+            if (!wakeLockSupported) return false;
             try {
-              fallbackOscillator.stop();
-              fallbackOscillator.disconnect();
-            } catch (e) {}
-            fallbackOscillator = null;
-          }
-          if (fallbackGain) {
-            try { fallbackGain.disconnect(); } catch (e) {}
-            fallbackGain = null;
-          }
-        }, 3000);
-      } catch (e) {}
-    }
-
-    // ---------- Modaali (äänet) ----------
-    function renderSoundList() {
-      soundListContainer.innerHTML = '';
-      soundOptions.forEach(opt => {
-        const item = document.createElement('div');
-        item.className = 'sound-item';
-
-        const radio = document.createElement('input');
-        radio.type = 'radio';
-        radio.name = 'soundSelect';
-        radio.value = opt.file;
-        radio.id = 'sound_' + opt.file.replace(/\./g, '_');
-        if (opt.file === currentSound) {
-          radio.checked = true;
+                if (wakeLock) return true;
+                wakeLock = await navigator.wakeLock.request('screen');
+                wakeLock.addEventListener('release', () => {
+                    wakeLock = null;
+                    // Yritetään uudelleen jos ajastin on aktiivinen (mutta ei näytetä ilmoitusta)
+                    if (state === 'running' || state === 'paused') {
+                        // Hiljainen uudelleenyritys viiveellä
+                        setTimeout(() => {
+                            if (!wakeLock && (state === 'running' || state === 'paused')) {
+                                requestWakeLock();
+                            }
+                        }, 2000);
+                    }
+                });
+                return true;
+            } catch (err) {
+                wakeLock = null;
+                return false;
+            }
         }
 
-        const label = document.createElement('label');
-        label.htmlFor = radio.id;
-        label.textContent = opt.label;
-        if (opt.file === currentSound) {
-          label.classList.add('selected-label');
+        async function releaseWakeLock() {
+            if (wakeLock) {
+                try {
+                    await wakeLock.release();
+                    wakeLock = null;
+                } catch (err) {}
+            }
         }
 
-        const previewBtn = document.createElement('button');
-        previewBtn.className = 'play-preview-btn';
-        previewBtn.dataset.file = opt.file;
-        previewBtn.setAttribute('aria-label', 'Koesoita ' + opt.label);
-        previewBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          if (previewPlaying && previewAudio && previewAudio.src && previewAudio.src.includes(opt.file)) {
+        // ---------- Äänen hallinta ----------
+        function loadSelectedSound() {
+            try {
+                const saved = localStorage.getItem('selectedSound');
+                if (saved && soundOptions.some(s => s.file === saved)) {
+                    currentSound = saved;
+                } else {
+                    currentSound = DEFAULT_SOUND;
+                }
+            } catch (e) {
+                currentSound = DEFAULT_SOUND;
+            }
+            buzzer.src = currentSound;
+        }
+
+        function saveSelectedSound(file) {
+            try { localStorage.setItem('selectedSound', file); } catch (e) {}
+            currentSound = file;
+            buzzer.src = file;
+        }
+
+        function playPreview(file) {
             stopPreview();
-          } else {
-            playPreview(opt.file);
-          }
-        });
+            previewAudio = new Audio(file);
+            previewAudio.preload = 'auto';
+            const playPromise = previewAudio.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    previewPlaying = true;
+                    updatePlayButtons();
+                }).catch(() => {
+                    fallbackBeep();
+                    previewPlaying = true;
+                    updatePlayButtons();
+                });
+            } else {
+                fallbackBeep();
+                previewPlaying = true;
+                updatePlayButtons();
+            }
+            setTimeout(() => {
+                if (previewPlaying) stopPreview();
+            }, 3000);
+        }
 
-        radio.addEventListener('change', () => {
-          if (radio.checked) {
-            saveSelectedSound(opt.file);
+        function stopPreview() {
+            if (previewAudio) {
+                previewAudio.pause();
+                previewAudio.currentTime = 0;
+                previewAudio = null;
+            }
+            if (fallbackOscillator) {
+                try {
+                    fallbackOscillator.stop();
+                    fallbackOscillator.disconnect();
+                } catch (e) {}
+                fallbackOscillator = null;
+            }
+            if (fallbackGain) {
+                try { fallbackGain.disconnect(); } catch (e) {}
+                fallbackGain = null;
+            }
+            previewPlaying = false;
+            updatePlayButtons();
+        }
+
+        function updatePlayButtons() {
+            document.querySelectorAll('.play-preview-btn').forEach(btn => {
+                const file = btn.dataset.file;
+                if (previewPlaying && previewAudio && previewAudio.src && previewAudio.src.includes(file)) {
+                    btn.classList.add('playing');
+                } else {
+                    btn.classList.remove('playing');
+                }
+            });
+        }
+
+        // ---------- Summerin soitto ----------
+        function ensureAudioContext() {
+            try {
+                if (!audioCtx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    if (!AudioContext) return;
+                    audioCtx = new AudioContext();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume().catch(() => {});
+                }
+            } catch (e) {}
+        }
+
+        function playBuzzer() {
+            buzzer.currentTime = 0;
+            const playPromise = buzzer.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {}).catch(() => { fallbackBeep(); });
+            } else {
+                fallbackBeep();
+            }
+        }
+
+        function stopBuzzer() {
+            try {
+                if (fallbackOscillator) {
+                    fallbackOscillator.stop();
+                    fallbackOscillator.disconnect();
+                    fallbackOscillator = null;
+                }
+                if (fallbackGain) {
+                    fallbackGain.disconnect();
+                    fallbackGain = null;
+                }
+            } catch (e) {}
+            try {
+                buzzer.pause();
+                buzzer.currentTime = 0;
+            } catch (e) {}
+            if (audioCtx) {
+                audioCtx.close().catch(() => {});
+                audioCtx = null;
+            }
+        }
+
+        function fallbackBeep() {
+            try {
+                ensureAudioContext();
+                if (!audioCtx) return;
+                fallbackOscillator = audioCtx.createOscillator();
+                fallbackGain = audioCtx.createGain();
+                fallbackOscillator.type = 'square';
+                fallbackOscillator.frequency.value = 880;
+                fallbackGain.gain.value = 0.2;
+                fallbackOscillator.connect(fallbackGain).connect(audioCtx.destination);
+                fallbackOscillator.start();
+                setTimeout(() => {
+                    if (fallbackOscillator) {
+                        try {
+                            fallbackOscillator.stop();
+                            fallbackOscillator.disconnect();
+                        } catch (e) {}
+                        fallbackOscillator = null;
+                    }
+                    if (fallbackGain) {
+                        try { fallbackGain.disconnect(); } catch (e) {}
+                        fallbackGain = null;
+                    }
+                }, 3000);
+            } catch (e) {}
+        }
+
+        // ---------- Modaali (äänet) ----------
+        function renderSoundList() {
+            soundListContainer.innerHTML = '';
+            soundOptions.forEach(opt => {
+                const item = document.createElement('div');
+                item.className = 'sound-item';
+
+                const radio = document.createElement('input');
+                radio.type = 'radio';
+                radio.name = 'soundSelect';
+                radio.value = opt.file;
+                radio.id = 'sound_' + opt.file.replace(/\./g, '_');
+                if (opt.file === currentSound) {
+                    radio.checked = true;
+                }
+
+                const label = document.createElement('label');
+                label.htmlFor = radio.id;
+                label.textContent = opt.label;
+                if (opt.file === currentSound) {
+                    label.classList.add('selected-label');
+                }
+
+                const previewBtn = document.createElement('button');
+                previewBtn.className = 'play-preview-btn';
+                previewBtn.dataset.file = opt.file;
+                previewBtn.setAttribute('aria-label', 'Koesoita ' + opt.label);
+                previewBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (previewPlaying && previewAudio && previewAudio.src && previewAudio.src.includes(opt
+                        .file)) {
+                        stopPreview();
+                    } else {
+                        playPreview(opt.file);
+                    }
+                });
+
+                radio.addEventListener('change', () => {
+                    if (radio.checked) {
+                        saveSelectedSound(opt.file);
+                        renderSoundList();
+                        closeSoundModal();
+                    }
+                });
+
+                item.appendChild(radio);
+                item.appendChild(label);
+                item.appendChild(previewBtn);
+                soundListContainer.appendChild(item);
+            });
+            updatePlayButtons();
+        }
+
+        function openSoundModal() {
             renderSoundList();
-            closeSoundModal();
-          }
+            soundModal.classList.add('open');
+            stopPreview();
+        }
+
+        function closeSoundModal() {
+            soundModal.classList.remove('open');
+            stopPreview();
+        }
+
+        soundSettingsBtn.addEventListener('click', openSoundModal);
+        closeModalBtn.addEventListener('click', closeSoundModal);
+        soundModal.addEventListener('click', (e) => {
+            if (e.target === soundModal) closeSoundModal();
         });
 
-        item.appendChild(radio);
-        item.appendChild(label);
-        item.appendChild(previewBtn);
-        soundListContainer.appendChild(item);
-      });
-      updatePlayButtons();
-    }
+        // ---------- Modaali (jako) ----------
+        function openShareModal() {
+            shareUrlInput.value = SHARE_URL;
+            qrCodeImg.src =
+                `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(SHARE_URL)}`;
+            shareModal.classList.add('open');
+        }
 
-    function openSoundModal() {
-      renderSoundList();
-      soundModal.classList.add('open');
-      stopPreview();
-    }
+        function closeShareModal() {
+            shareModal.classList.remove('open');
+        }
 
-    function closeSoundModal() {
-      soundModal.classList.remove('open');
-      stopPreview();
-    }
+        shareBtn.addEventListener('click', openShareModal);
+        closeShareModalBtn.addEventListener('click', closeShareModal);
+        shareModal.addEventListener('click', (e) => {
+            if (e.target === shareModal) closeShareModal();
+        });
 
-    soundSettingsBtn.addEventListener('click', openSoundModal);
-    closeModalBtn.addEventListener('click', closeSoundModal);
-    soundModal.addEventListener('click', (e) => {
-      if (e.target === soundModal) closeSoundModal();
-    });
+        copyUrlBtn.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(SHARE_URL);
+                copyUrlBtn.textContent = 'Kopioitu!';
+                setTimeout(() => { copyUrlBtn.textContent = 'Kopioi linkki'; }, 1500);
+            } catch (err) {
+                shareUrlInput.select();
+                document.execCommand('copy');
+                copyUrlBtn.textContent = 'Kopioitu!';
+                setTimeout(() => { copyUrlBtn.textContent = 'Kopioi linkki'; }, 1500);
+            }
+        });
 
-    // ---------- Modaali (jako) ----------
-    function openShareModal() {
-      shareUrlInput.value = SHARE_URL;
-      qrCodeImg.src =
-        `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(SHARE_URL)}`;
-      shareModal.classList.add('open');
-    }
+        // ---------- Ohjemodaali ----------
+        function openHelpModal() {
+            helpModal.classList.add('open');
+        }
 
-    function closeShareModal() {
-      shareModal.classList.remove('open');
-    }
+        function closeHelpModal() {
+            helpModal.classList.remove('open');
+        }
 
-    shareBtn.addEventListener('click', openShareModal);
-    closeShareModalBtn.addEventListener('click', closeShareModal);
-    shareModal.addEventListener('click', (e) => {
-      if (e.target === shareModal) closeShareModal();
-    });
+        helpBtn.addEventListener('click', openHelpModal);
+        closeHelpBtn.addEventListener('click', closeHelpModal);
+        helpModal.addEventListener('click', (e) => {
+            if (e.target === helpModal) closeHelpModal();
+        });
 
-    copyUrlBtn.addEventListener('click', async () => {
-      try {
-        await navigator.clipboard.writeText(SHARE_URL);
-        copyUrlBtn.textContent = 'Kopioitu!';
-        setTimeout(() => { copyUrlBtn.textContent = 'Kopioi linkki'; }, 1500);
-      } catch (err) {
-        shareUrlInput.select();
-        document.execCommand('copy');
-        copyUrlBtn.textContent = 'Kopioitu!';
-        setTimeout(() => { copyUrlBtn.textContent = 'Kopioi linkki'; }, 1500);
-      }
-    });
+        // ---------- Päivitys ----------
+        function openUpdateModal() {
+            updateModal.classList.add('open');
+        }
 
-    // ---------- Ohjemodaali ----------
-    function openHelpModal() {
-      helpModal.classList.add('open');
-    }
+        function closeUpdateModal() {
+            updateModal.classList.remove('open');
+        }
 
-    function closeHelpModal() {
-      helpModal.classList.remove('open');
-    }
+        versionLink.addEventListener('click', openUpdateModal);
 
-    helpBtn.addEventListener('click', openHelpModal);
-    closeHelpBtn.addEventListener('click', closeHelpModal);
-    helpModal.addEventListener('click', (e) => {
-      if (e.target === helpModal) closeHelpModal();
-    });
+        updateYes.addEventListener('click', () => {
+            closeUpdateModal();
+            const url = window.location.href.split('?')[0];
+            const cacheBuster = 'v=' + Date.now();
+            window.location.href = url + '?' + cacheBuster;
+        });
 
-    // ---------- Päivitys ----------
-    function openUpdateModal() {
-      updateModal.classList.add('open');
-    }
+        updateNo.addEventListener('click', closeUpdateModal);
+        updateModal.addEventListener('click', (e) => {
+            if (e.target === updateModal) closeUpdateModal();
+        });
 
-    function closeUpdateModal() {
-      updateModal.classList.remove('open');
-    }
+        // ---------- Keskeytysdialogi ----------
+        function openConfirmDialog() {
+            confirmModal.classList.add('open');
+        }
 
-    versionLink.addEventListener('click', openUpdateModal);
+        function closeConfirmDialog() {
+            confirmModal.classList.remove('open');
+        }
 
-    updateYes.addEventListener('click', () => {
-      closeUpdateModal();
-      const url = window.location.href.split('?')[0];
-      const cacheBuster = 'v=' + Date.now();
-      window.location.href = url + '?' + cacheBuster;
-    });
+        confirmYes.addEventListener('click', () => {
+            closeConfirmDialog();
+            if (state === 'paused') {
+                resetToIdle();
+            }
+        });
 
-    updateNo.addEventListener('click', closeUpdateModal);
-    updateModal.addEventListener('click', (e) => {
-      if (e.target === updateModal) closeUpdateModal();
-    });
+        confirmNo.addEventListener('click', closeConfirmDialog);
+        confirmModal.addEventListener('click', (e) => {
+            if (e.target === confirmModal) closeConfirmDialog();
+        });
 
-    // ---------- Keskeytysdialogi ----------
-    function openConfirmDialog() {
-      confirmModal.classList.add('open');
-    }
+        // ---------- Apufunktiot ----------
+        function formatTime(totalSec) {
+            const mins = Math.floor(totalSec / 60);
+            const secs = totalSec % 60;
+            return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
 
-    function closeConfirmDialog() {
-      confirmModal.classList.remove('open');
-    }
+        function getTotalSeconds() {
+            const min = Math.max(0, Math.min(999, parseInt(minutesInput.value, 10) || 0));
+            const sec = Math.max(0, Math.min(59, parseInt(secondsInput.value, 10) || 0));
+            return min * 60 + sec;
+        }
 
-    confirmYes.addEventListener('click', () => {
-      closeConfirmDialog();
-      if (state === 'paused') {
-        resetToIdle();
-      }
-    });
+        function updateDisplay() {
+            display.textContent = formatTime(remainingSeconds);
+        }
 
-    confirmNo.addEventListener('click', closeConfirmDialog);
-    confirmModal.addEventListener('click', (e) => {
-      if (e.target === confirmModal) closeConfirmDialog();
-    });
+        function setInputsDisabled(disabled) {
+            minutesInput.disabled = disabled;
+            secondsInput.disabled = disabled;
+        }
 
-    // ---------- Apufunktiot ----------
-    function formatTime(totalSec) {
-      const mins = Math.floor(totalSec / 60);
-      const secs = totalSec % 60;
-      return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-    }
+        // ---------- UI-tilan päivitys ----------
+        function updateUI() {
+            const isRunning = state === 'running' || state === 'paused' || state === 'alarm';
 
-    function getTotalSeconds() {
-      const min = Math.max(0, Math.min(999, parseInt(minutesInput.value, 10) || 0));
-      const sec = Math.max(0, Math.min(59, parseInt(secondsInput.value, 10) || 0));
-      return min * 60 + sec;
-    }
+            document.body.classList.toggle('running-mode', isRunning);
+            document.body.classList.toggle('paused-mode', state === 'paused');
+            document.body.classList.toggle('alarm-mode', state === 'alarm');
 
-    function updateDisplay() {
-      display.textContent = formatTime(remainingSeconds);
-    }
+            startBtn.style.display = (state === 'idle') ? 'inline-block' : 'none';
+            soundSettingsBtn.style.display = (state === 'idle') ? 'inline-block' : 'none';
 
-    function setInputsDisabled(disabled) {
-      minutesInput.disabled = disabled;
-      secondsInput.disabled = disabled;
-    }
+            pauseBtn.style.display = (state === 'running') ? 'inline-block' : 'none';
+            resumeBtn.style.display = (state === 'paused') ? 'inline-block' : 'none';
+            cancelBtn.style.display = (state === 'paused') ? 'inline-block' : 'none';
+            alarmResetBtn.style.display = (state === 'alarm') ? 'inline-block' : 'none';
 
-    // ---------- UI-tilan päivitys ----------
-    function updateUI() {
-      const isRunning = state === 'running' || state === 'paused' || state === 'alarm';
+            setInputsDisabled(isRunning);
 
-      document.body.classList.toggle('running-mode', isRunning);
-      document.body.classList.toggle('paused-mode', state === 'paused');
-      document.body.classList.toggle('alarm-mode', state === 'alarm');
+            if (state === 'idle') {
+                soundSettingsBtn.disabled = false;
+            } else {
+                soundSettingsBtn.disabled = true;
+            }
 
-      startBtn.style.display = (state === 'idle') ? 'inline-block' : 'none';
-      soundSettingsBtn.style.display = (state === 'idle') ? 'inline-block' : 'none';
+            if (state === 'idle') {
+                startBtn.disabled = getTotalSeconds() <= 0;
+            }
 
-      pauseBtn.style.display = (state === 'running') ? 'inline-block' : 'none';
-      resumeBtn.style.display = (state === 'paused') ? 'inline-block' : 'none';
-      cancelBtn.style.display = (state === 'paused') ? 'inline-block' : 'none';
-      alarmResetBtn.style.display = (state === 'alarm') ? 'inline-block' : 'none';
+            updateDisplay();
 
-      setInputsDisabled(isRunning);
+            if (state !== 'alarm') {
+                display.classList.remove('flash');
+            }
+        }
 
-      if (state === 'idle') {
-        soundSettingsBtn.disabled = false;
-      } else {
-        soundSettingsBtn.disabled = true;
-      }
+        // ---------- Ajastimen toiminnallisuus ----------
+        function startTimer() {
+            if (state === 'running' || state === 'alarm') return;
 
-      if (state === 'idle') {
-        startBtn.disabled = getTotalSeconds() <= 0;
-      }
+            if (state === 'idle') {
+                initialMinutes = Math.max(0, Math.min(999, parseInt(minutesInput.value, 10) || 0));
+                initialSeconds = Math.max(0, Math.min(59, parseInt(secondsInput.value, 10) || 0));
+                minutesInput.value = initialMinutes;
+                secondsInput.value = initialSeconds;
+                remainingSeconds = initialMinutes * 60 + initialSeconds;
+                if (remainingSeconds <= 0) return;
+            }
 
-      updateDisplay();
+            ensureAudioContext();
+            requestWakeLock(); // hiljainen, ei ilmoituksia
 
-      if (state !== 'alarm') {
-        display.classList.remove('flash');
-      }
-    }
+            state = 'running';
+            display.classList.remove('flash');
+            updateUI();
 
-    // ---------- Ajastimen toiminnallisuus ----------
-    function startTimer() {
-      if (state === 'running' || state === 'alarm') return;
+            timerStartTime = Date.now();
+            timerStartRemaining = remainingSeconds;
 
-      if (state === 'idle') {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - timerStartTime) / 1000);
+                remainingSeconds = Math.max(0, timerStartRemaining - elapsed);
+                updateDisplay();
+
+                if (remainingSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    handleAlarm();
+                }
+            }, 100);
+        }
+
+        function pauseTimer() {
+            if (state === 'running') {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                state = 'paused';
+                releaseWakeLock();
+                updateUI();
+            }
+        }
+
+        function resumeTimer() {
+            if (state === 'paused') {
+                startTimer(); // pyytää wake lockin uudelleen
+            }
+        }
+
+        function cancelTimer() {
+            if (state === 'paused') {
+                openConfirmDialog();
+            }
+        }
+
+        function handleAlarm() {
+            state = 'alarm';
+            display.textContent = '00:00';
+            display.classList.add('flash');
+            updateUI();
+            playBuzzer();
+
+            alarmTimeout = setTimeout(() => {
+                stopBuzzer();
+                display.classList.remove('flash');
+                resetToIdle();
+            }, 3000);
+        }
+
+        function resetToIdle() {
+            state = 'idle';
+            minutesInput.value = initialMinutes;
+            secondsInput.value = initialSeconds;
+            remainingSeconds = initialMinutes * 60 + initialSeconds;
+            display.textContent = formatTime(remainingSeconds);
+            display.classList.remove('flash');
+            stopBuzzer();
+            releaseWakeLock();
+
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            if (alarmTimeout) {
+                clearTimeout(alarmTimeout);
+                alarmTimeout = null;
+            }
+
+            updateUI();
+        }
+
+        function updateIdleDisplay() {
+            if (state === 'idle') {
+                remainingSeconds = getTotalSeconds();
+                display.textContent = formatTime(remainingSeconds);
+                startBtn.disabled = remainingSeconds <= 0;
+            }
+        }
+
+        // ---------- Tapahtumakuuntelijat ----------
+        startBtn.addEventListener('click', startTimer);
+        pauseBtn.addEventListener('click', pauseTimer);
+        resumeBtn.addEventListener('click', resumeTimer);
+        cancelBtn.addEventListener('click', cancelTimer);
+        alarmResetBtn.addEventListener('click', () => {
+            stopBuzzer();
+            display.classList.remove('flash');
+            resetToIdle();
+        });
+
+        minutesInput.addEventListener('input', updateIdleDisplay);
+        secondsInput.addEventListener('input', updateIdleDisplay);
+
+        minutesInput.addEventListener('change', function() {
+            let val = parseInt(this.value, 10);
+            if (isNaN(val) || val < 0) this.value = 0;
+            if (val > 999) this.value = 999;
+            updateIdleDisplay();
+        });
+
+        secondsInput.addEventListener('change', function() {
+            let val = parseInt(this.value, 10);
+            if (isNaN(val) || val < 0) this.value = 0;
+            if (val > 59) this.value = 59;
+            updateIdleDisplay();
+        });
+
+        // ---------- visibilitychange ----------
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible' && state === 'running') {
+                const elapsed = Math.floor((Date.now() - timerStartTime) / 1000);
+                remainingSeconds = Math.max(0, timerStartRemaining - elapsed);
+                updateDisplay();
+
+                if (remainingSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    handleAlarm();
+                }
+            }
+        });
+
+        // ---------- Sovelluksen sulkeminen ----------
+        function closeApp() {
+            try {
+                if (window.close) {
+                    window.close();
+                    setTimeout(() => {
+                        if (!window.closed) {
+                            showCloseInstruction();
+                        }
+                    }, 500);
+                } else {
+                    showCloseInstruction();
+                }
+            } catch (e) {
+                showCloseInstruction();
+            }
+        }
+
+        function showCloseInstruction() {
+            alert('Sulje sovellus käyttämällä laitteen moniajonäkymää tai pyyhkäisemällä alhaalta ylös (iOS).');
+        }
+
+        closeAppBtn.addEventListener('click', closeApp);
+
+        // ---------- Alustus ----------
+        loadSelectedSound();
         initialMinutes = Math.max(0, Math.min(999, parseInt(minutesInput.value, 10) || 0));
         initialSeconds = Math.max(0, Math.min(59, parseInt(secondsInput.value, 10) || 0));
-        minutesInput.value = initialMinutes;
-        secondsInput.value = initialSeconds;
         remainingSeconds = initialMinutes * 60 + initialSeconds;
-        if (remainingSeconds <= 0) return;
-      } else if (state === 'paused') {
-        // jatketaan
-      }
-
-      ensureAudioContext();
-
-      // Pyydetään Wake Lock käyttäjän eleen seurauksena
-      requestWakeLock();
-
-      state = 'running';
-      display.classList.remove('flash');
-      updateUI();
-
-      timerStartTime = Date.now();
-      timerStartRemaining = remainingSeconds;
-
-      if (timerInterval) clearInterval(timerInterval);
-      timerInterval = setInterval(() => {
-        const elapsed = Math.floor((Date.now() - timerStartTime) / 1000);
-        remainingSeconds = Math.max(0, timerStartRemaining - elapsed);
-        updateDisplay();
-
-        if (remainingSeconds <= 0) {
-          clearInterval(timerInterval);
-          timerInterval = null;
-          handleAlarm();
-        }
-      }, 100);
-    }
-
-    function pauseTimer() {
-      if (state === 'running') {
-        clearInterval(timerInterval);
-        timerInterval = null;
-        state = 'paused';
-        releaseWakeLock(); // vapautetaan, mutta pyydetään uudelleen jatkettaessa
         updateUI();
-      }
-    }
+        updateIdleDisplay();
 
-    function resumeTimer() {
-      if (state === 'paused') {
-        startTimer(); // pyytää wake lockin uudelleen
-      }
-    }
+        versionLink.textContent = APP_VERSION;
 
-    function cancelTimer() {
-      if (state === 'paused') {
-        openConfirmDialog();
-      }
-    }
-
-    function handleAlarm() {
-      state = 'alarm';
-      display.textContent = '00:00';
-      display.classList.add('flash');
-      updateUI();
-      playBuzzer();
-
-      alarmTimeout = setTimeout(() => {
-        stopBuzzer();
-        display.classList.remove('flash');
-        resetToIdle();
-      }, 3000);
-    }
-
-    function resetToIdle() {
-      state = 'idle';
-      minutesInput.value = initialMinutes;
-      secondsInput.value = initialSeconds;
-      remainingSeconds = initialMinutes * 60 + initialSeconds;
-      display.textContent = formatTime(remainingSeconds);
-      display.classList.remove('flash');
-      stopBuzzer();
-      releaseWakeLock();
-
-      if (timerInterval) {
-        clearInterval(timerInterval);
-        timerInterval = null;
-      }
-      if (alarmTimeout) {
-        clearTimeout(alarmTimeout);
-        alarmTimeout = null;
-      }
-
-      updateUI();
-    }
-
-    function updateIdleDisplay() {
-      if (state === 'idle') {
-        remainingSeconds = getTotalSeconds();
-        display.textContent = formatTime(remainingSeconds);
-        startBtn.disabled = remainingSeconds <= 0;
-      }
-    }
-
-    // ---------- Tapahtumakuuntelijat ----------
-    startBtn.addEventListener('click', startTimer);
-    pauseBtn.addEventListener('click', pauseTimer);
-    resumeBtn.addEventListener('click', resumeTimer);
-    cancelBtn.addEventListener('click', cancelTimer);
-    alarmResetBtn.addEventListener('click', () => {
-      stopBuzzer();
-      display.classList.remove('flash');
-      resetToIdle();
-    });
-
-    minutesInput.addEventListener('input', updateIdleDisplay);
-    secondsInput.addEventListener('input', updateIdleDisplay);
-
-    minutesInput.addEventListener('change', function() {
-      let val = parseInt(this.value, 10);
-      if (isNaN(val) || val < 0) this.value = 0;
-      if (val > 999) this.value = 999;
-      updateIdleDisplay();
-    });
-
-    secondsInput.addEventListener('change', function() {
-      let val = parseInt(this.value, 10);
-      if (isNaN(val) || val < 0) this.value = 0;
-      if (val > 59) this.value = 59;
-      updateIdleDisplay();
-    });
-
-    // ---------- visibilitychange ----------
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible' && state === 'running') {
-        const elapsed = Math.floor((Date.now() - timerStartTime) / 1000);
-        remainingSeconds = Math.max(0, timerStartRemaining - elapsed);
-        updateDisplay();
-
-        if (remainingSeconds <= 0) {
-          clearInterval(timerInterval);
-          timerInterval = null;
-          handleAlarm();
-        }
-      }
-    });
-
-    // ---------- Sovelluksen sulkeminen ----------
-    function closeApp() {
-      try {
-        if (window.close) {
-          window.close();
-          // Jos ikkuna ei sulkeutunut 500ms sisällä, oletetaan ettei onnistu
-          setTimeout(() => {
-            if (!window.closed) {
-              showCloseInstruction();
-            }
-          }, 500);
-        } else {
-          showCloseInstruction();
-        }
-      } catch (e) {
-        showCloseInstruction();
-      }
-    }
-
-    function showCloseInstruction() {
-      alert('Sulje sovellus käyttämällä laitteen moniajonäkymää tai pyyhkäisemällä alhaalta ylös (iOS).');
-    }
-
-    closeAppBtn.addEventListener('click', closeApp);
-
-    // ---------- Alustus ----------
-    loadSelectedSound();
-    initialMinutes = Math.max(0, Math.min(999, parseInt(minutesInput.value, 10) || 0));
-    initialSeconds = Math.max(0, Math.min(59, parseInt(secondsInput.value, 10) || 0));
-    remainingSeconds = initialMinutes * 60 + initialSeconds;
-    updateUI();
-    updateIdleDisplay();
-
-    versionLink.textContent = APP_VERSION;
-
-    if (!wakeLockSupported) {
-      wakeLockInfo.textContent = '⚠️ Selaimesi ei tue näytön hereilläpitoa. Pidä näyttö päällä manuaalisesti.';
-    } else {
-      // Ei pyydetä automaattisesti, vaan odotetaan käyttäjän toimintaa
-      wakeLockInfo.textContent = '💡 Näyttö pidetään hereillä ajastimen käydessä.';
-    }
-
-    console.log('Ajastin ladattu. Versio:', APP_VERSION, 'Ääni:', currentSound);
-  </script>
+        // Wake Lock -ilmoitukset poistettu kokonaan
+        console.log('Ajastin ladattu. Versio:', APP_VERSION, 'Ääni:', currentSound);
+    </script>
 </body>
 </html>
