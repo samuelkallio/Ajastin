@@ -1,611 +1,595 @@
 <!DOCTYPE html>
 <html lang="fi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Ajastin</title>
-
-  <!-- Favicon ja Apple Touch -kuvakkeet (iOS & Android PWA) -->
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏱️</text></svg>">
-  <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏱️</text></svg>">
-  <link rel="apple-touch-icon" sizes="152x152" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏱️</text></svg>">
-  <link rel="apple-touch-icon" sizes="120x120" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏱️</text></svg>">
-  <link rel="apple-touch-icon" sizes="76x76" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏱️</text></svg>">
-
-  <!-- PWA manifest (dynaaminen, jotta kuvakkeet toimivat) -->
-  <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkFqYXN0aW4iLAogICJzaG9ydF9uYW1lIjogIkFqYXN0aW4iLAogICJkZXNjcmlwdGlvbiI6ICJUaW1lciBhbmQgYWxhcm0gYXBwIiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiMxYTFhMmUiLAogICJ0aGVtZV9jb2xvciI6ICIjMWE1YzJlIiwKICAiaWNvbnMiOiBbCiAgICB7ICJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sLDxzdmcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB2aWV3Qm94PScwIDAgMTAwIDEwMCc+PHRleHQgeT0nLjllbScgZm9udC1zaXplPSc5MCc+4oyxPC90ZXh0Pjwvc3ZnPiIsICJzaXplcyI6ICI1MTJ4NTEyIiwgInR5cGUiOiAiaW1hZ2Uvc3ZnK3htbCIgfQogIF0KfQ==">
-
-  <style>
-    /* ... kaikki aiemmat tyylit ennallaan ... */
-    :root {
-      --bg: #1a1a2e;
-      --card: #16213e;
-      --accent: #e94560;
-      --secondary: #533483;
-      --text: #e0e0e0;
-      --display-bg: #0f3460;
-      --modal-bg: rgba(0, 0, 0, 0.7);
-    }
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: var(--bg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      padding: 1rem;
-      transition: background 0.3s;
-    }
-    body.running-mode {
-      padding: 0;
-      background: #0d0d1a;
-    }
-    body.running-mode .container {
-      max-width: 100%;
-      border-radius: 0;
-      box-shadow: none;
-      background: #0d0d1a;
-      padding: 0.5rem;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-    }
-    body.running-mode .container .header {
-      display: none !important;
-    }
-    body.running-mode .container .inputs,
-    body.running-mode .container #soundSettingsBtn,
-    body.running-mode .container #startBtn {
-      display: none !important;
-    }
-    body.running-mode .container .display {
-      font-size: min(25vw, 25vh, 18rem);
-      background: transparent;
-      padding: 0.2rem;
-      margin: 0.5rem 0;
-      flex: 0 1 auto;
-      width: 100%;
-      text-align: center;
-      letter-spacing: 0.03em;
-      color: #fff;
-      line-height: 1.2;
-    }
-    body.running-mode .container .buttons {
-      margin-top: 1.5rem;
-      gap: 1rem;
-      flex-wrap: wrap;
-      justify-content: center;
-      width: 100%;
-      max-width: 28rem;
-    }
-    body.running-mode .container .buttons .pause-btn {
-      font-size: 2rem;
-      padding: 1.2rem 3.5rem;
-      min-height: 5rem;
-      flex: 0 1 auto;
-      min-width: 12rem;
-      border-radius: 3rem;
-      background: var(--accent);
-      color: #fff;
-      font-weight: 700;
-      border: none;
-      cursor: pointer;
-      transition: transform 0.1s, background 0.15s;
-    }
-    body.running-mode .container .buttons .pause-btn:active {
-      transform: scale(0.95);
-    }
-    body.running-mode .container .buttons .pause-btn.secondary {
-      background: var(--secondary);
-    }
-    body.running-mode .container .buttons .pause-btn.cancel-btn {
-      background: transparent;
-      border: 2px solid var(--accent);
-      color: var(--accent);
-      font-size: 1.2rem;
-      padding: 0.8rem 1.8rem;
-      min-height: 3.5rem;
-      min-width: 8rem;
-    }
-    body.running-mode .container .buttons .pause-btn.cancel-btn:active {
-      background: rgba(233, 69, 96, 0.15);
-    }
-    .display.flash {
-      animation: blink 0.5s step-start infinite;
-      color: #ff6b6b !important;
-      background: transparent !important;
-    }
-    @keyframes blink { 50% { opacity: 0.2; } }
-    .container {
-      background: var(--card);
-      padding: 1.5rem 1.2rem;
-      border-radius: 2rem;
-      box-shadow: 0 1rem 3rem rgba(0,0,0,0.4);
-      width: 100%;
-      max-width: 24rem;
-      text-align: center;
-      position: relative;
-      transition: all 0.3s ease;
-    }
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 1rem;
-      gap: 0.25rem;
-    }
-    .header .left-group, .header .right-group {
-      display: flex;
-      align-items: center;
-      gap: 0.25rem;
-    }
-    .header h1 {
-      color: var(--text);
-      font-size: 1.5rem;
-      margin: 0;
-      font-weight: 700;
-      flex: 1;
-      text-align: center;
-    }
-    .close-app-btn, .help-icon-btn, .share-icon-btn {
-      background: none;
-      border: none;
-      color: var(--text);
-      font-size: 1.6rem;
-      cursor: pointer;
-      padding: 0.2rem 0.4rem;
-      line-height: 1;
-      transition: color 0.15s;
-      font-weight: 400;
-      min-width: 2.2rem;
-      text-align: center;
-    }
-    .close-app-btn:hover, .help-icon-btn:hover, .share-icon-btn:hover {
-      color: var(--accent);
-    }
-    .close-app-btn { font-weight: 700; font-size: 1.5rem; }
-    .help-icon-btn { font-weight: 700; font-size: 1.5rem; }
-    .display {
-      font-size: 4rem;
-      font-weight: 700;
-      color: var(--text);
-      background: var(--display-bg);
-      padding: 0.6rem 0.5rem;
-      border-radius: 1.2rem;
-      font-variant-numeric: tabular-nums;
-      letter-spacing: 0.05em;
-      margin: 0.5rem 0 1rem;
-      transition: font-size 0.3s, background 0.15s, color 0.15s, padding 0.3s;
-    }
-    .inputs {
-      display: flex;
-      gap: 0.75rem;
-      justify-content: center;
-      align-items: center;
-      margin: 1rem 0;
-      transition: opacity 0.3s, max-height 0.3s;
-    }
-    .input-group {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    label { color: #aaa; font-size: 0.9rem; margin-bottom: 0.3rem; }
-    input {
-      width: 5.5rem;
-      padding: 0.75rem;
-      font-size: 1.5rem;
-      text-align: center;
-      border: none;
-      border-radius: 0.8rem;
-      background: var(--display-bg);
-      color: var(--text);
-      font-weight: 600;
-    }
-    input:disabled { opacity: 0.5; }
-    .buttons {
-      display: flex;
-      gap: 0.75rem;
-      justify-content: center;
-      margin-top: 1.2rem;
-      flex-wrap: wrap;
-      transition: all 0.3s;
-    }
-    .buttons button {
-      flex: 1;
-      padding: 1rem;
-      font-size: 1.25rem;
-      font-weight: 600;
-      border: none;
-      border-radius: 1rem;
-      cursor: pointer;
-      background: var(--accent);
-      color: #fff;
-      min-height: 3.5rem;
-      transition: background 0.15s, transform 0.05s, opacity 0.3s;
-    }
-    .buttons button:active { transform: scale(0.97); }
-    .buttons button.secondary { background: var(--secondary); }
-    .buttons button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-    .settings-btn {
-      background: transparent !important;
-      color: var(--text) !important;
-      border: 2px solid var(--secondary) !important;
-      flex: 0 0 auto !important;
-      padding: 0.75rem 1.2rem !important;
-      font-size: 1rem !important;
-      margin-top: 0.5rem;
-      min-height: 3.5rem;
-    }
-    .settings-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    .wake-lock-info { display: none !important; }
-
-    /* Modaalit */
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: var(--modal-bg);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      padding: 1rem;
-      backdrop-filter: blur(4px);
-    }
-    .modal-overlay.open { display: flex; }
-    .modal {
-      background: var(--card);
-      border-radius: 1.5rem;
-      padding: 1.5rem;
-      width: 100%;
-      max-width: 22rem;
-      max-height: 80vh;
-      overflow-y: auto;
-      box-shadow: 0 1rem 3rem rgba(0,0,0,0.6);
-      animation: modalIn 0.2s ease;
-    }
-    @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-    .modal h2 { color: var(--text); margin: 0 0 1rem; font-size: 1.4rem; text-align: center; }
-    .sound-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-    }
-    .sound-item {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      background: var(--display-bg);
-      border-radius: 0.8rem;
-      padding: 0.5rem 0.8rem;
-      transition: background 0.15s;
-      cursor: pointer;
-    }
-    .sound-item:hover { background: #1a3a6a; }
-    .sound-item input[type="radio"] {
-      appearance: none;
-      -webkit-appearance: none;
-      width: 1.2rem;
-      height: 1.2rem;
-      border: 2px solid #666;
-      border-radius: 50%;
-      flex-shrink: 0;
-      transition: border 0.15s, background 0.15s;
-      cursor: pointer;
-      position: relative;
-    }
-    .sound-item input[type="radio"]:checked {
-      border-color: var(--accent);
-      background: var(--accent);
-    }
-    .sound-item input[type="radio"]:checked::after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 0.4rem;
-      height: 0.4rem;
-      border-radius: 50%;
-      background: #fff;
-    }
-    .sound-item label {
-      color: var(--text);
-      font-size: 1rem;
-      font-weight: 500;
-      cursor: pointer;
-      flex: 1;
-      text-align: left;
-      padding: 0.3rem 0;
-      margin: 0;
-    }
-    .sound-item label.selected-label { color: var(--accent); font-weight: 700; }
-    .play-preview-btn {
-      background: var(--secondary);
-      border: none;
-      color: #fff;
-      border-radius: 50%;
-      width: 2.4rem;
-      height: 2.4rem;
-      font-size: 1.1rem;
-      cursor: pointer;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.15s, transform 0.1s;
-      padding: 0;
-      line-height: 1;
-    }
-    .play-preview-btn:active { transform: scale(0.9); }
-    .play-preview-btn:hover { background: var(--accent); }
-    .play-preview-btn.playing { background: var(--accent); }
-    .play-preview-btn.playing::after { content: '⏹'; font-size: 0.9rem; }
-    .play-preview-btn:not(.playing)::after { content: '▶'; font-size: 1rem; }
-    .share-url-input {
-      width: 100%;
-      padding: 0.75rem;
-      font-size: 1rem;
-      border: none;
-      border-radius: 0.8rem;
-      background: var(--display-bg);
-      color: var(--text);
-      margin: 0.5rem 0;
-      text-align: center;
-      font-weight: 500;
-    }
-    .copy-btn {
-      width: 100%;
-      margin: 0.5rem 0;
-      background: var(--secondary);
-      border: none;
-      color: #fff;
-      border-radius: 0.8rem;
-      padding: 0.75rem;
-      font-size: 1rem;
-      cursor: pointer;
-      font-weight: 600;
-    }
-    .qr-container { display: flex; justify-content: center; margin: 1rem 0; }
-    .qr-container img { max-width: 200px; max-height: 200px; border-radius: 0.5rem; background: #fff; padding: 0.5rem; }
-    .close-btn {
-      background: transparent;
-      border: 2px solid var(--secondary);
-      color: var(--text);
-      border-radius: 0.8rem;
-      padding: 0.6rem;
-      width: 100%;
-      margin-top: 0.5rem;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background 0.15s;
-    }
-    .close-btn:hover { background: rgba(83, 52, 131, 0.2); }
-    .confirm-dialog .dialog-actions {
-      display: flex;
-      gap: 0.75rem;
-      margin-top: 1.5rem;
-    }
-    .confirm-dialog .dialog-actions button {
-      flex: 1;
-      padding: 0.8rem;
-      font-size: 1.1rem;
-      font-weight: 600;
-      border: none;
-      border-radius: 0.8rem;
-      cursor: pointer;
-      transition: background 0.15s, transform 0.05s;
-    }
-    .confirm-dialog .dialog-actions button:active { transform: scale(0.97); }
-    .confirm-dialog .dialog-actions .btn-yes { background: var(--accent); color: #fff; }
-    .confirm-dialog .dialog-actions .btn-no { background: var(--secondary); color: #fff; }
-    .confirm-dialog p { color: var(--text); font-size: 1.1rem; text-align: center; margin: 0.5rem 0; line-height: 1.5; }
-    .help-content { color: var(--text); text-align: left; padding: 0 0.2rem; }
-    .help-content ul { padding-left: 1.2rem; margin: 0.5rem 0 1rem; line-height: 1.7; }
-    .help-content ul li { margin-bottom: 0.3rem; }
-    .version-info { text-align: center; padding: 0.8rem 0 0.2rem; border-top: 1px solid rgba(255,255,255,0.08); margin-top: 0.8rem; }
-    .version-info .version-label { color: #888; font-size: 0.85rem; }
-    .version-info .version-link {
-      color: var(--accent);
-      font-weight: 600;
-      text-decoration: underline;
-      cursor: pointer;
-      transition: color 0.15s;
-      font-size: 1rem;
-      background: none;
-      border: none;
-      padding: 0.2rem 0.6rem;
-    }
-    .version-info .version-link:hover { color: #ff7a92; }
-    .update-dialog .dialog-actions {
-      display: flex;
-      gap: 0.75rem;
-      margin-top: 1.5rem;
-    }
-    .update-dialog .dialog-actions button {
-      flex: 1;
-      padding: 0.8rem;
-      font-size: 1.1rem;
-      font-weight: 600;
-      border: none;
-      border-radius: 0.8rem;
-      cursor: pointer;
-      transition: background 0.15s, transform 0.05s;
-    }
-    .update-dialog .dialog-actions button:active { transform: scale(0.97); }
-    .update-dialog .dialog-actions .btn-yes { background: var(--accent); color: #fff; }
-    .update-dialog .dialog-actions .btn-no { background: var(--secondary); color: #fff; }
-    .update-dialog p { color: var(--text); font-size: 1.1rem; text-align: center; margin: 0.5rem 0; line-height: 1.5; }
-    .alarm-reset-btn {
-      background: var(--secondary) !important;
-      color: #fff !important;
-      border: none !important;
-      padding: 0.8rem 2rem !important;
-      font-size: 1.2rem !important;
-      border-radius: 2rem !important;
-      cursor: pointer !important;
-      font-weight: 600 !important;
-      transition: background 0.15s, transform 0.05s !important;
-    }
-    .alarm-reset-btn:active { transform: scale(0.95) !important; }
-    #cancelBtn { display: none; }
-    body.running-mode .container .buttons #cancelBtn { display: inline-block; }
-    body.running-mode .container #startBtn,
-    body.running-mode .container #soundSettingsBtn { display: none !important; }
-    #pauseBtn, #resumeBtn, #cancelBtn, #alarmResetBtn { display: none; }
-    body.running-mode .container #pauseBtn { display: inline-block; }
-    body.running-mode.paused-mode .container #pauseBtn { display: none !important; }
-    body.running-mode.paused-mode .container #resumeBtn { display: inline-block; }
-    body.running-mode.paused-mode .container #cancelBtn { display: inline-block; }
-    body.running-mode.alarm-mode .container #pauseBtn,
-    body.running-mode.alarm-mode .container #resumeBtn,
-    body.running-mode.alarm-mode .container #cancelBtn { display: none !important; }
-    body.running-mode.alarm-mode .container #alarmResetBtn { display: inline-block; }
-    body.running-mode .container .inputs { display: none !important; }
-    body.running-mode .container .display { display: block !important; }
-    @media (max-width: 400px) {
-      .display { font-size: 3.2rem; }
-      body.running-mode .container .display { font-size: min(25vw, 25vh, 8rem); }
-      body.running-mode .container .buttons .pause-btn {
-        font-size: 1.5rem;
-        padding: 1rem 2.5rem;
-        min-width: 10rem;
-      }
-    }
-    @media (min-width: 600px) {
-      body.running-mode .container .display { font-size: min(25vw, 25vh, 18rem); }
-      body.running-mode .container .buttons .pause-btn {
-        font-size: 2.5rem;
-        padding: 1.5rem 4rem;
-        min-width: 14rem;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Ajastin</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏱️</text></svg>">
+    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏱️</text></svg>">
+    <link rel="apple-touch-icon" sizes="152x152" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏱️</text></svg>">
+    <link rel="apple-touch-icon" sizes="120x120" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏱️</text></svg>">
+    <link rel="apple-touch-icon" sizes="76x76" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏱️</text></svg>">
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkFqYXN0aW4iLAogICJzaG9ydF9uYW1lIjogIkFqYXN0aW4iLAogICJkZXNjcmlwdGlvbiI6ICJUaW1lciBhbmQgYWxhcm0gYXBwIiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiMxYTFhMmUiLAogICJ0aGVtZV9jb2xvciI6ICIjMWE1YzJlIiwKICAiaWNvbnMiOiBbCiAgICB7ICJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sLDxzdmcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB2aWV3Qm94PScwIDAgMTAwIDEwMCc+PHRleHQgeT0nLjllbScgZm9udC1zaXplPSc5MCc+4oyxPC90ZXh0Pjwvc3ZnPiIsICJzaXplcyI6ICI1MTJ4NTEyIiwgInR5cGUiOiAiaW1hZ2Uvc3ZnK3htbCIgfQogIF0KfQ==">
+    <style>
+        /* Kaikki tyylit ennallaan (sama kuin aiemmin) */
+        :root {
+            --bg: #1a1a2e;
+            --card: #16213e;
+            --accent: #e94560;
+            --secondary: #533483;
+            --text: #e0e0e0;
+            --display-bg: #0f3460;
+            --modal-bg: rgba(0, 0, 0, 0.7);
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            padding: 1rem;
+            transition: background 0.3s;
+        }
+        body.running-mode {
+            padding: 0;
+            background: #0d0d1a;
+        }
+        body.running-mode .container {
+            max-width: 100%;
+            border-radius: 0;
+            box-shadow: none;
+            background: #0d0d1a;
+            padding: 0.5rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        body.running-mode .container .header { display: none !important; }
+        body.running-mode .container .inputs,
+        body.running-mode .container #soundSettingsBtn,
+        body.running-mode .container #startBtn { display: none !important; }
+        body.running-mode .container .display {
+            font-size: min(25vw, 25vh, 18rem);
+            background: transparent;
+            padding: 0.2rem;
+            margin: 0.5rem 0;
+            flex: 0 1 auto;
+            width: 100%;
+            text-align: center;
+            letter-spacing: 0.03em;
+            color: #fff;
+            line-height: 1.2;
+        }
+        body.running-mode .container .buttons {
+            margin-top: 1.5rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+            max-width: 28rem;
+        }
+        body.running-mode .container .buttons .pause-btn {
+            font-size: 2rem;
+            padding: 1.2rem 3.5rem;
+            min-height: 5rem;
+            flex: 0 1 auto;
+            min-width: 12rem;
+            border-radius: 3rem;
+            background: var(--accent);
+            color: #fff;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.1s, background 0.15s;
+        }
+        body.running-mode .container .buttons .pause-btn:active { transform: scale(0.95); }
+        body.running-mode .container .buttons .pause-btn.secondary { background: var(--secondary); }
+        body.running-mode .container .buttons .pause-btn.cancel-btn {
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            font-size: 1.2rem;
+            padding: 0.8rem 1.8rem;
+            min-height: 3.5rem;
+            min-width: 8rem;
+        }
+        body.running-mode .container .buttons .pause-btn.cancel-btn:active {
+            background: rgba(233, 69, 96, 0.15);
+        }
+        .display.flash {
+            animation: blink 0.5s step-start infinite;
+            color: #ff6b6b !important;
+            background: transparent !important;
+        }
+        @keyframes blink { 50% { opacity: 0.2; } }
+        .container {
+            background: var(--card);
+            padding: 1.5rem 1.2rem;
+            border-radius: 2rem;
+            box-shadow: 0 1rem 3rem rgba(0,0,0,0.4);
+            width: 100%;
+            max-width: 24rem;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            gap: 0.25rem;
+        }
+        .header .left-group, .header .right-group {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        .header h1 {
+            color: var(--text);
+            font-size: 1.5rem;
+            margin: 0;
+            font-weight: 700;
+            flex: 1;
+            text-align: center;
+        }
+        .close-app-btn, .help-icon-btn, .share-icon-btn {
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 1.6rem;
+            cursor: pointer;
+            padding: 0.2rem 0.4rem;
+            line-height: 1;
+            transition: color 0.15s;
+            font-weight: 400;
+            min-width: 2.2rem;
+            text-align: center;
+        }
+        .close-app-btn:hover, .help-icon-btn:hover, .share-icon-btn:hover { color: var(--accent); }
+        .close-app-btn { font-weight: 700; font-size: 1.5rem; }
+        .help-icon-btn { font-weight: 700; font-size: 1.5rem; }
+        .display {
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--text);
+            background: var(--display-bg);
+            padding: 0.6rem 0.5rem;
+            border-radius: 1.2rem;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.05em;
+            margin: 0.5rem 0 1rem;
+            transition: font-size 0.3s, background 0.15s, color 0.15s, padding 0.3s;
+        }
+        .inputs {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            align-items: center;
+            margin: 1rem 0;
+            transition: opacity 0.3s, max-height 0.3s;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        label { color: #aaa; font-size: 0.9rem; margin-bottom: 0.3rem; }
+        input {
+            width: 5.5rem;
+            padding: 0.75rem;
+            font-size: 1.5rem;
+            text-align: center;
+            border: none;
+            border-radius: 0.8rem;
+            background: var(--display-bg);
+            color: var(--text);
+            font-weight: 600;
+        }
+        input:disabled { opacity: 0.5; }
+        .buttons {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            margin-top: 1.2rem;
+            flex-wrap: wrap;
+            transition: all 0.3s;
+        }
+        .buttons button {
+            flex: 1;
+            padding: 1rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 1rem;
+            cursor: pointer;
+            background: var(--accent);
+            color: #fff;
+            min-height: 3.5rem;
+            transition: background 0.15s, transform 0.05s, opacity 0.3s;
+        }
+        .buttons button:active { transform: scale(0.97); }
+        .buttons button.secondary { background: var(--secondary); }
+        .buttons button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .settings-btn {
+            background: transparent !important;
+            color: var(--text) !important;
+            border: 2px solid var(--secondary) !important;
+            flex: 0 0 auto !important;
+            padding: 0.75rem 1.2rem !important;
+            font-size: 1rem !important;
+            margin-top: 0.5rem;
+            min-height: 3.5rem;
+        }
+        .settings-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .wake-lock-info { display: none !important; }
+        /* Modaalit */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--modal-bg);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 1rem;
+            backdrop-filter: blur(4px);
+        }
+        .modal-overlay.open { display: flex; }
+        .modal {
+            background: var(--card);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 22rem;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 1rem 3rem rgba(0,0,0,0.6);
+            animation: modalIn 0.2s ease;
+        }
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .modal h2 { color: var(--text); margin: 0 0 1rem; font-size: 1.4rem; text-align: center; }
+        .sound-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .sound-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: var(--display-bg);
+            border-radius: 0.8rem;
+            padding: 0.5rem 0.8rem;
+            transition: background 0.15s;
+            cursor: pointer;
+        }
+        .sound-item:hover { background: #1a3a6a; }
+        .sound-item input[type="radio"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 1.2rem;
+            height: 1.2rem;
+            border: 2px solid #666;
+            border-radius: 50%;
+            flex-shrink: 0;
+            transition: border 0.15s, background 0.15s;
+            cursor: pointer;
+            position: relative;
+        }
+        .sound-item input[type="radio"]:checked {
+            border-color: var(--accent);
+            background: var(--accent);
+        }
+        .sound-item input[type="radio"]:checked::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 0.4rem;
+            height: 0.4rem;
+            border-radius: 50%;
+            background: #fff;
+        }
+        .sound-item label {
+            color: var(--text);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            flex: 1;
+            text-align: left;
+            padding: 0.3rem 0;
+            margin: 0;
+        }
+        .sound-item label.selected-label { color: var(--accent); font-weight: 700; }
+        .play-preview-btn {
+            background: var(--secondary);
+            border: none;
+            color: #fff;
+            border-radius: 50%;
+            width: 2.4rem;
+            height: 2.4rem;
+            font-size: 1.1rem;
+            cursor: pointer;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s, transform 0.1s;
+            padding: 0;
+            line-height: 1;
+        }
+        .play-preview-btn:active { transform: scale(0.9); }
+        .play-preview-btn:hover { background: var(--accent); }
+        .play-preview-btn.playing { background: var(--accent); }
+        .play-preview-btn.playing::after { content: '⏹'; font-size: 0.9rem; }
+        .play-preview-btn:not(.playing)::after { content: '▶'; font-size: 1rem; }
+        .share-url-input {
+            width: 100%;
+            padding: 0.75rem;
+            font-size: 1rem;
+            border: none;
+            border-radius: 0.8rem;
+            background: var(--display-bg);
+            color: var(--text);
+            margin: 0.5rem 0;
+            text-align: center;
+            font-weight: 500;
+        }
+        .copy-btn {
+            width: 100%;
+            margin: 0.5rem 0;
+            background: var(--secondary);
+            border: none;
+            color: #fff;
+            border-radius: 0.8rem;
+            padding: 0.75rem;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .qr-container { display: flex; justify-content: center; margin: 1rem 0; }
+        .qr-container img { max-width: 200px; max-height: 200px; border-radius: 0.5rem; background: #fff; padding: 0.5rem; }
+        .close-btn {
+            background: transparent;
+            border: 2px solid var(--secondary);
+            color: var(--text);
+            border-radius: 0.8rem;
+            padding: 0.6rem;
+            width: 100%;
+            margin-top: 0.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .close-btn:hover { background: rgba(83, 52, 131, 0.2); }
+        .confirm-dialog .dialog-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+        .confirm-dialog .dialog-actions button {
+            flex: 1;
+            padding: 0.8rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 0.8rem;
+            cursor: pointer;
+            transition: background 0.15s, transform 0.05s;
+        }
+        .confirm-dialog .dialog-actions button:active { transform: scale(0.97); }
+        .confirm-dialog .dialog-actions .btn-yes { background: var(--accent); color: #fff; }
+        .confirm-dialog .dialog-actions .btn-no { background: var(--secondary); color: #fff; }
+        .confirm-dialog p { color: var(--text); font-size: 1.1rem; text-align: center; margin: 0.5rem 0; line-height: 1.5; }
+        .help-content { color: var(--text); text-align: left; padding: 0 0.2rem; }
+        .help-content ul { padding-left: 1.2rem; margin: 0.5rem 0 1rem; line-height: 1.7; }
+        .help-content ul li { margin-bottom: 0.3rem; }
+        .version-info { text-align: center; padding: 0.8rem 0 0.2rem; border-top: 1px solid rgba(255,255,255,0.08); margin-top: 0.8rem; }
+        .version-info .version-label { color: #888; font-size: 0.85rem; }
+        .version-info .version-link {
+            color: var(--accent);
+            font-weight: 600;
+            text-decoration: underline;
+            cursor: pointer;
+            transition: color 0.15s;
+            font-size: 1rem;
+            background: none;
+            border: none;
+            padding: 0.2rem 0.6rem;
+        }
+        .version-info .version-link:hover { color: #ff7a92; }
+        .update-dialog .dialog-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+        .update-dialog .dialog-actions button {
+            flex: 1;
+            padding: 0.8rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 0.8rem;
+            cursor: pointer;
+            transition: background 0.15s, transform 0.05s;
+        }
+        .update-dialog .dialog-actions button:active { transform: scale(0.97); }
+        .update-dialog .dialog-actions .btn-yes { background: var(--accent); color: #fff; }
+        .update-dialog .dialog-actions .btn-no { background: var(--secondary); color: #fff; }
+        .update-dialog p { color: var(--text); font-size: 1.1rem; text-align: center; margin: 0.5rem 0; line-height: 1.5; }
+        .alarm-reset-btn {
+            background: var(--secondary) !important;
+            color: #fff !important;
+            border: none !important;
+            padding: 0.8rem 2rem !important;
+            font-size: 1.2rem !important;
+            border-radius: 2rem !important;
+            cursor: pointer !important;
+            font-weight: 600 !important;
+            transition: background 0.15s, transform 0.05s !important;
+        }
+        .alarm-reset-btn:active { transform: scale(0.95) !important; }
+        #cancelBtn { display: none; }
+        body.running-mode .container .buttons #cancelBtn { display: inline-block; }
+        body.running-mode .container #startBtn,
+        body.running-mode .container #soundSettingsBtn { display: none !important; }
+        #pauseBtn, #resumeBtn, #cancelBtn, #alarmResetBtn { display: none; }
+        body.running-mode .container #pauseBtn { display: inline-block; }
+        body.running-mode.paused-mode .container #pauseBtn { display: none !important; }
+        body.running-mode.paused-mode .container #resumeBtn { display: inline-block; }
+        body.running-mode.paused-mode .container #cancelBtn { display: inline-block; }
+        body.running-mode.alarm-mode .container #pauseBtn,
+        body.running-mode.alarm-mode .container #resumeBtn,
+        body.running-mode.alarm-mode .container #cancelBtn { display: none !important; }
+        body.running-mode.alarm-mode .container #alarmResetBtn { display: inline-block; }
+        body.running-mode .container .inputs { display: none !important; }
+        body.running-mode .container .display { display: block !important; }
+        @media (max-width: 400px) {
+            .display { font-size: 3.2rem; }
+            body.running-mode .container .display { font-size: min(25vw, 25vh, 8rem); }
+            body.running-mode .container .buttons .pause-btn {
+                font-size: 1.5rem;
+                padding: 1rem 2.5rem;
+                min-width: 10rem;
+            }
+        }
+        @media (min-width: 600px) {
+            body.running-mode .container .display { font-size: min(25vw, 25vh, 18rem); }
+            body.running-mode .container .buttons .pause-btn {
+                font-size: 2.5rem;
+                padding: 1.5rem 4rem;
+                min-width: 14rem;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="container" id="appContainer">
+<div class="container" id="appContainer">
     <div class="header">
-      <div class="left-group">
-        <button id="closeAppBtn" class="close-app-btn" title="Sulje sovellus" aria-label="Sulje sovellus">✕</button>
-      </div>
-      <h1>Ajastin</h1>
-      <div class="right-group">
-        <button id="helpBtn" class="help-icon-btn" title="Ohje" aria-label="Käyttöohje">?</button>
-        <button id="shareBtn" class="share-icon-btn" title="Jaa" aria-label="Jaa sovellus">🔗</button>
-      </div>
+        <div class="left-group">
+            <button id="closeAppBtn" class="close-app-btn" title="Sulje sovellus" aria-label="Sulje sovellus">✕</button>
+        </div>
+        <h1>Ajastin</h1>
+        <div class="right-group">
+            <button id="helpBtn" class="help-icon-btn" title="Ohje" aria-label="Käyttöohje">?</button>
+            <button id="shareBtn" class="share-icon-btn" title="Jaa" aria-label="Jaa sovellus">🔗</button>
+        </div>
     </div>
 
     <div id="display" class="display">00:00</div>
 
     <div class="inputs">
-      <div class="input-group">
-        <label for="minutes">Minuutit</label>
-        <input id="minutes" type="number" inputmode="numeric" min="0" max="999" step="1" value="5">
-      </div>
-      <div class="input-group">
-        <label for="seconds">Sekunnit</label>
-        <input id="seconds" type="number" inputmode="numeric" min="0" max="59" step="1" value="0">
-      </div>
+        <div class="input-group">
+            <label for="minutes">Minuutit</label>
+            <input id="minutes" type="number" inputmode="numeric" min="0" max="999" step="1" value="5">
+        </div>
+        <div class="input-group">
+            <label for="seconds">Sekunnit</label>
+            <input id="seconds" type="number" inputmode="numeric" min="0" max="59" step="1" value="0">
+        </div>
     </div>
 
     <div class="buttons" id="buttonsArea">
-      <button id="startBtn">Käynnistä</button>
-      <button id="soundSettingsBtn" class="settings-btn">Summeri</button>
-      <button id="pauseBtn" class="pause-btn">Tauko</button>
-      <button id="resumeBtn" class="pause-btn">Jatka</button>
-      <button id="cancelBtn" class="pause-btn cancel-btn">Keskeytä</button>
-      <button id="alarmResetBtn" class="alarm-reset-btn">Nollaa</button>
+        <button id="startBtn">Käynnistä</button>
+        <button id="soundSettingsBtn" class="settings-btn">Summeri</button>
+        <button id="pauseBtn" class="pause-btn">Tauko</button>
+        <button id="resumeBtn" class="pause-btn">Jatka</button>
+        <button id="cancelBtn" class="pause-btn cancel-btn">Keskeytä</button>
+        <button id="alarmResetBtn" class="alarm-reset-btn">Nollaa</button>
     </div>
 
     <div id="wakeLockInfo" class="wake-lock-info"></div>
-  </div>
+</div>
 
-  <!-- Modaalit -->
-  <div id="soundModal" class="modal-overlay">
+<!-- Modaalit -->
+<div id="soundModal" class="modal-overlay">
     <div class="modal">
-      <h2>Valitse summeriääni</h2>
-      <div id="soundList" class="sound-list"></div>
-      <button id="closeModalBtn" class="close-btn">Sulje</button>
+        <h2>Valitse summeriääni</h2>
+        <div id="soundList" class="sound-list"></div>
+        <button id="closeModalBtn" class="close-btn">Sulje</button>
     </div>
-  </div>
+</div>
 
-  <div id="shareModal" class="modal-overlay">
+<div id="shareModal" class="modal-overlay">
     <div class="modal">
-      <h2>Jaa sovellus</h2>
-      <input type="text" id="shareUrlInput" class="share-url-input" value="https://samuelkallio.github.io/Ajastin/" readonly onclick="this.select()">
-      <button id="copyUrlBtn" class="copy-btn">Kopioi linkki</button>
-      <div class="qr-container">
-        <img id="qrCode" src="" alt="QR-koodi" width="200" height="200">
-      </div>
-      <button id="closeShareModalBtn" class="close-btn">Sulje</button>
+        <h2>Jaa sovellus</h2>
+        <input type="text" id="shareUrlInput" class="share-url-input" value="https://samuelkallio.github.io/Ajastin/" readonly onclick="this.select()">
+        <button id="copyUrlBtn" class="copy-btn">Kopioi linkki</button>
+        <div class="qr-container">
+            <img id="qrCode" src="" alt="QR-koodi" width="200" height="200">
+        </div>
+        <button id="closeShareModalBtn" class="close-btn">Sulje</button>
     </div>
-  </div>
+</div>
 
-  <div id="confirmModal" class="modal-overlay">
+<div id="confirmModal" class="modal-overlay">
     <div class="modal confirm-dialog">
-      <h2>Vahvista</h2>
-      <p>Haluatko varmasti pysäyttää ajastimen?</p>
-      <div class="dialog-actions">
-        <button id="confirmYes" class="btn-yes">Kyllä</button>
-        <button id="confirmNo" class="btn-no">Ei</button>
-      </div>
+        <h2>Vahvista</h2>
+        <p>Haluatko varmasti pysäyttää ajastimen?</p>
+        <div class="dialog-actions">
+            <button id="confirmYes" class="btn-yes">Kyllä</button>
+            <button id="confirmNo" class="btn-no">Ei</button>
+        </div>
     </div>
-  </div>
+</div>
 
-  <div id="helpModal" class="modal-overlay">
+<div id="helpModal" class="modal-overlay">
     <div class="modal">
-      <h2>📖 Käyttöohje</h2>
-      <div class="help-content">
-        <ul>
-          <li>Aseta haluamasi aika <strong>minuutteina</strong> ja <strong>sekunteina</strong>.</li>
-          <li>Paina <strong>Käynnistä</strong> aloittaaksesi ajastuksen.</li>
-          <li>Käynnissä ollessa näet vain <strong>kellon</strong> ja <strong>Tauko</strong>-painikkeen.</li>
-          <li>Tauon aikana voit <strong>Jatkaa</strong> tai <strong>Keskeyttää</strong> ajastuksen.</li>
-          <li>Keskeytys vaatii vahvistuksen.</li>
-          <li>Valitse haluamasi summeriääni <strong>Summeri</strong>-painikkeesta.</li>
-          <li>Jaa sovellus <strong>linkin</strong> tai <strong>QR-koodin</strong> avulla.</li>
-        </ul>
-      </div>
-      <div class="version-info">
-        <span class="version-label">Versio </span>
-        <button id="versionLink" class="version-link">1.2.3</button>
-        <span style="color:#666; font-size:0.8rem; display:block; margin-top:0.2rem;">Päivitä sovellus klikkaamalla versiota</span>
-      </div>
-      <button id="closeHelpBtn" class="close-btn">Sulje</button>
+        <h2>📖 Käyttöohje</h2>
+        <div class="help-content">
+            <ul>
+                <li>Aseta haluamasi aika <strong>minuutteina</strong> ja <strong>sekunteina</strong>.</li>
+                <li>Paina <strong>Käynnistä</strong> aloittaaksesi ajastuksen.</li>
+                <li>Käynnissä ollessa näet vain <strong>kellon</strong> ja <strong>Tauko</strong>-painikkeen.</li>
+                <li>Tauon aikana voit <strong>Jatkaa</strong> tai <strong>Keskeyttää</strong> ajastuksen.</li>
+                <li>Keskeytys vaatii vahvistuksen.</li>
+                <li>Valitse haluamasi summeriääni <strong>Summeri</strong>-painikkeesta.</li>
+                <li>Jaa sovellus <strong>linkin</strong> tai <strong>QR-koodin</strong> avulla.</li>
+            </ul>
+        </div>
+        <div class="version-info">
+            <span class="version-label">Versio </span>
+            <button id="versionLink" class="version-link">1.2.4</button>
+            <span style="color:#666; font-size:0.8rem; display:block; margin-top:0.2rem;">Päivitä sovellus klikkaamalla versiota</span>
+        </div>
+        <button id="closeHelpBtn" class="close-btn">Sulje</button>
     </div>
-  </div>
+</div>
 
-  <div id="updateModal" class="modal-overlay">
+<div id="updateModal" class="modal-overlay">
     <div class="modal update-dialog">
-      <h2>🔄 Päivitys</h2>
-      <p>Haluatko varmasti päivittää sovelluksen uusimpaan versioon?</p>
-      <div class="dialog-actions">
-        <button id="updateYes" class="btn-yes">Kyllä</button>
-        <button id="updateNo" class="btn-no">Ei</button>
-      </div>
+        <h2>🔄 Päivitys</h2>
+        <p>Haluatko varmasti päivittää sovelluksen uusimpaan versioon?</p>
+        <div class="dialog-actions">
+            <button id="updateYes" class="btn-yes">Kyllä</button>
+            <button id="updateNo" class="btn-no">Ei</button>
+        </div>
     </div>
-  </div>
+</div>
 
-  <audio id="buzzer" preload="auto" loop></audio>
+<audio id="buzzer" preload="auto" loop></audio>
 
-  <script>
+<script>
     // ---------- Äänivalinnat ----------
     const soundOptions = [
-      { file: 'horn.mp3', label: 'horn' },
-      { file: 'ice hockey.m4a', label: 'ice hockey' },
-      { file: 'school bell.m4a', label: 'school bell' }
+        { file: 'horn.mp3', label: 'horn' },
+        { file: 'ice hockey.m4a', label: 'ice hockey' },
+        { file: 'school bell.m4a', label: 'school bell' }
     ];
     const DEFAULT_SOUND = 'school bell.m4a';
     const SHARE_URL = 'https://samuelkallio.github.io/Ajastin/';
-    const APP_VERSION = '1.2.3';
+    const APP_VERSION = '1.2.4';
 
     let currentSound = DEFAULT_SOUND;
     let previewAudio = null;
@@ -665,544 +649,511 @@
 
     // ---------- Wake Lock ----------
     async function requestWakeLock() {
-      if (!wakeLockSupported) return;
-      try {
-        if (wakeLock) return;
-        wakeLock = await navigator.wakeLock.request('screen');
-        wakeLock.addEventListener('release', () => {
-          wakeLock = null;
-        });
-      } catch (err) {
-        wakeLock = null;
-      }
+        if (!wakeLockSupported) return;
+        try {
+            if (wakeLock) return;
+            wakeLock = await navigator.wakeLock.request('screen');
+            wakeLock.addEventListener('release', () => {
+                wakeLock = null;
+            });
+        } catch (err) {
+            wakeLock = null;
+        }
     }
 
     async function releaseWakeLock() {
-      if (wakeLock) {
-        try { await wakeLock.release(); wakeLock = null; } catch (e) {}
-      }
-    }
-
-    // ---------- Ääniluvan varmistus ----------
-    function ensureAudioPermissions() {
-      try {
-        if (!audioCtx) {
-          const AudioContext = window.AudioContext || window.webkitAudioContext;
-          if (!AudioContext) return false;
-          audioCtx = new AudioContext();
+        if (wakeLock) {
+            try { await wakeLock.release(); wakeLock = null; } catch (e) {}
         }
-        if (audioCtx.state === 'suspended') {
-          return audioCtx.resume().then(() => {
-            try {
-              const osc = audioCtx.createOscillator();
-              const gain = audioCtx.createGain();
-              gain.gain.value = 0.001;
-              osc.connect(gain);
-              gain.connect(audioCtx.destination);
-              osc.start();
-              osc.stop(audioCtx.currentTime + 0.01);
-            } catch (e) {}
-            return true;
-          }).catch(() => false);
-        }
-        return true;
-      } catch (e) {
-        return false;
-      }
     }
 
     // ---------- Äänen hallinta ----------
     function loadSelectedSound() {
-      try {
-        const saved = localStorage.getItem('selectedSound');
-        if (saved && soundOptions.some(s => s.file === saved)) {
-          currentSound = saved;
-        } else {
-          currentSound = DEFAULT_SOUND;
+        try {
+            const saved = localStorage.getItem('selectedSound');
+            if (saved && soundOptions.some(s => s.file === saved)) {
+                currentSound = saved;
+            } else {
+                currentSound = DEFAULT_SOUND;
+            }
+        } catch (e) {
+            currentSound = DEFAULT_SOUND;
         }
-      } catch (e) {
-        currentSound = DEFAULT_SOUND;
-      }
-      buzzer.src = currentSound;
-      buzzer.volume = 1.0; // maksimi äänenvoimakkuus
+        buzzer.src = currentSound;
+        buzzer.volume = 1.0;
     }
 
     function saveSelectedSound(file) {
-      try { localStorage.setItem('selectedSound', file); } catch (e) {}
-      currentSound = file;
-      buzzer.src = file;
-      buzzer.volume = 1.0;
+        try { localStorage.setItem('selectedSound', file); } catch (e) {}
+        currentSound = file;
+        buzzer.src = file;
+        buzzer.volume = 1.0;
     }
 
     function getSoundLabel(file) {
-      const opt = soundOptions.find(s => s.file === file);
-      return opt ? opt.label : file;
+        const opt = soundOptions.find(s => s.file === file);
+        return opt ? opt.label : file;
     }
 
     function playPreview(file) {
-      stopPreview();
-      previewAudio = new Audio(file);
-      previewAudio.volume = 1.0;
-      previewAudio.preload = 'auto';
-      const playPromise = previewAudio.play();
-      if (playPromise !== undefined) {
-        playPromise.then(() => {
-          previewPlaying = true;
-          updatePlayButtons();
-        }).catch(() => {
-          fallbackBeep(0.4);
-          previewPlaying = true;
-          updatePlayButtons();
-        });
-      } else {
-        fallbackBeep(0.4);
-        previewPlaying = true;
-        updatePlayButtons();
-      }
-      setTimeout(() => {
-        if (previewPlaying) stopPreview();
-      }, 3000);
+        stopPreview();
+        previewAudio = new Audio(file);
+        previewAudio.volume = 1.0;
+        previewAudio.preload = 'auto';
+        const playPromise = previewAudio.play();
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                previewPlaying = true;
+                updatePlayButtons();
+            }).catch(() => {
+                fallbackBeep(0.4, true);
+                previewPlaying = true;
+                updatePlayButtons();
+            });
+        } else {
+            fallbackBeep(0.4, true);
+            previewPlaying = true;
+            updatePlayButtons();
+        }
+        setTimeout(() => {
+            if (previewPlaying) stopPreview();
+        }, 3000);
     }
 
     function stopPreview() {
-      if (previewAudio) {
-        previewAudio.pause();
-        previewAudio.currentTime = 0;
-        previewAudio = null;
-      }
-      if (fallbackOscillator) {
-        try {
-          fallbackOscillator.stop();
-          fallbackOscillator.disconnect();
-        } catch (e) {}
-        fallbackOscillator = null;
-      }
-      if (fallbackGain) {
-        try { fallbackGain.disconnect(); } catch (e) {}
-        fallbackGain = null;
-      }
-      previewPlaying = false;
-      updatePlayButtons();
+        if (previewAudio) {
+            previewAudio.pause();
+            previewAudio.currentTime = 0;
+            previewAudio = null;
+        }
+        if (fallbackOscillator) {
+            try {
+                fallbackOscillator.stop();
+                fallbackOscillator.disconnect();
+            } catch (e) {}
+            fallbackOscillator = null;
+        }
+        if (fallbackGain) {
+            try { fallbackGain.disconnect(); } catch (e) {}
+            fallbackGain = null;
+        }
+        previewPlaying = false;
+        updatePlayButtons();
     }
 
     function updatePlayButtons() {
-      document.querySelectorAll('.play-preview-btn').forEach(btn => {
-        const file = btn.dataset.file;
-        if (previewPlaying && previewAudio && previewAudio.src && previewAudio.src.includes(file)) {
-          btn.classList.add('playing');
-        } else {
-          btn.classList.remove('playing');
-        }
-      });
+        document.querySelectorAll('.play-preview-btn').forEach(btn => {
+            const file = btn.dataset.file;
+            if (previewPlaying && previewAudio && previewAudio.src && previewAudio.src.includes(file)) {
+                btn.classList.add('playing');
+            } else {
+                btn.classList.remove('playing');
+            }
+        });
     }
 
-    // ---------- Summerin soitto (vahvistettu ääni) ----------
-    function ensureAudioContext() {
-      try {
-        if (!audioCtx) {
-          const AudioContext = window.AudioContext || window.webkitAudioContext;
-          if (!AudioContext) return;
-          audioCtx = new AudioContext();
-        }
-        if (audioCtx.state === 'suspended') {
-          audioCtx.resume().catch(() => {});
-        }
-      } catch (e) {}
-    }
-
+    // ---------- Summerin soitto (vain fallback, HTMLAudioElement ensisijainen) ----------
     function playBuzzer() {
-      // Aseta äänenvoimakkuus maksimiin
-      buzzer.volume = 1.0;
-
-      // Varmistetaan äänilupa
-      ensureAudioPermissions().then(() => {
+        buzzer.volume = 1.0;
         buzzer.currentTime = 0;
         const playPromise = buzzer.play();
         if (playPromise !== undefined) {
-          playPromise.then(() => {}).catch(() => { fallbackBeep(0.4); });
+            playPromise.catch(() => {
+                fallbackBeep(0.4, false);
+            });
         } else {
-          fallbackBeep(0.4);
+            fallbackBeep(0.4, false);
         }
-      }).catch(() => {
-        buzzer.currentTime = 0;
-        const playPromise = buzzer.play();
-        if (playPromise !== undefined) {
-          playPromise.then(() => {}).catch(() => { fallbackBeep(0.4); });
-        } else {
-          fallbackBeep(0.4);
-        }
-      });
     }
 
     function stopBuzzer() {
-      try {
-        if (fallbackOscillator) {
-          fallbackOscillator.stop();
-          fallbackOscillator.disconnect();
-          fallbackOscillator = null;
-        }
-        if (fallbackGain) {
-          fallbackGain.disconnect();
-          fallbackGain = null;
-        }
-      } catch (e) {}
-      try {
-        buzzer.pause();
-        buzzer.currentTime = 0;
-      } catch (e) {}
-      if (audioCtx) {
-        audioCtx.close().catch(() => {});
-        audioCtx = null;
-      }
+        // Pysäytä mahdollinen fallback-oskillaattori
+        try {
+            if (fallbackOscillator) {
+                fallbackOscillator.stop();
+                fallbackOscillator.disconnect();
+                fallbackOscillator = null;
+            }
+            if (fallbackGain) {
+                fallbackGain.disconnect();
+                fallbackGain = null;
+            }
+        } catch (e) {}
+        try {
+            buzzer.pause();
+            buzzer.currentTime = 0;
+        } catch (e) {}
+        // Älä sulje audioCtx:ta, jotta se voidaan käyttää uudelleen
     }
 
-    function fallbackBeep(gainValue = 0.4) {
-      try {
-        ensureAudioContext();
-        if (!audioCtx) return;
-        fallbackOscillator = audioCtx.createOscillator();
-        fallbackGain = audioCtx.createGain();
-        fallbackOscillator.type = 'square';
-        fallbackOscillator.frequency.value = 880;
-        fallbackGain.gain.value = gainValue; // 0.4 = kuuluvampi
-        fallbackOscillator.connect(fallbackGain).connect(audioCtx.destination);
-        fallbackOscillator.start();
-        setTimeout(() => {
-          if (fallbackOscillator) {
-            try {
-              fallbackOscillator.stop();
-              fallbackOscillator.disconnect();
-            } catch (e) {}
-            fallbackOscillator = null;
-          }
-          if (fallbackGain) {
-            try { fallbackGain.disconnect(); } catch (e) {}
-            fallbackGain = null;
-          }
-        }, 3000);
-      } catch (e) {}
+    function fallbackBeep(gainValue = 0.4, isPreview = false) {
+        try {
+            // Luodaan tai käytetään olemassa olevaa AudioContextia
+            if (!audioCtx || audioCtx.state === 'closed') {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                audioCtx = new AudioContext();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume().catch(() => {});
+            }
+            // Jos edellinen oskillaattori on vielä käynnissä, pysäytetään se
+            if (fallbackOscillator) {
+                try {
+                    fallbackOscillator.stop();
+                    fallbackOscillator.disconnect();
+                } catch (e) {}
+                fallbackOscillator = null;
+            }
+            if (fallbackGain) {
+                try { fallbackGain.disconnect(); } catch (e) {}
+                fallbackGain = null;
+            }
+            fallbackOscillator = audioCtx.createOscillator();
+            fallbackGain = audioCtx.createGain();
+            fallbackOscillator.type = 'square';
+            fallbackOscillator.frequency.value = 880;
+            fallbackGain.gain.value = gainValue;
+            fallbackOscillator.connect(fallbackGain).connect(audioCtx.destination);
+            fallbackOscillator.start();
+            // Pysäytetään 3 sekunnin kuluttua (paitsi esikatselussa, se pysäytetään erikseen)
+            if (!isPreview) {
+                setTimeout(() => {
+                    if (fallbackOscillator) {
+                        try {
+                            fallbackOscillator.stop();
+                            fallbackOscillator.disconnect();
+                        } catch (e) {}
+                        fallbackOscillator = null;
+                    }
+                    if (fallbackGain) {
+                        try { fallbackGain.disconnect(); } catch (e) {}
+                        fallbackGain = null;
+                    }
+                }, 3000);
+            }
+        } catch (e) {}
     }
 
     // ---------- Modaali (äänet) ----------
     function renderSoundList() {
-      soundListContainer.innerHTML = '';
-      soundOptions.forEach(opt => {
-        const item = document.createElement('div');
-        item.className = 'sound-item';
+        soundListContainer.innerHTML = '';
+        soundOptions.forEach(opt => {
+            const item = document.createElement('div');
+            item.className = 'sound-item';
 
-        const radio = document.createElement('input');
-        radio.type = 'radio';
-        radio.name = 'soundSelect';
-        radio.value = opt.file;
-        radio.id = 'sound_' + opt.file.replace(/\./g, '_');
-        if (opt.file === currentSound) {
-          radio.checked = true;
-        }
+            const radio = document.createElement('input');
+            radio.type = 'radio';
+            radio.name = 'soundSelect';
+            radio.value = opt.file;
+            radio.id = 'sound_' + opt.file.replace(/\./g, '_');
+            if (opt.file === currentSound) {
+                radio.checked = true;
+            }
 
-        const label = document.createElement('label');
-        label.htmlFor = radio.id;
-        label.textContent = opt.label;
-        if (opt.file === currentSound) {
-          label.classList.add('selected-label');
-        }
+            const label = document.createElement('label');
+            label.htmlFor = radio.id;
+            label.textContent = opt.label;
+            if (opt.file === currentSound) {
+                label.classList.add('selected-label');
+            }
 
-        const previewBtn = document.createElement('button');
-        previewBtn.className = 'play-preview-btn';
-        previewBtn.dataset.file = opt.file;
-        previewBtn.setAttribute('aria-label', 'Koesoita ' + opt.label);
-        previewBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          if (previewPlaying && previewAudio && previewAudio.src && previewAudio.src.includes(opt.file)) {
-            stopPreview();
-          } else {
-            playPreview(opt.file);
-          }
+            const previewBtn = document.createElement('button');
+            previewBtn.className = 'play-preview-btn';
+            previewBtn.dataset.file = opt.file;
+            previewBtn.setAttribute('aria-label', 'Koesoita ' + opt.label);
+            previewBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (previewPlaying && previewAudio && previewAudio.src && previewAudio.src.includes(opt.file)) {
+                    stopPreview();
+                } else {
+                    playPreview(opt.file);
+                }
+            });
+
+            radio.addEventListener('change', () => {
+                if (radio.checked) {
+                    saveSelectedSound(opt.file);
+                    renderSoundList();
+                    closeSoundModal();
+                }
+            });
+
+            item.appendChild(radio);
+            item.appendChild(label);
+            item.appendChild(previewBtn);
+            soundListContainer.appendChild(item);
         });
-
-        radio.addEventListener('change', () => {
-          if (radio.checked) {
-            saveSelectedSound(opt.file);
-            renderSoundList();
-            closeSoundModal();
-          }
-        });
-
-        item.appendChild(radio);
-        item.appendChild(label);
-        item.appendChild(previewBtn);
-        soundListContainer.appendChild(item);
-      });
-      updatePlayButtons();
+        updatePlayButtons();
     }
 
     function openSoundModal() {
-      renderSoundList();
-      soundModal.classList.add('open');
-      stopPreview();
+        renderSoundList();
+        soundModal.classList.add('open');
+        stopPreview();
     }
 
     function closeSoundModal() {
-      soundModal.classList.remove('open');
-      stopPreview();
+        soundModal.classList.remove('open');
+        stopPreview();
     }
 
     soundSettingsBtn.addEventListener('click', openSoundModal);
     closeModalBtn.addEventListener('click', closeSoundModal);
     soundModal.addEventListener('click', (e) => {
-      if (e.target === soundModal) closeSoundModal();
+        if (e.target === soundModal) closeSoundModal();
     });
 
     // ---------- Modaali (jako) ----------
     function openShareModal() {
-      shareUrlInput.value = SHARE_URL;
-      qrCodeImg.src =
-        `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(SHARE_URL)}`;
-      shareModal.classList.add('open');
+        shareUrlInput.value = SHARE_URL;
+        qrCodeImg.src =
+            `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(SHARE_URL)}`;
+        shareModal.classList.add('open');
     }
 
     function closeShareModal() {
-      shareModal.classList.remove('open');
+        shareModal.classList.remove('open');
     }
 
     shareBtn.addEventListener('click', openShareModal);
     closeShareModalBtn.addEventListener('click', closeShareModal);
     shareModal.addEventListener('click', (e) => {
-      if (e.target === shareModal) closeShareModal();
+        if (e.target === shareModal) closeShareModal();
     });
 
     copyUrlBtn.addEventListener('click', async () => {
-      try {
-        await navigator.clipboard.writeText(SHARE_URL);
-        copyUrlBtn.textContent = 'Kopioitu!';
-        setTimeout(() => { copyUrlBtn.textContent = 'Kopioi linkki'; }, 1500);
-      } catch (err) {
-        shareUrlInput.select();
-        document.execCommand('copy');
-        copyUrlBtn.textContent = 'Kopioitu!';
-        setTimeout(() => { copyUrlBtn.textContent = 'Kopioi linkki'; }, 1500);
-      }
+        try {
+            await navigator.clipboard.writeText(SHARE_URL);
+            copyUrlBtn.textContent = 'Kopioitu!';
+            setTimeout(() => { copyUrlBtn.textContent = 'Kopioi linkki'; }, 1500);
+        } catch (err) {
+            shareUrlInput.select();
+            document.execCommand('copy');
+            copyUrlBtn.textContent = 'Kopioitu!';
+            setTimeout(() => { copyUrlBtn.textContent = 'Kopioi linkki'; }, 1500);
+        }
     });
 
     // ---------- Ohjemodaali ----------
     function openHelpModal() {
-      helpModal.classList.add('open');
+        helpModal.classList.add('open');
     }
 
     function closeHelpModal() {
-      helpModal.classList.remove('open');
+        helpModal.classList.remove('open');
     }
 
     helpBtn.addEventListener('click', openHelpModal);
     closeHelpBtn.addEventListener('click', closeHelpModal);
     helpModal.addEventListener('click', (e) => {
-      if (e.target === helpModal) closeHelpModal();
+        if (e.target === helpModal) closeHelpModal();
     });
 
     // ---------- Päivitys ----------
     function openUpdateModal() {
-      updateModal.classList.add('open');
+        updateModal.classList.add('open');
     }
 
     function closeUpdateModal() {
-      updateModal.classList.remove('open');
+        updateModal.classList.remove('open');
     }
 
     versionLink.addEventListener('click', openUpdateModal);
 
     updateYes.addEventListener('click', () => {
-      closeUpdateModal();
-      const url = window.location.href.split('?')[0];
-      const cacheBuster = 'v=' + Date.now();
-      window.location.href = url + '?' + cacheBuster;
+        closeUpdateModal();
+        const url = window.location.href.split('?')[0];
+        const cacheBuster = 'v=' + Date.now();
+        window.location.href = url + '?' + cacheBuster;
     });
 
     updateNo.addEventListener('click', closeUpdateModal);
     updateModal.addEventListener('click', (e) => {
-      if (e.target === updateModal) closeUpdateModal();
+        if (e.target === updateModal) closeUpdateModal();
     });
 
     // ---------- Keskeytysdialogi ----------
     function openConfirmDialog() {
-      confirmModal.classList.add('open');
+        confirmModal.classList.add('open');
     }
 
     function closeConfirmDialog() {
-      confirmModal.classList.remove('open');
+        confirmModal.classList.remove('open');
     }
 
     confirmYes.addEventListener('click', () => {
-      closeConfirmDialog();
-      if (state === 'paused') {
-        resetToIdle();
-      }
+        closeConfirmDialog();
+        if (state === 'paused') {
+            resetToIdle();
+        }
     });
 
     confirmNo.addEventListener('click', closeConfirmDialog);
     confirmModal.addEventListener('click', (e) => {
-      if (e.target === confirmModal) closeConfirmDialog();
+        if (e.target === confirmModal) closeConfirmDialog();
     });
 
     // ---------- Apufunktiot ----------
     function formatTime(totalSec) {
-      const mins = Math.floor(totalSec / 60);
-      const secs = totalSec % 60;
-      return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        const mins = Math.floor(totalSec / 60);
+        const secs = totalSec % 60;
+        return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
     }
 
     function getTotalSeconds() {
-      const min = Math.max(0, Math.min(999, parseInt(minutesInput.value, 10) || 0));
-      const sec = Math.max(0, Math.min(59, parseInt(secondsInput.value, 10) || 0));
-      return min * 60 + sec;
+        const min = Math.max(0, Math.min(999, parseInt(minutesInput.value, 10) || 0));
+        const sec = Math.max(0, Math.min(59, parseInt(secondsInput.value, 10) || 0));
+        return min * 60 + sec;
     }
 
     function updateDisplay() {
-      display.textContent = formatTime(remainingSeconds);
+        display.textContent = formatTime(remainingSeconds);
     }
 
     function setInputsDisabled(disabled) {
-      minutesInput.disabled = disabled;
-      secondsInput.disabled = disabled;
+        minutesInput.disabled = disabled;
+        secondsInput.disabled = disabled;
     }
 
     // ---------- UI-tilan päivitys ----------
     function updateUI() {
-      const isRunning = state === 'running' || state === 'paused' || state === 'alarm';
+        const isRunning = state === 'running' || state === 'paused' || state === 'alarm';
 
-      document.body.classList.toggle('running-mode', isRunning);
-      document.body.classList.toggle('paused-mode', state === 'paused');
-      document.body.classList.toggle('alarm-mode', state === 'alarm');
+        document.body.classList.toggle('running-mode', isRunning);
+        document.body.classList.toggle('paused-mode', state === 'paused');
+        document.body.classList.toggle('alarm-mode', state === 'alarm');
 
-      startBtn.style.display = (state === 'idle') ? 'inline-block' : 'none';
-      soundSettingsBtn.style.display = (state === 'idle') ? 'inline-block' : 'none';
+        startBtn.style.display = (state === 'idle') ? 'inline-block' : 'none';
+        soundSettingsBtn.style.display = (state === 'idle') ? 'inline-block' : 'none';
 
-      pauseBtn.style.display = (state === 'running') ? 'inline-block' : 'none';
-      resumeBtn.style.display = (state === 'paused') ? 'inline-block' : 'none';
-      cancelBtn.style.display = (state === 'paused') ? 'inline-block' : 'none';
-      alarmResetBtn.style.display = (state === 'alarm') ? 'inline-block' : 'none';
+        pauseBtn.style.display = (state === 'running') ? 'inline-block' : 'none';
+        resumeBtn.style.display = (state === 'paused') ? 'inline-block' : 'none';
+        cancelBtn.style.display = (state === 'paused') ? 'inline-block' : 'none';
+        alarmResetBtn.style.display = (state === 'alarm') ? 'inline-block' : 'none';
 
-      setInputsDisabled(isRunning);
+        setInputsDisabled(isRunning);
 
-      if (state === 'idle') {
-        soundSettingsBtn.disabled = false;
-      } else {
-        soundSettingsBtn.disabled = true;
-      }
+        if (state === 'idle') {
+            soundSettingsBtn.disabled = false;
+        } else {
+            soundSettingsBtn.disabled = true;
+        }
 
-      if (state === 'idle') {
-        startBtn.disabled = getTotalSeconds() <= 0;
-      }
+        if (state === 'idle') {
+            startBtn.disabled = getTotalSeconds() <= 0;
+        }
 
-      updateDisplay();
+        updateDisplay();
 
-      if (state !== 'alarm') {
-        display.classList.remove('flash');
-      }
+        if (state !== 'alarm') {
+            display.classList.remove('flash');
+        }
     }
 
     // ---------- Ajastimen toiminnallisuus ----------
     function startTimer() {
-      if (state === 'running' || state === 'alarm') return;
+        if (state === 'running' || state === 'alarm') return;
 
-      if (state === 'idle') {
-        initialMinutes = Math.max(0, Math.min(999, parseInt(minutesInput.value, 10) || 0));
-        initialSeconds = Math.max(0, Math.min(59, parseInt(secondsInput.value, 10) || 0));
-        minutesInput.value = initialMinutes;
-        secondsInput.value = initialSeconds;
-        remainingSeconds = initialMinutes * 60 + initialSeconds;
-        if (remainingSeconds <= 0) return;
-      }
-
-      // Varmistetaan äänilupa
-      ensureAudioPermissions();
-
-      // Wake Lock
-      requestWakeLock();
-
-      state = 'running';
-      display.classList.remove('flash');
-      updateUI();
-
-      timerStartTime = Date.now();
-      timerStartRemaining = remainingSeconds;
-
-      if (timerInterval) clearInterval(timerInterval);
-      timerInterval = setInterval(() => {
-        const elapsed = Math.floor((Date.now() - timerStartTime) / 1000);
-        remainingSeconds = Math.max(0, timerStartRemaining - elapsed);
-        updateDisplay();
-
-        if (remainingSeconds <= 0) {
-          clearInterval(timerInterval);
-          timerInterval = null;
-          handleAlarm();
+        if (state === 'idle') {
+            initialMinutes = Math.max(0, Math.min(999, parseInt(minutesInput.value, 10) || 0));
+            initialSeconds = Math.max(0, Math.min(59, parseInt(secondsInput.value, 10) || 0));
+            minutesInput.value = initialMinutes;
+            secondsInput.value = initialSeconds;
+            remainingSeconds = initialMinutes * 60 + initialSeconds;
+            if (remainingSeconds <= 0) return;
         }
-      }, 100);
+
+        // Pyydetään Wake Lock
+        requestWakeLock();
+
+        state = 'running';
+        display.classList.remove('flash');
+        updateUI();
+
+        timerStartTime = Date.now();
+        timerStartRemaining = remainingSeconds;
+
+        if (timerInterval) clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            const elapsed = Math.floor((Date.now() - timerStartTime) / 1000);
+            remainingSeconds = Math.max(0, timerStartRemaining - elapsed);
+            updateDisplay();
+
+            if (remainingSeconds <= 0) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                handleAlarm();
+            }
+        }, 100);
     }
 
     function pauseTimer() {
-      if (state === 'running') {
-        clearInterval(timerInterval);
-        timerInterval = null;
-        state = 'paused';
-        releaseWakeLock();
-        updateUI();
-      }
+        if (state === 'running') {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            state = 'paused';
+            releaseWakeLock();
+            updateUI();
+        }
     }
 
     function resumeTimer() {
-      if (state === 'paused') {
-        startTimer();
-      }
+        if (state === 'paused') {
+            startTimer();
+        }
     }
 
     function cancelTimer() {
-      if (state === 'paused') {
-        openConfirmDialog();
-      }
+        if (state === 'paused') {
+            openConfirmDialog();
+        }
     }
 
     function handleAlarm() {
-      state = 'alarm';
-      display.textContent = '00:00';
-      display.classList.add('flash');
-      updateUI();
-      playBuzzer();
+        state = 'alarm';
+        display.textContent = '00:00';
+        display.classList.add('flash');
+        updateUI();
+        playBuzzer();
 
-      alarmTimeout = setTimeout(() => {
-        stopBuzzer();
-        display.classList.remove('flash');
-        resetToIdle();
-      }, 3000);
+        // Nollataan 3 sekunnin kuluttua
+        if (alarmTimeout) clearTimeout(alarmTimeout);
+        alarmTimeout = setTimeout(() => {
+            stopBuzzer();
+            display.classList.remove('flash');
+            resetToIdle();
+        }, 3000);
     }
 
     function resetToIdle() {
-      state = 'idle';
-      minutesInput.value = initialMinutes;
-      secondsInput.value = initialSeconds;
-      remainingSeconds = initialMinutes * 60 + initialSeconds;
-      display.textContent = formatTime(remainingSeconds);
-      display.classList.remove('flash');
-      stopBuzzer();
-      releaseWakeLock();
+        state = 'idle';
+        minutesInput.value = initialMinutes;
+        secondsInput.value = initialSeconds;
+        remainingSeconds = initialMinutes * 60 + initialSeconds;
+        display.textContent = formatTime(remainingSeconds);
+        display.classList.remove('flash');
+        stopBuzzer();
+        releaseWakeLock();
 
-      if (timerInterval) {
-        clearInterval(timerInterval);
-        timerInterval = null;
-      }
-      if (alarmTimeout) {
-        clearTimeout(alarmTimeout);
-        alarmTimeout = null;
-      }
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+        if (alarmTimeout) {
+            clearTimeout(alarmTimeout);
+            alarmTimeout = null;
+        }
 
-      updateUI();
+        updateUI();
     }
 
     function updateIdleDisplay() {
-      if (state === 'idle') {
-        remainingSeconds = getTotalSeconds();
-        display.textContent = formatTime(remainingSeconds);
-        startBtn.disabled = remainingSeconds <= 0;
-      }
+        if (state === 'idle') {
+            remainingSeconds = getTotalSeconds();
+            display.textContent = formatTime(remainingSeconds);
+            startBtn.disabled = remainingSeconds <= 0;
+        }
     }
 
     // ---------- Tapahtumakuuntelijat ----------
@@ -1211,63 +1162,63 @@
     resumeBtn.addEventListener('click', resumeTimer);
     cancelBtn.addEventListener('click', cancelTimer);
     alarmResetBtn.addEventListener('click', () => {
-      stopBuzzer();
-      display.classList.remove('flash');
-      resetToIdle();
+        stopBuzzer();
+        display.classList.remove('flash');
+        resetToIdle();
     });
 
     minutesInput.addEventListener('input', updateIdleDisplay);
     secondsInput.addEventListener('input', updateIdleDisplay);
 
     minutesInput.addEventListener('change', function() {
-      let val = parseInt(this.value, 10);
-      if (isNaN(val) || val < 0) this.value = 0;
-      if (val > 999) this.value = 999;
-      updateIdleDisplay();
+        let val = parseInt(this.value, 10);
+        if (isNaN(val) || val < 0) this.value = 0;
+        if (val > 999) this.value = 999;
+        updateIdleDisplay();
     });
 
     secondsInput.addEventListener('change', function() {
-      let val = parseInt(this.value, 10);
-      if (isNaN(val) || val < 0) this.value = 0;
-      if (val > 59) this.value = 59;
-      updateIdleDisplay();
+        let val = parseInt(this.value, 10);
+        if (isNaN(val) || val < 0) this.value = 0;
+        if (val > 59) this.value = 59;
+        updateIdleDisplay();
     });
 
     // ---------- visibilitychange ----------
     document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible' && state === 'running') {
-        const elapsed = Math.floor((Date.now() - timerStartTime) / 1000);
-        remainingSeconds = Math.max(0, timerStartRemaining - elapsed);
-        updateDisplay();
+        if (document.visibilityState === 'visible' && state === 'running') {
+            const elapsed = Math.floor((Date.now() - timerStartTime) / 1000);
+            remainingSeconds = Math.max(0, timerStartRemaining - elapsed);
+            updateDisplay();
 
-        if (remainingSeconds <= 0) {
-          clearInterval(timerInterval);
-          timerInterval = null;
-          handleAlarm();
+            if (remainingSeconds <= 0) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                handleAlarm();
+            }
         }
-      }
     });
 
     // ---------- Sovelluksen sulkeminen ----------
     function closeApp() {
-      try {
-        if (window.close) {
-          window.close();
-          setTimeout(() => {
-            if (!window.closed) {
-              showCloseInstruction();
+        try {
+            if (window.close) {
+                window.close();
+                setTimeout(() => {
+                    if (!window.closed) {
+                        showCloseInstruction();
+                    }
+                }, 500);
+            } else {
+                showCloseInstruction();
             }
-          }, 500);
-        } else {
-          showCloseInstruction();
+        } catch (e) {
+            showCloseInstruction();
         }
-      } catch (e) {
-        showCloseInstruction();
-      }
     }
 
     function showCloseInstruction() {
-      alert('Sulje sovellus käyttämällä laitteen moniajonäkymää tai pyyhkäisemällä alhaalta ylös (iOS).');
+        alert('Sulje sovellus käyttämällä laitteen moniajonäkymää tai pyyhkäisemällä alhaalta ylös (iOS).');
     }
 
     closeAppBtn.addEventListener('click', closeApp);
@@ -1282,6 +1233,6 @@
 
     versionLink.textContent = APP_VERSION;
     console.log('Ajastin ladattu. Versio:', APP_VERSION, 'Ääni:', currentSound);
-  </script>
+</script>
 </body>
 </html>
