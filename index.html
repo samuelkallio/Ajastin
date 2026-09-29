@@ -32,21 +32,12 @@
             padding: 1rem;
             transition: background 0.3s;
         }
-        body.running-mode {
-            padding: 0;
-            background: #0d0d1a;
-        }
+        body.running-mode { padding: 0; background: #0d0d1a; }
         body.running-mode .container {
-            max-width: 100%;
-            border-radius: 0;
-            box-shadow: none;
-            background: #0d0d1a;
-            padding: 0.5rem;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            max-width: 100%; border-radius: 0; box-shadow: none;
+            background: #0d0d1a; padding: 0.5rem; min-height: 100vh;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
         }
         body.running-mode .container .header { display: none !important; }
         body.running-mode .container .inputs,
@@ -54,278 +45,151 @@
         body.running-mode .container #startBtn { display: none !important; }
         body.running-mode .container .display {
             font-size: min(25vw, 25vh, 18rem);
-            background: transparent;
-            padding: 0.2rem;
-            margin: 0.5rem 0;
-            flex: 0 1 auto;
-            width: 100%;
-            text-align: center;
-            letter-spacing: 0.03em;
-            color: #fff;
-            line-height: 1.2;
+            background: transparent; padding: 0.2rem; margin: 0.5rem 0;
+            flex: 0 1 auto; width: 100%; text-align: center;
+            letter-spacing: 0.03em; color: #fff; line-height: 1.2;
         }
         body.running-mode .container .buttons {
-            margin-top: 1.5rem;
-            gap: 1rem;
-            flex-wrap: wrap;
-            justify-content: center;
-            width: 100%;
-            max-width: 28rem;
+            margin-top: 1.5rem; gap: 1rem; flex-wrap: wrap;
+            justify-content: center; width: 100%; max-width: 28rem;
         }
         body.running-mode .container .buttons .pause-btn {
-            font-size: 2rem;
-            padding: 1.2rem 3.5rem;
-            min-height: 5rem;
-            flex: 0 1 auto;
-            min-width: 12rem;
-            border-radius: 3rem;
-            background: var(--accent);
-            color: #fff;
-            font-weight: 700;
-            border: none;
-            cursor: pointer;
+            font-size: 2rem; padding: 1.2rem 3.5rem; min-height: 5rem;
+            flex: 0 1 auto; min-width: 12rem; border-radius: 3rem;
+            background: var(--accent); color: #fff; font-weight: 700;
+            border: none; cursor: pointer;
             transition: transform 0.1s, background 0.15s;
         }
         body.running-mode .container .buttons .pause-btn:active { transform: scale(0.95); }
         body.running-mode .container .buttons .pause-btn.secondary { background: var(--secondary); }
         body.running-mode .container .buttons .pause-btn.cancel-btn {
-            background: transparent;
-            border: 2px solid var(--accent);
-            color: var(--accent);
-            font-size: 1.2rem;
-            padding: 0.8rem 1.8rem;
-            min-height: 3.5rem;
-            min-width: 8rem;
+            background: transparent; border: 2px solid var(--accent);
+            color: var(--accent); font-size: 1.2rem;
+            padding: 0.8rem 1.8rem; min-height: 3.5rem; min-width: 8rem;
         }
         body.running-mode .container .buttons .pause-btn.cancel-btn:active {
             background: rgba(233, 69, 96, 0.15);
         }
         .display.flash {
             animation: blink 0.5s step-start infinite;
-            color: #ff6b6b !important;
-            background: transparent !important;
+            color: #ff6b6b !important; background: transparent !important;
         }
         @keyframes blink { 50% { opacity: 0.2; } }
         .container {
-            background: var(--card);
-            padding: 1.5rem 1.2rem;
-            border-radius: 2rem;
-            box-shadow: 0 1rem 3rem rgba(0,0,0,0.4);
-            width: 100%;
-            max-width: 24rem;
-            text-align: center;
-            position: relative;
-            transition: all 0.3s ease;
+            background: var(--card); padding: 1.5rem 1.2rem;
+            border-radius: 2rem; box-shadow: 0 1rem 3rem rgba(0,0,0,0.4);
+            width: 100%; max-width: 24rem; text-align: center;
+            position: relative; transition: all 0.3s ease;
         }
         .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-            gap: 0.25rem;
+            display: flex; align-items: center;
+            justify-content: space-between; margin-bottom: 1rem; gap: 0.25rem;
         }
         .header .left-group, .header .right-group {
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
+            display: flex; align-items: center; gap: 0.25rem;
         }
         .header h1 {
-            color: var(--text);
-            font-size: 1.5rem;
-            margin: 0;
-            font-weight: 700;
-            flex: 1;
-            text-align: center;
+            color: var(--text); font-size: 1.5rem; margin: 0;
+            font-weight: 700; flex: 1; text-align: center;
         }
         .close-app-btn, .help-icon-btn, .share-icon-btn {
-            background: none;
-            border: none;
-            color: var(--text);
-            font-size: 1.6rem;
-            cursor: pointer;
-            padding: 0.2rem 0.4rem;
-            line-height: 1;
-            transition: color 0.15s;
-            font-weight: 400;
-            min-width: 2.2rem;
-            text-align: center;
+            background: none; border: none; color: var(--text);
+            font-size: 1.6rem; cursor: pointer; padding: 0.2rem 0.4rem;
+            line-height: 1; transition: color 0.15s; font-weight: 400;
+            min-width: 2.2rem; text-align: center;
         }
         .close-app-btn:hover, .help-icon-btn:hover, .share-icon-btn:hover { color: var(--accent); }
         .close-app-btn { font-weight: 700; font-size: 1.5rem; }
         .help-icon-btn { font-weight: 700; font-size: 1.5rem; }
         .display {
-            font-size: 4rem;
-            font-weight: 700;
-            color: var(--text);
-            background: var(--display-bg);
-            padding: 0.6rem 0.5rem;
-            border-radius: 1.2rem;
-            font-variant-numeric: tabular-nums;
-            letter-spacing: 0.05em;
-            margin: 0.5rem 0 1rem;
+            font-size: 4rem; font-weight: 700; color: var(--text);
+            background: var(--display-bg); padding: 0.6rem 0.5rem;
+            border-radius: 1.2rem; font-variant-numeric: tabular-nums;
+            letter-spacing: 0.05em; margin: 0.5rem 0 1rem;
             transition: font-size 0.3s, background 0.15s, color 0.15s, padding 0.3s;
         }
         .inputs {
-            display: flex;
-            gap: 0.75rem;
-            justify-content: center;
-            align-items: center;
-            margin: 1rem 0;
+            display: flex; gap: 0.75rem; justify-content: center;
+            align-items: center; margin: 1rem 0;
             transition: opacity 0.3s, max-height 0.3s;
         }
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+        .input-group { display: flex; flex-direction: column; align-items: center; }
         label { color: #aaa; font-size: 0.9rem; margin-bottom: 0.3rem; }
         input {
-            width: 5.5rem;
-            padding: 0.75rem;
-            font-size: 1.5rem;
-            text-align: center;
-            border: none;
-            border-radius: 0.8rem;
-            background: var(--display-bg);
-            color: var(--text);
-            font-weight: 600;
+            width: 5.5rem; padding: 0.75rem; font-size: 1.5rem;
+            text-align: center; border: none; border-radius: 0.8rem;
+            background: var(--display-bg); color: var(--text); font-weight: 600;
         }
         input:disabled { opacity: 0.5; }
         .buttons {
-            display: flex;
-            gap: 0.75rem;
-            justify-content: center;
-            margin-top: 1.2rem;
-            flex-wrap: wrap;
-            transition: all 0.3s;
+            display: flex; gap: 0.75rem; justify-content: center;
+            margin-top: 1.2rem; flex-wrap: wrap; transition: all 0.3s;
         }
         .buttons button {
-            flex: 1;
-            padding: 1rem;
-            font-size: 1.25rem;
-            font-weight: 600;
-            border: none;
-            border-radius: 1rem;
-            cursor: pointer;
-            background: var(--accent);
-            color: #fff;
-            min-height: 3.5rem;
+            flex: 1; padding: 1rem; font-size: 1.25rem; font-weight: 600;
+            border: none; border-radius: 1rem; cursor: pointer;
+            background: var(--accent); color: #fff; min-height: 3.5rem;
             transition: background 0.15s, transform 0.05s, opacity 0.3s;
         }
         .buttons button:active { transform: scale(0.97); }
         .buttons button.secondary { background: var(--secondary); }
         .buttons button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
         .settings-btn {
-            background: transparent !important;
-            color: var(--text) !important;
+            background: transparent !important; color: var(--text) !important;
             border: 2px solid var(--secondary) !important;
-            flex: 0 0 auto !important;
-            padding: 0.75rem 1.2rem !important;
-            font-size: 1rem !important;
-            margin-top: 0.5rem;
-            min-height: 3.5rem;
+            flex: 0 0 auto !important; padding: 0.75rem 1.2rem !important;
+            font-size: 1rem !important; margin-top: 0.5rem; min-height: 3.5rem;
         }
         .settings-btn:disabled { opacity: 0.4; cursor: not-allowed; }
         .wake-lock-info { display: none !important; }
         .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--modal-bg);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 1rem;
-            backdrop-filter: blur(4px);
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--modal-bg); display: none;
+            align-items: center; justify-content: center;
+            z-index: 1000; padding: 1rem; backdrop-filter: blur(4px);
         }
         .modal-overlay.open { display: flex; }
         .modal {
-            background: var(--card);
-            border-radius: 1.5rem;
-            padding: 1.5rem;
-            width: 100%;
-            max-width: 22rem;
-            max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: 0 1rem 3rem rgba(0,0,0,0.6);
+            background: var(--card); border-radius: 1.5rem; padding: 1.5rem;
+            width: 100%; max-width: 22rem; max-height: 80vh;
+            overflow-y: auto; box-shadow: 0 1rem 3rem rgba(0,0,0,0.6);
             animation: modalIn 0.2s ease;
         }
         @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         .modal h2 { color: var(--text); margin: 0 0 1rem; font-size: 1.4rem; text-align: center; }
-        .sound-list {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
+        .sound-list { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; }
         .sound-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            background: var(--display-bg);
-            border-radius: 0.8rem;
-            padding: 0.5rem 0.8rem;
-            transition: background 0.15s;
-            cursor: pointer;
+            display: flex; align-items: center; gap: 0.75rem;
+            background: var(--display-bg); border-radius: 0.8rem;
+            padding: 0.5rem 0.8rem; transition: background 0.15s; cursor: pointer;
         }
         .sound-item:hover { background: #1a3a6a; }
         .sound-item input[type="radio"] {
-            appearance: none;
-            -webkit-appearance: none;
-            width: 1.2rem;
-            height: 1.2rem;
-            border: 2px solid #666;
-            border-radius: 50%;
-            flex-shrink: 0;
+            appearance: none; -webkit-appearance: none;
+            width: 1.2rem; height: 1.2rem; border: 2px solid #666;
+            border-radius: 50%; flex-shrink: 0;
             transition: border 0.15s, background 0.15s;
-            cursor: pointer;
-            position: relative;
+            cursor: pointer; position: relative;
         }
-        .sound-item input[type="radio"]:checked {
-            border-color: var(--accent);
-            background: var(--accent);
-        }
+        .sound-item input[type="radio"]:checked { border-color: var(--accent); background: var(--accent); }
         .sound-item input[type="radio"]:checked::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 0.4rem;
-            height: 0.4rem;
-            border-radius: 50%;
-            background: #fff;
+            content: ''; position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); width: 0.4rem; height: 0.4rem;
+            border-radius: 50%; background: #fff;
         }
         .sound-item label {
-            color: var(--text);
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            flex: 1;
-            text-align: left;
-            padding: 0.3rem 0;
-            margin: 0;
+            color: var(--text); font-size: 1rem; font-weight: 500;
+            cursor: pointer; flex: 1; text-align: left;
+            padding: 0.3rem 0; margin: 0;
         }
         .sound-item label.selected-label { color: var(--accent); font-weight: 700; }
         .play-preview-btn {
-            background: var(--secondary);
-            border: none;
-            color: #fff;
-            border-radius: 50%;
-            width: 2.4rem;
-            height: 2.4rem;
-            font-size: 1.1rem;
-            cursor: pointer;
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            background: var(--secondary); border: none; color: #fff;
+            border-radius: 50%; width: 2.4rem; height: 2.4rem;
+            font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
             transition: background 0.15s, transform 0.1s;
-            padding: 0;
-            line-height: 1;
+            padding: 0; line-height: 1;
         }
         .play-preview-btn:active { transform: scale(0.9); }
         .play-preview-btn:hover { background: var(--accent); }
@@ -333,108 +197,67 @@
         .play-preview-btn.playing::after { content: '⏹'; font-size: 0.9rem; }
         .play-preview-btn:not(.playing)::after { content: '▶'; font-size: 1rem; }
         .share-url-input {
-            width: 100%;
-            padding: 0.75rem;
-            font-size: 1rem;
-            border: none;
-            border-radius: 0.8rem;
-            background: var(--display-bg);
-            color: var(--text);
-            margin: 0.5rem 0;
-            text-align: center;
-            font-weight: 500;
+            width: 100%; padding: 0.75rem; font-size: 1rem;
+            border: none; border-radius: 0.8rem;
+            background: var(--display-bg); color: var(--text);
+            margin: 0.5rem 0; text-align: center; font-weight: 500;
         }
         .copy-btn {
-            width: 100%;
-            margin: 0.5rem 0;
-            background: var(--secondary);
-            border: none;
-            color: #fff;
-            border-radius: 0.8rem;
-            padding: 0.75rem;
-            font-size: 1rem;
-            cursor: pointer;
-            font-weight: 600;
+            width: 100%; margin: 0.5rem 0; background: var(--secondary);
+            border: none; color: #fff; border-radius: 0.8rem;
+            padding: 0.75rem; font-size: 1rem; cursor: pointer; font-weight: 600;
         }
         .qr-container { display: flex; justify-content: center; margin: 1rem 0; }
-        .qr-container img { max-width: 200px; max-height: 200px; border-radius: 0.5rem; background: #fff; padding: 0.5rem; }
+        .qr-container img {
+            max-width: 200px; max-height: 200px; border-radius: 0.5rem;
+            background: #fff; padding: 0.5rem;
+        }
         .close-btn {
-            background: transparent;
-            border: 2px solid var(--secondary);
-            color: var(--text);
-            border-radius: 0.8rem;
-            padding: 0.6rem;
-            width: 100%;
-            margin-top: 0.5rem;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background 0.15s;
+            background: transparent; border: 2px solid var(--secondary);
+            color: var(--text); border-radius: 0.8rem; padding: 0.6rem;
+            width: 100%; margin-top: 0.5rem; font-size: 1rem;
+            cursor: pointer; transition: background 0.15s;
         }
         .close-btn:hover { background: rgba(83, 52, 131, 0.2); }
-        .confirm-dialog .dialog-actions {
-            display: flex;
-            gap: 0.75rem;
-            margin-top: 1.5rem;
+        .confirm-dialog .dialog-actions,
+        .update-dialog .dialog-actions {
+            display: flex; gap: 0.75rem; margin-top: 1.5rem;
         }
-        .confirm-dialog .dialog-actions button {
-            flex: 1;
-            padding: 0.8rem;
-            font-size: 1.1rem;
-            font-weight: 600;
-            border: none;
-            border-radius: 0.8rem;
-            cursor: pointer;
+        .confirm-dialog .dialog-actions button,
+        .update-dialog .dialog-actions button {
+            flex: 1; padding: 0.8rem; font-size: 1.1rem; font-weight: 600;
+            border: none; border-radius: 0.8rem; cursor: pointer;
             transition: background 0.15s, transform 0.05s;
         }
-        .confirm-dialog .dialog-actions button:active { transform: scale(0.97); }
-        .confirm-dialog .dialog-actions .btn-yes { background: var(--accent); color: #fff; }
-        .confirm-dialog .dialog-actions .btn-no { background: var(--secondary); color: #fff; }
-        .confirm-dialog p { color: var(--text); font-size: 1.1rem; text-align: center; margin: 0.5rem 0; line-height: 1.5; }
+        .confirm-dialog .dialog-actions button:active,
+        .update-dialog .dialog-actions button:active { transform: scale(0.97); }
+        .confirm-dialog .dialog-actions .btn-yes,
+        .update-dialog .dialog-actions .btn-yes { background: var(--accent); color: #fff; }
+        .confirm-dialog .dialog-actions .btn-no,
+        .update-dialog .dialog-actions .btn-no { background: var(--secondary); color: #fff; }
+        .confirm-dialog p, .update-dialog p {
+            color: var(--text); font-size: 1.1rem; text-align: center;
+            margin: 0.5rem 0; line-height: 1.5;
+        }
         .help-content { color: var(--text); text-align: left; padding: 0 0.2rem; }
         .help-content ul { padding-left: 1.2rem; margin: 0.5rem 0 1rem; line-height: 1.7; }
         .help-content ul li { margin-bottom: 0.3rem; }
-        .version-info { text-align: center; padding: 0.8rem 0 0.2rem; border-top: 1px solid rgba(255,255,255,0.08); margin-top: 0.8rem; }
+        .version-info {
+            text-align: center; padding: 0.8rem 0 0.2rem;
+            border-top: 1px solid rgba(255,255,255,0.08); margin-top: 0.8rem;
+        }
         .version-info .version-label { color: #888; font-size: 0.85rem; }
         .version-info .version-link {
-            color: var(--accent);
-            font-weight: 600;
-            text-decoration: underline;
-            cursor: pointer;
-            transition: color 0.15s;
-            font-size: 1rem;
-            background: none;
-            border: none;
-            padding: 0.2rem 0.6rem;
+            color: var(--accent); font-weight: 600; text-decoration: underline;
+            cursor: pointer; transition: color 0.15s; font-size: 1rem;
+            background: none; border: none; padding: 0.2rem 0.6rem;
         }
         .version-info .version-link:hover { color: #ff7a92; }
-        .update-dialog .dialog-actions {
-            display: flex;
-            gap: 0.75rem;
-            margin-top: 1.5rem;
-        }
-        .update-dialog .dialog-actions button {
-            flex: 1;
-            padding: 0.8rem;
-            font-size: 1.1rem;
-            font-weight: 600;
-            border: none;
-            border-radius: 0.8rem;
-            cursor: pointer;
-            transition: background 0.15s, transform 0.05s;
-        }
-        .update-dialog .dialog-actions button:active { transform: scale(0.97); }
-        .update-dialog .dialog-actions .btn-yes { background: var(--accent); color: #fff; }
-        .update-dialog .dialog-actions .btn-no { background: var(--secondary); color: #fff; }
-        .update-dialog p { color: var(--text); font-size: 1.1rem; text-align: center; margin: 0.5rem 0; line-height: 1.5; }
         .alarm-reset-btn {
-            background: var(--secondary) !important;
-            color: #fff !important;
-            border: none !important;
-            padding: 0.8rem 2rem !important;
-            font-size: 1.2rem !important;
-            border-radius: 2rem !important;
-            cursor: pointer !important;
-            font-weight: 600 !important;
+            background: var(--secondary) !important; color: #fff !important;
+            border: none !important; padding: 0.8rem 2rem !important;
+            font-size: 1.2rem !important; border-radius: 2rem !important;
+            cursor: pointer !important; font-weight: 600 !important;
             transition: background 0.15s, transform 0.05s !important;
         }
         .alarm-reset-btn:active { transform: scale(0.95) !important; }
@@ -457,17 +280,13 @@
             .display { font-size: 3.2rem; }
             body.running-mode .container .display { font-size: min(25vw, 25vh, 8rem); }
             body.running-mode .container .buttons .pause-btn {
-                font-size: 1.5rem;
-                padding: 1rem 2.5rem;
-                min-width: 10rem;
+                font-size: 1.5rem; padding: 1rem 2.5rem; min-width: 10rem;
             }
         }
         @media (min-width: 600px) {
             body.running-mode .container .display { font-size: min(25vw, 25vh, 18rem); }
             body.running-mode .container .buttons .pause-btn {
-                font-size: 2.5rem;
-                padding: 1.5rem 4rem;
-                min-width: 14rem;
+                font-size: 2.5rem; padding: 1.5rem 4rem; min-width: 14rem;
             }
         }
     </style>
@@ -555,12 +374,13 @@
                 <li>Valitse haluamasi summeriääni <strong>Summeri</strong>-painikkeesta. Oletus: school bell.</li>
                 <li>Näyttö pysyy hereillä koko käytön ajan (himmeneminen on sallittua).</li>
                 <li>Äänet tallennetaan välimuistiin ja toimivat myös offline-tilassa.</li>
+                <li>Versiopäivitys tyhjentää välimuistit ja lataa sovelluksen puhtaasti uudelleen.</li>
                 <li>Jaa sovellus <strong>linkin</strong> tai <strong>QR-koodin</strong> avulla.</li>
             </ul>
         </div>
         <div class="version-info">
             <span class="version-label">Versio </span>
-            <button id="versionLink" class="version-link">1.4.0</button>
+            <button id="versionLink" class="version-link">1.5.0</button>
             <span style="color:#666; font-size:0.8rem; display:block; margin-top:0.2rem;">Päivitä sovellus klikkaamalla versiota</span>
         </div>
         <button id="closeHelpBtn" class="close-btn">Sulje</button>
@@ -570,7 +390,7 @@
 <div id="updateModal" class="modal-overlay">
     <div class="modal update-dialog">
         <h2>🔄 Päivitys</h2>
-        <p>Haluatko varmasti päivittää sovelluksen uusimpaan versioon?</p>
+        <p>Haluatko varmasti päivittää sovelluksen uusimpaan versioon?<br><br>Kaikki välimuistit tyhjennetään ja sovellus ladataan kokonaan uudelleen.</p>
         <div class="dialog-actions">
             <button id="updateYes" class="btn-yes">Kyllä</button>
             <button id="updateNo" class="btn-no">Ei</button>
@@ -580,14 +400,25 @@
 
 <script>
     /* =========================================================================
-       AJASTIN 1.4.0
+       AJASTIN 1.5.0
        =========================================================================
-       Keskeinen muutos: luovuttu yhdestä jaetusta <audio>-elementistä ja
-       siirrytty luomaan jokaista toistoa varten tuore `new Audio()` -olio.
-       Tämä on ainoa luotettava tapa saada ääni soimaan mobiilissa, koska
-       selaimet "lukitsevat" HTMLAudioElementin, kunnes se on soitettu
-       käyttäjän eleen (click) yhteydessä. Jaetun elementin src:n vaihtelu
-       aiheutti sen, että alkuperäinen (oletus)ääni ei soinut.
+       MOBIILIAUDION KRIITTINEN KORJAUS:
+
+       iOS Safari (ja osittain Android Chrome) sallii audion toiston vain
+       elementille, joka on aiemmin soitettu käyttäjän eleen (click/touch)
+       yhteydessä. Aiemmassa versiossa unlockAudio loi UUDEN Audio-olion,
+       soitti sitä hetken ja heitti sen pois. Se ei auttanut, koska
+       hälytyksen aikana luotiin TAAS uusi Audio-olio, joka ei ollut
+       "avattu".
+
+       RATKAISU: Luodaan jokaiselle äänitiedostolle pysyvä Audio-elementti
+       (audioPool) heti sivun latautuessa. Nämä SAMAT elementit avataan
+       ensimmäisellä käyttäjän eleellä ja niitä uudelleenkäytetään sekä
+       käynnistys- että hälytysäänessä. Näin sama elementti, joka soi
+       käyttäjän klikatessa, soi myös ajastimen päättyessä.
+
+       Tämä toteuttaa käyttäjän toiveen: äänen toisto kaikkialla samalla
+       periaatteella kuin käynnistysääni.
        ========================================================================= */
 
     // ---------- Asetukset ----------
@@ -598,27 +429,28 @@
     ];
     const DEFAULT_SOUND = 'school bell.m4a';
     const SHARE_URL = 'https://samuelkallio.github.io/Ajastin/';
-    const APP_VERSION = '1.4.0';
-    const AUDIO_CACHE_NAME = 'ajastin-audio-v2';
+    const APP_VERSION = '1.5.0';
+    const AUDIO_CACHE_NAME = 'ajastin-audio-v3';
     const START_BEEP_DURATION_MS = 1000;
 
-    // Valittu ääni
-    let currentSound = DEFAULT_SOUND;
+    // ---------- PYSYVÄ AUDIOPOOLI ----------
+    // file -> Audio-olio. Nämä luodaan kerran ja niitä uudelleenkäytetään.
+    const audioPool = {};
 
     // file -> soitettava URL (Blob offlinea varten tai alkuperäinen polku)
     const soundUrls = {};
 
-    // Aktiiviset audio-oliot
-    let alarmAudio = null;
-    let alarmFallbackTimer = null;
-    let startAudio = null;
+    let currentSound = DEFAULT_SOUND;
+    let audioUnlocked = false;
+
+    // Aktiiviset toistot
     let startFadeTimer = null;
-    let previewAudio = null;
+    let alarmFallbackTimer = null;
     let previewFile = null;
     let previewPlaying = false;
     let previewTimeout = null;
 
-    // Fallback-oskillaattori (Web Audio API)
+    // Fallback-oskillaattori
     let audioCtx = null;
     let fallbackOscillator = null;
     let fallbackGain = null;
@@ -660,17 +492,15 @@
     let initialSeconds = 0;
     let remainingSeconds = initialMinutes * 60 + initialSeconds;
     let timerInterval = null;
+    let timerStartTime = null;
+    let timerStartRemaining = 0;
 
     // ---------- Wake Lock ----------
     let wakeLock = null;
     const wakeLockSupported = 'wakeLock' in navigator;
 
-    // Aikatiedot
-    let timerStartTime = null;
-    let timerStartRemaining = 0;
-
     // =========================================================================
-    // WAKE LOCK (näytön hereilläpito)
+    // WAKE LOCK
     // =========================================================================
     async function requestWakeLock() {
         if (!wakeLockSupported) return;
@@ -692,6 +522,37 @@
     }
 
     // =========================================================================
+    // AUDIOPOOLIN ALUSTUS
+    // =========================================================================
+    // Luodaan pysyvät Audio-elementit jokaiselle äänitiedostolle.
+    function initAudioPool() {
+        soundOptions.forEach(opt => {
+            const a = new Audio();
+            a.preload = 'auto';
+            a.loop = false;
+            a.volume = 1.0;
+            audioPool[opt.file] = a;
+            updateAudioSrc(opt.file);
+        });
+        console.log('Audiopooli alustettu:', Object.keys(audioPool));
+    }
+
+    // Päivittää elementin src:n vain jos se on muuttunut.
+    function updateAudioSrc(file) {
+        const a = audioPool[file];
+        if (!a) return;
+        const url = getSoundUrl(file);
+        if (a._lastSrc !== url) {
+            a._lastSrc = url;
+            a.src = url;
+        }
+    }
+
+    function updateAllAudioSrcs() {
+        soundOptions.forEach(opt => updateAudioSrc(opt.file));
+    }
+
+    // =========================================================================
     // ÄÄNEN VÄLIMUISTI (Cache API, offline-tuki)
     // =========================================================================
     async function initAudioCache() {
@@ -708,6 +569,11 @@
                         }
                         if (resp) {
                             const blob = await resp.blob();
+                            // Jos vanha blob-URL on olemassa, vapautetaan se
+                            const oldUrl = soundUrls[opt.file];
+                            if (oldUrl && oldUrl.startsWith('blob:')) {
+                                URL.revokeObjectURL(oldUrl);
+                            }
                             soundUrls[opt.file] = URL.createObjectURL(blob);
                         }
                     } catch (e) {
@@ -723,6 +589,8 @@
         for (const opt of soundOptions) {
             if (!soundUrls[opt.file]) soundUrls[opt.file] = opt.file;
         }
+        // Päivitetään poolin src:t
+        updateAllAudioSrcs();
         console.log('Äänet valmiina. Offline-välimuisti:', cacheOk, soundUrls);
     }
 
@@ -731,98 +599,120 @@
     }
 
     // =========================================================================
-    // AUDIO-OLIOIDEN LUONTI
+    // AUDIO-UNLOCK (kriittinen mobiilitoistolle)
     // =========================================================================
-    // Luodaan AINA tuore Audio-olio jokaista toistoa varten. Tämä on
-    // kriittistä mobiilitoiston kannalta.
-    function createAudio(file, volume = 1.0, loop = false) {
-        const a = new Audio();
-        a.preload = 'auto';
-        a.volume = volume;
-        a.loop = loop;
-        a.src = getSoundUrl(file);
-        try { a.load(); } catch (e) {}
-        return a;
-    }
-
-    // =========================================================================
-    // VALITUN ÄÄNEN HALLINTA
-    // =========================================================================
-    function loadSelectedSound() {
-        let saved = null;
-        try { saved = localStorage.getItem('selectedSound'); } catch (e) {}
-        if (saved && soundOptions.some(s => s.file === saved)) {
-            currentSound = saved;
-        } else {
-            currentSound = DEFAULT_SOUND;
-        }
-        console.log('Valittu ääni:', currentSound);
-    }
-
-    function saveSelectedSound(file) {
-        try { localStorage.setItem('selectedSound', file); } catch (e) {}
-        currentSound = file;
-        console.log('Ääni tallennettu:', currentSound);
-    }
-
-    function getSoundLabel(file) {
-        const opt = soundOptions.find(s => s.file === file);
-        return opt ? opt.label : file;
+    // Kutsutaan ensimmäisellä käyttäjän eleellä. Soittaa jokaista poolissa
+    // olevaa elementtiä hyvin lyhyesti (50 ms) hyvin hiljaisella
+    // äänenvoimakkuudella. Tämä "avaa" elementit iOS Safarissa ja Android
+    // Chromessa, jolloin niitä voidaan myöhemmin toistaa myös ilman
+    // käyttäjän elettä (esim. ajastimen päättyessä).
+    function unlockAudio() {
+        if (audioUnlocked) return;
+        audioUnlocked = true;
+        console.log('Avataan audiopooli...');
+        soundOptions.forEach(opt => {
+            const a = audioPool[opt.file];
+            if (!a) return;
+            try {
+                const originalVolume = a.volume;
+                a.volume = 0.001;
+                const p = a.play();
+                if (p && p.then) {
+                    p.then(() => {
+                        setTimeout(() => {
+                            try {
+                                a.pause();
+                                a.currentTime = 0;
+                            } catch (e) {}
+                            a.volume = originalVolume;
+                        }, 50);
+                    }).catch(() => {
+                        a.volume = originalVolume;
+                    });
+                } else {
+                    setTimeout(() => {
+                        try {
+                            a.pause();
+                            a.currentTime = 0;
+                        } catch (e) {}
+                        a.volume = originalVolume;
+                    }, 50);
+                }
+            } catch (e) {
+                console.warn('Unlock epäonnistui:', opt.file, e);
+            }
+        });
     }
 
     // =========================================================================
     // KÄYNNISTYSÄÄNI (1 sekunti, pehmeä häivytys)
     // =========================================================================
     function playStartBeep() {
+        stopPreview();
         stopStartBeep();
-        startAudio = createAudio(currentSound, 1.0, false);
-        const p = startAudio.play();
+        const a = audioPool[currentSound];
+        if (!a) return;
+        try {
+            a.pause();
+            a.currentTime = 0;
+        } catch (e) {}
+        a.volume = 1.0;
+        a.loop = false;
+        const p = a.play();
         if (p && p.catch) p.catch((e) => console.warn('Start-ääni estetty:', e));
 
         const startedAt = Date.now();
         startFadeTimer = setInterval(() => {
-            if (!startAudio) {
-                clearInterval(startFadeTimer);
-                startFadeTimer = null;
-                return;
-            }
             const elapsed = Date.now() - startedAt;
             if (elapsed >= START_BEEP_DURATION_MS) {
                 clearInterval(startFadeTimer);
                 startFadeTimer = null;
-                try { startAudio.pause(); } catch (e) {}
-                startAudio = null;
+                try { a.pause(); a.currentTime = 0; } catch (e) {}
             } else if (elapsed > START_BEEP_DURATION_MS - 200) {
-                // Pehmeä häivytys lopussa
-                startAudio.volume = Math.max(0,
-                    1 - (elapsed - (START_BEEP_DURATION_MS - 200)) / 200);
+                a.volume = Math.max(0, 1 - (elapsed - (START_BEEP_DURATION_MS - 200)) / 200);
             }
         }, 50);
     }
 
     function stopStartBeep() {
         if (startFadeTimer) { clearInterval(startFadeTimer); startFadeTimer = null; }
-        if (startAudio) {
-            try { startAudio.pause(); startAudio.currentTime = 0; } catch (e) {}
-            startAudio = null;
+        const a = audioPool[currentSound];
+        if (a) {
+            try { a.pause(); a.currentTime = 0; a.volume = 1.0; } catch (e) {}
         }
     }
 
     // =========================================================================
     // HÄLYTYSÄÄNI (kerran kokonaan, täysi volyymi)
     // =========================================================================
+    // Käyttää TÄSMÄLLEEN samaa Audio-elementtiä kuin käynnistysääni.
+    // Koska elementti on jo "avattu" käyttäjän eleellä, iOS sallii toiston.
     function playAlarmSound() {
         stopAlarmSound();
-        alarmAudio = createAudio(currentSound, 1.0, false);
-        alarmAudio.addEventListener('ended', () => {
+        stopStartBeep();
+        stopPreview();
+
+        const a = audioPool[currentSound];
+        if (!a) return;
+
+        try {
+            a.pause();
+            a.currentTime = 0;
+        } catch (e) {}
+        a.volume = 1.0;
+        a.loop = false;
+
+        const onEnded = () => {
+            a.removeEventListener('ended', onEnded);
             if (state === 'alarm') finishAlarm();
-        });
-        const p = alarmAudio.play();
+        };
+        a.addEventListener('ended', onEnded);
+
+        const p = a.play();
         if (p && p.catch) {
             p.catch((err) => {
                 console.warn('Hälytysääni estetty, käytetään varahälytystä:', err);
                 fallbackBeep(0.6, false);
-                // Varmistetaan että hälytystila päättyy
                 if (alarmFallbackTimer) clearTimeout(alarmFallbackTimer);
                 alarmFallbackTimer = setTimeout(() => {
                     alarmFallbackTimer = null;
@@ -833,10 +723,13 @@
     }
 
     function stopAlarmSound() {
-        if (alarmFallbackTimer) { clearTimeout(alarmFallbackTimer); alarmFallbackTimer = null; }
-        if (alarmAudio) {
-            try { alarmAudio.pause(); alarmAudio.currentTime = 0; } catch (e) {}
-            alarmAudio = null;
+        if (alarmFallbackTimer) {
+            clearTimeout(alarmFallbackTimer);
+            alarmFallbackTimer = null;
+        }
+        const a = audioPool[currentSound];
+        if (a) {
+            try { a.pause(); a.currentTime = 0; } catch (e) {}
         }
     }
 
@@ -846,14 +739,25 @@
     function playPreview(file) {
         stopPreview();
         previewFile = file;
-        previewAudio = createAudio(file, 1.0, false);
-        previewAudio.addEventListener('ended', () => {
-            if (previewAudio && previewFile === file) {
+        const a = audioPool[file];
+        if (!a) return;
+        try {
+            a.pause();
+            a.currentTime = 0;
+        } catch (e) {}
+        a.volume = 1.0;
+        a.loop = false;
+
+        const onEnded = () => {
+            a.removeEventListener('ended', onEnded);
+            if (previewFile === file) {
                 previewPlaying = false;
                 updatePlayButtons();
             }
-        });
-        const p = previewAudio.play();
+        };
+        a.addEventListener('ended', onEnded);
+
+        const p = a.play();
         if (p && p.then) {
             p.then(() => {
                 previewPlaying = true;
@@ -875,15 +779,14 @@
 
     function stopPreview() {
         if (previewTimeout) { clearTimeout(previewTimeout); previewTimeout = null; }
-        if (previewAudio) {
-            try { previewAudio.pause(); previewAudio.currentTime = 0; } catch (e) {}
-            previewAudio = null;
+        if (previewFile) {
+            const a = audioPool[previewFile];
+            if (a) {
+                try { a.pause(); a.currentTime = 0; a.volume = 1.0; } catch (e) {}
+            }
         }
         if (fallbackOscillator) {
-            try {
-                fallbackOscillator.stop();
-                fallbackOscillator.disconnect();
-            } catch (e) {}
+            try { fallbackOscillator.stop(); fallbackOscillator.disconnect(); } catch (e) {}
             fallbackOscillator = null;
         }
         if (fallbackGain) {
@@ -950,29 +853,23 @@
     }
 
     // =========================================================================
-    // AUDIO-UNLOCK (varmistaa toiston mobiilissa)
+    // ÄÄNEN VALINTA
     // =========================================================================
-    // Kutsutaan käyttäjän eleen yhteydessä. Soittaa hyvin lyhyen (100 ms)
-    // hiljaisen näytteen kustakin äänestä "aktivoidakseen" ne. Tämä
-    // varmistaa että ajastimen päätyttyä ääni soi luotettavasti myös
-    // iOS Safarissa ja Android Chromessa.
-    let audioUnlocked = false;
-    function unlockAudio() {
-        if (audioUnlocked) return;
-        audioUnlocked = true;
-        soundOptions.forEach(opt => {
-            try {
-                const a = createAudio(opt.file, 0.01, false);
-                const p = a.play();
-                if (p && p.then) {
-                    p.then(() => {
-                        setTimeout(() => {
-                            try { a.pause(); a.currentTime = 0; } catch (e) {}
-                        }, 100);
-                    }).catch(() => {});
-                }
-            } catch (e) {}
-        });
+    function loadSelectedSound() {
+        let saved = null;
+        try { saved = localStorage.getItem('selectedSound'); } catch (e) {}
+        if (saved && soundOptions.some(s => s.file === saved)) {
+            currentSound = saved;
+        } else {
+            currentSound = DEFAULT_SOUND;
+        }
+        console.log('Valittu ääni:', currentSound);
+    }
+
+    function saveSelectedSound(file) {
+        try { localStorage.setItem('selectedSound', file); } catch (e) {}
+        currentSound = file;
+        console.log('Ääni tallennettu:', currentSound);
     }
 
     // =========================================================================
@@ -1085,19 +982,45 @@
     });
 
     // =========================================================================
-    // PÄIVITYS
+    // VERSIOPÄIVITYS: TYHJENNÄ KAIKKI VÄLIMUISTIT JA LATAA UUDELLEEN
     // =========================================================================
     function openUpdateModal() { updateModal.classList.add('open'); }
     function closeUpdateModal() { updateModal.classList.remove('open'); }
 
     versionLink.addEventListener('click', openUpdateModal);
 
-    updateYes.addEventListener('click', () => {
+    // Tyhjentää Cache API:n, poistaa service workerit ja pakottaa
+    // selaimen hakemaan kaiken sisällön uudelleen palvelimelta.
+    async function forceUpdateAndReload() {
         closeUpdateModal();
+        try {
+            // 1) Tyhjennä kaikki Cache API -välimuistit
+            if ('caches' in window) {
+                const cacheNames = await caches.keys();
+                await Promise.all(cacheNames.map(name => caches.delete(name)));
+                console.log('Tyhjennetyt välimuistit:', cacheNames);
+            }
+            // 2) Poista service worker -rekisteröinnit
+            if ('serviceWorker' in navigator) {
+                const regs = await navigator.serviceWorker.getRegistrations();
+                await Promise.all(regs.map(r => r.unregister()));
+                console.log('Poistetut service workerit:', regs.length);
+            }
+            // 3) Vapauta Blob-URLit muistista
+            Object.values(soundUrls).forEach(url => {
+                if (url && url.startsWith('blob:')) {
+                    try { URL.revokeObjectURL(url); } catch (e) {}
+                }
+            });
+        } catch (e) {
+            console.warn('Välimuistin tyhjennys epäonnistui:', e);
+        }
+        // 4) Pakota lataus ilman välimuistia
         const url = window.location.href.split('?')[0];
         window.location.href = url + '?v=' + Date.now();
-    });
+    }
 
+    updateYes.addEventListener('click', forceUpdateAndReload);
     updateNo.addEventListener('click', closeUpdateModal);
     updateModal.addEventListener('click', (e) => {
         if (e.target === updateModal) closeUpdateModal();
@@ -1178,7 +1101,7 @@
     function startTimer() {
         if (state === 'running' || state === 'alarm') return;
 
-        // Varmistetaan että äänet on "avattu" (ensimmäinen käyttäjän ele)
+        // Varmistetaan että audiopooli on avattu (tämä on käyttäjän ele)
         unlockAudio();
 
         const wasIdle = state === 'idle';
@@ -1324,8 +1247,10 @@
         }
     });
 
-    // Unlock audio + wake lock ensimmäisellä käyttäjän eleellä
-    ['touchstart', 'click', 'keydown'].forEach(evt => {
+    // Avaa audiopooli ensimmäisellä käyttäjän eleellä.
+    // Tämä on kriittinen vaihe, joka mahdollistaa äänen toiston myöhemmin
+    // ilman käyttäjän elettä (esim. ajastimen päättyessä).
+    ['touchstart', 'click', 'keydown', 'pointerdown'].forEach(evt => {
         window.addEventListener(evt, () => {
             requestWakeLock();
             unlockAudio();
@@ -1359,6 +1284,12 @@
     // =========================================================================
     loadSelectedSound();
 
+    // 1) Luodaan pysyvät Audio-elementit
+    initAudioPool();
+
+    // 2) Ladataan äänet välimuistiin (offline-tuki) ja päivitetään src:t
+    initAudioCache();
+
     initialMinutes = Math.max(0, Math.min(999, parseInt(minutesInput.value, 10) || 0));
     initialSeconds = Math.max(0, Math.min(59, parseInt(secondsInput.value, 10) || 0));
     remainingSeconds = initialMinutes * 60 + initialSeconds;
@@ -1366,10 +1297,6 @@
     updateUI();
     updateIdleDisplay();
 
-    // Ladataan äänet välimuistiin (offline-tuki)
-    initAudioCache();
-
-    // Yritetään pyytää Wake Lock (voi epäonnistua ilman käyttäjän elettä)
     requestWakeLock();
 
     versionLink.textContent = APP_VERSION;
