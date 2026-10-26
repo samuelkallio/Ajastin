@@ -2,686 +2,1073 @@
 <html lang="fi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0f0f1a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Ajastin</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏱️</text></svg>">
-    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏱️</text></svg>">
-    <link rel="apple-touch-icon" sizes="152x152" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏱️</text></svg>">
-    <link rel="apple-touch-icon" sizes="120x120" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏱️</text></svg>">
-    <link rel="apple-touch-icon" sizes="76x76" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏱️</text></svg>">
-    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkFqYXN0aW4iLAogICJzaG9ydF9uYW1lIjogIkFqYXN0aW4iLAogICJkZXNjcmlwdGlvbiI6ICJUaW1lciBhbmQgYWxhcm0gYXBwIiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiMxYTFhMmUiLAogICJ0aGVtZV9jb2xvciI6ICIjMWE1YzJlIiwKICAiaWNvbnMiOiBbCiAgICB7ICJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sLDxzdmcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB2aWV3Qm94PScwIDAgMTAwIDEwMCc+PHRleHQgeT0nLjllbScgZm9udC1zaXplPSc5MCc+4oyxPC90ZXh0Pjwvc3ZnPiIsICJzaXplcyI6ICI1MTJ4NTEyIiwgInR5cGUiOiAiaW1hZ2Uvc3ZnK3htbCIgfQogIF0KfQ==">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏱️</text></svg>">
     <style>
-        :root {
-            --bg: #1a1a2e;
-            --card: #16213e;
-            --accent: #e94560;
-            --secondary: #533483;
-            --text: #e0e0e0;
-            --display-bg: #0f3460;
-            --modal-bg: rgba(0, 0, 0, 0.7);
+        *, *::before, *::after {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body {
+
+        :root {
+            --bg: #0f0f1a;
+            --surface: #1a1a28;
+            --surface-2: #242438;
+            --surface-3: #30304a;
+            --accent: #e94560;
+            --accent-hover: #ff5b75;
+            --secondary: #6c5ce7;
+            --text: #f0f0f5;
+            --text-muted: #9090a8;
+            --border: rgba(255, 255, 255, 0.08);
+            --radius: 1rem;
+        }
+
+        html, body {
             margin: 0;
-            min-height: 100vh;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
             background: var(--bg);
+            color: var(--text);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            transition: background 0.35s;
+        }
+
+        body.dim-mode { background: #000; }
+
+        .app {
+            position: relative;
+            width: 100%;
+            height: 100dvh;
+            overflow: hidden;
+        }
+
+        /* ============ VIEWS ============ */
+        .view {
+            position: absolute;
+            inset: 0;
+            display: none;
+            flex-direction: column;
+        }
+
+        .view.active { display: flex; }
+
+        /* ============ TIMER VIEW ============ */
+        .view-timer { padding: 0; }
+
+        .display-wrap {
+            flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            min-height: 0;
             padding: 1rem;
-            transition: background 0.3s;
-        }
-        body.running-mode { padding: 0; background: #0d0d1a; }
-        body.running-mode .container {
-            max-width: 100%; border-radius: 0; box-shadow: none;
-            background: #0d0d1a; padding: 0.5rem; min-height: 100vh;
-            display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-        }
-        body.running-mode .container .header { display: none !important; }
-        body.running-mode .container .inputs,
-        body.running-mode .container #soundSettingsBtn,
-        body.running-mode .container #dimToggleBtn,
-        body.running-mode .container #startBtn { display: none !important; }
-        body.running-mode .container .display {
-            font-size: min(25vw, 25vh, 18rem);
-            background: transparent; padding: 0.2rem; margin: 0.5rem 0;
-            flex: 0 1 auto; width: 100%; text-align: center;
-            letter-spacing: 0.03em; color: #fff; line-height: 1.2;
-        }
-        body.running-mode .container .buttons {
-            margin-top: 1.5rem; gap: 1rem; flex-wrap: wrap;
-            justify-content: center; width: 100%; max-width: 28rem;
-        }
-        body.running-mode .container .buttons .pause-btn {
-            font-size: 2rem; padding: 1.2rem 3.5rem; min-height: 5rem;
-            flex: 0 1 auto; min-width: 12rem; border-radius: 3rem;
-            background: var(--accent); color: #fff; font-weight: 700;
-            border: none; cursor: pointer;
-            transition: transform 0.1s, background 0.15s;
-        }
-        body.running-mode .container .buttons .pause-btn:active { transform: scale(0.95); }
-        body.running-mode .container .buttons .pause-btn.secondary { background: var(--secondary); }
-        body.running-mode .container .buttons .pause-btn.cancel-btn {
-            background: transparent; border: 2px solid var(--accent);
-            color: var(--accent); font-size: 1.2rem;
-            padding: 0.8rem 1.8rem; min-height: 3.5rem; min-width: 8rem;
-        }
-        body.running-mode .container .buttons .pause-btn.cancel-btn:active {
-            background: rgba(233, 69, 96, 0.15);
+            overflow: hidden;
         }
 
-        /* ============================================================
-           HIMMENNYSTILA (dim-mode) - vain kun ajastin on KÄYNNISSÄ
-           ============================================================
-           Selain ei voi säätää taustavalon kirkkautta. Tämä jäljittelee
-           himmennystä tekemällä käyttöliittymästä visuaalisesti tumman.
-           OLED-näytöillä musta tausta säästää akkua merkittävästi.
-           Hälytystilassa himmennys EI ole päällä, jotta käyttäjä huomaa.
-           ============================================================ */
-        body.running-mode.dim-mode { background: #000 !important; }
-        body.running-mode.dim-mode .container {
-            background: #000 !important;
-        }
-        body.running-mode.dim-mode .container .display {
-            background: transparent !important;
-            color: #444 !important; /* ~27% valkoista - himmeä mutta luettava */
-        }
-        /* Hälytys ohittaa himmennyksen (punainen vilkkuva) */
-        body.running-mode.dim-mode .container .display.flash {
-            color: #ff6b6b !important;
-        }
-        body.running-mode.dim-mode .container .buttons .pause-btn {
-            background: #1a1a1a !important;
-            color: #666 !important;
-        }
-        body.running-mode.dim-mode .container .buttons .pause-btn.cancel-btn {
-            background: transparent !important;
-            border-color: #333 !important;
-            color: #555 !important;
-        }
-        body.running-mode.dim-mode .container .buttons .pause-btn.cancel-btn:active {
-            background: rgba(255,255,255,0.03) !important;
-        }
-
-        .display.flash {
-            animation: blink 0.5s step-start infinite;
-            color: #ff6b6b !important; background: transparent !important;
-        }
-        @keyframes blink { 50% { opacity: 0.2; } }
-        .container {
-            background: var(--card); padding: 1.5rem 1.2rem;
-            border-radius: 2rem; box-shadow: 0 1rem 3rem rgba(0,0,0,0.4);
-            width: 100%; max-width: 24rem; text-align: center;
-            position: relative; transition: all 0.3s ease;
-        }
-        .header {
-            display: flex; align-items: center;
-            justify-content: space-between; margin-bottom: 1rem; gap: 0.25rem;
-        }
-        .header .left-group, .header .right-group {
-            display: flex; align-items: center; gap: 0.25rem;
-        }
-        .header h1 {
-            color: var(--text); font-size: 1.5rem; margin: 0;
-            font-weight: 700; flex: 1; text-align: center;
-        }
-        .close-app-btn, .help-icon-btn, .share-icon-btn {
-            background: none; border: none; color: var(--text);
-            font-size: 1.6rem; cursor: pointer; padding: 0.2rem 0.4rem;
-            line-height: 1; transition: color 0.15s; font-weight: 400;
-            min-width: 2.2rem; text-align: center;
-        }
-        .close-app-btn:hover, .help-icon-btn:hover, .share-icon-btn:hover { color: var(--accent); }
-        .close-app-btn { font-weight: 700; font-size: 1.5rem; }
-        .help-icon-btn { font-weight: 700; font-size: 1.5rem; }
-        .display {
-            font-size: 4rem; font-weight: 700; color: var(--text);
-            background: var(--display-bg); padding: 0.6rem 0.5rem;
-            border-radius: 1.2rem; font-variant-numeric: tabular-nums;
-            letter-spacing: 0.05em; margin: 0.5rem 0 1rem;
-            transition: font-size 0.3s, background 0.15s, color 0.15s, padding 0.3s;
-        }
-        .inputs {
-            display: flex; gap: 0.75rem; justify-content: center;
-            align-items: center; margin: 1rem 0;
-            transition: opacity 0.3s, max-height 0.3s;
-        }
-        .input-group { display: flex; flex-direction: column; align-items: center; }
-        label { color: #aaa; font-size: 0.9rem; margin-bottom: 0.3rem; }
-        input {
-            width: 5.5rem; padding: 0.75rem; font-size: 1.5rem;
-            text-align: center; border: none; border-radius: 0.8rem;
-            background: var(--display-bg); color: var(--text); font-weight: 600;
-        }
-        input:disabled { opacity: 0.5; }
-        .buttons {
-            display: flex; gap: 0.75rem; justify-content: center;
-            margin-top: 1.2rem; flex-wrap: wrap; transition: all 0.3s;
-        }
-        .buttons button {
-            flex: 1; padding: 1rem; font-size: 1.25rem; font-weight: 600;
-            border: none; border-radius: 1rem; cursor: pointer;
-            background: var(--accent); color: #fff; min-height: 3.5rem;
-            transition: background 0.15s, transform 0.05s, opacity 0.3s;
-        }
-        .buttons button:active { transform: scale(0.97); }
-        .buttons button.secondary { background: var(--secondary); }
-        .buttons button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-        .settings-btn {
-            background: transparent !important;
-            color: var(--text) !important;
-            border: 2px solid var(--secondary) !important;
-            flex: 0 0 auto !important;
-            padding: 0.65rem 1rem !important;
-            font-size: 0.95rem !important;
-            margin-top: 0.5rem;
-            min-height: 3.2rem;
+        .timer-display {
+            font-size: 8rem; /* JS overrides */
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.02em;
+            line-height: 1;
+            color: var(--text);
             white-space: nowrap;
+            transition: color 0.25s;
         }
-        .settings-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-        .settings-btn.active-dim {
-            border-color: var(--accent) !important;
+
+        .timer-display.flash {
+            animation: blink 0.6s ease-in-out infinite;
             color: var(--accent) !important;
         }
-        .wake-lock-info { display: none !important; }
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--modal-bg); display: none;
-            align-items: center; justify-content: center;
-            z-index: 1000; padding: 1rem; backdrop-filter: blur(4px);
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.12; }
         }
+
+        body.dim-mode .timer-display { color: #444; }
+
+        /* Settings icon (top-right) */
+        .icon-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            padding: 0.5rem;
+            cursor: pointer;
+            border-radius: 0.75rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 2.75rem;
+            min-height: 2.75rem;
+            transition: background 0.15s, color 0.15s;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+
+        .icon-btn:hover { background: var(--surface-2); color: var(--text); }
+        .icon-btn:active { background: var(--surface-3); }
+
+        .settings-icon-btn {
+            position: absolute;
+            top: max(1rem, env(safe-area-inset-top));
+            right: max(1rem, env(safe-area-inset-right));
+            z-index: 10;
+        }
+
+        /* Hide settings icon unless idle */
+        .view-timer:not([data-state="idle"]) .settings-icon-btn { display: none; }
+
+        /* ============ CONTROLS ============ */
+        .controls {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            min-height: 3.5rem;
+            color: var(--text);
+            transition: transform 0.1s, background 0.15s, opacity 0.2s;
+            font-family: inherit;
+            white-space: nowrap;
+        }
+
+        .btn:active { transform: scale(0.97); }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+        }
+        .btn-primary:hover { background: var(--accent-hover); }
+
+        .btn-secondary {
+            background: var(--surface-3);
+            color: var(--text);
+        }
+        .btn-secondary:hover { background: #3a3a5a; }
+
+        .btn-danger {
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+        }
+        .btn-danger:hover { background: rgba(233, 69, 96, 0.1); }
+
+        /* Larger Start button */
+        .view-timer[data-state="idle"] #startBtn {
+            padding: 1rem 4rem;
+            font-size: 1.2rem;
+        }
+
+        /* Dim mode button styling */
+        body.dim-mode .btn { opacity: 0.45; }
+
+        /* Button visibility per state */
+        .view-timer[data-state="idle"] #pauseBtn,
+        .view-timer[data-state="idle"] #cancelBtn,
+        .view-timer[data-state="idle"] #resumeBtn,
+        .view-timer[data-state="idle"] #alarmResetBtn,
+        .view-timer[data-state="running"] #startBtn,
+        .view-timer[data-state="running"] #cancelBtn,
+        .view-timer[data-state="running"] #resumeBtn,
+        .view-timer[data-state="running"] #alarmResetBtn,
+        .view-timer[data-state="paused"] #startBtn,
+        .view-timer[data-state="paused"] #pauseBtn,
+        .view-timer[data-state="paused"] #alarmResetBtn,
+        .view-timer[data-state="alarm"] #startBtn,
+        .view-timer[data-state="alarm"] #pauseBtn,
+        .view-timer[data-state="alarm"] #cancelBtn,
+        .view-timer[data-state="alarm"] #resumeBtn {
+            display: none;
+        }
+
+        /* ============ SETTINGS VIEW ============ */
+        .view-settings {
+            background: var(--bg);
+            overflow: hidden;
+        }
+
+        .settings-header {
+            display: flex;
+            align-items: center;
+            padding: max(0.75rem, env(safe-area-inset-top)) 1rem 0.75rem;
+            gap: 0.5rem;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .settings-header h1 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin: 0;
+            flex: 1;
+            text-align: center;
+        }
+
+        .settings-header .spacer { width: 2.75rem; }
+
+        .settings-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.25rem 1rem;
+            padding-bottom: max(2rem, env(safe-area-inset-bottom));
+            display: flex;
+            flex-direction: column;
+            gap: 1.75rem;
+            max-width: 500px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .setting-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .setting-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        /* Time inputs */
+        .time-inputs {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 1rem;
+        }
+
+        .time-input {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .time-input input {
+            width: 5rem;
+            padding: 0.75rem;
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+            border: 2px solid transparent;
+            border-radius: 0.75rem;
+            background: var(--surface-2);
+            color: var(--text);
+            font-variant-numeric: tabular-nums;
+            transition: border-color 0.15s;
+            -moz-appearance: textfield;
+        }
+
+        .time-input input::-webkit-outer-spin-button,
+        .time-input input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .time-input input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .time-input span {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .time-sep {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            padding-bottom: 1.2rem;
+        }
+
+        /* Sound list */
+        .sound-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .sound-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .sound-item:hover { background: var(--surface-2); }
+        .sound-item:has(input:checked) { background: rgba(233, 69, 96, 0.1); }
+
+        .sound-item input[type="radio"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 2px solid var(--text-muted);
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: border-color 0.15s;
+            margin: 0;
+        }
+
+        .sound-item input[type="radio"]:checked { border-color: var(--accent); }
+
+        .sound-item input[type="radio"]:checked::after {
+            content: '';
+            position: absolute;
+            inset: 3px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+
+        .sound-item .sound-label {
+            flex: 1;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .test-btn {
+            background: var(--surface-3);
+            border: none;
+            color: var(--text);
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s, transform 0.1s;
+            flex-shrink: 0;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .test-btn:hover { background: var(--accent); color: #fff; }
+        .test-btn:active { transform: scale(0.9); }
+        .test-btn.playing { background: var(--accent); color: #fff; }
+
+        /* Toggle */
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 1rem;
+            cursor: pointer;
+            margin: 0;
+        }
+
+        .toggle-text {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+            flex: 1;
+        }
+
+        .toggle-title {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .toggle-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .switch {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 3rem;
+            height: 1.75rem;
+            background: var(--surface-3);
+            border-radius: 1rem;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.2s;
+            flex-shrink: 0;
+            margin: 0;
+        }
+
+        .switch::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 1.25rem;
+            height: 1.25rem;
+            background: #fff;
+            border-radius: 50%;
+            transition: transform 0.2s;
+        }
+
+        .switch:checked { background: var(--accent); }
+        .switch:checked::after { transform: translateX(1.25rem); }
+
+        /* Share modal */
+        .share-url-input {
+            width: 100%;
+            padding: 0.75rem;
+            font-size: 0.95rem;
+            border: none;
+            border-radius: 0.75rem;
+            background: var(--surface-2);
+            color: var(--text);
+            text-align: center;
+            font-weight: 500;
+            margin: 0.5rem 0;
+        }
+
+        .qr-container {
+            display: flex;
+            justify-content: center;
+            margin: 1rem 0;
+        }
+
+        .qr-container img {
+            max-width: 180px;
+            max-height: 180px;
+            border-radius: 0.5rem;
+            background: #fff;
+            padding: 0.5rem;
+        }
+
+        /* Version footer */
+        .version-footer {
+            text-align: center;
+            padding: 0.5rem 0;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .version-footer button {
+            background: none;
+            border: none;
+            color: var(--accent);
+            font-size: inherit;
+            cursor: pointer;
+            text-decoration: underline;
+            font-family: inherit;
+            padding: 0;
+        }
+
+        /* ============ MODAL ============ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(6px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            z-index: 100;
+        }
+
         .modal-overlay.open { display: flex; }
+
         .modal {
-            background: var(--card); border-radius: 1.5rem; padding: 1.5rem;
-            width: 100%; max-width: 22rem; max-height: 80vh;
-            overflow-y: auto; box-shadow: 0 1rem 3rem rgba(0,0,0,0.6);
+            background: var(--surface);
+            border-radius: 1.25rem;
+            padding: 1.5rem;
+            max-width: 22rem;
+            width: 100%;
+            box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.5);
             animation: modalIn 0.2s ease;
         }
-        @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        .modal h2 { color: var(--text); margin: 0 0 1rem; font-size: 1.4rem; text-align: center; }
-        .sound-list { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; }
-        .sound-item {
-            display: flex; align-items: center; gap: 0.75rem;
-            background: var(--display-bg); border-radius: 0.8rem;
-            padding: 0.5rem 0.8rem; transition: background 0.15s; cursor: pointer;
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
         }
-        .sound-item:hover { background: #1a3a6a; }
-        .sound-item input[type="radio"] {
-            appearance: none; -webkit-appearance: none;
-            width: 1.2rem; height: 1.2rem; border: 2px solid #666;
-            border-radius: 50%; flex-shrink: 0;
-            transition: border 0.15s, background 0.15s;
-            cursor: pointer; position: relative;
+
+        .modal h2 {
+            font-size: 1.15rem;
+            margin: 0 0 1.5rem;
+            text-align: center;
+            font-weight: 600;
+            line-height: 1.4;
         }
-        .sound-item input[type="radio"]:checked { border-color: var(--accent); background: var(--accent); }
-        .sound-item input[type="radio"]:checked::after {
-            content: ''; position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%); width: 0.4rem; height: 0.4rem;
-            border-radius: 50%; background: #fff;
+
+        .modal-actions {
+            display: flex;
+            gap: 0.75rem;
         }
-        .sound-item label {
-            color: var(--text); font-size: 1rem; font-weight: 500;
-            cursor: pointer; flex: 1; text-align: left;
-            padding: 0.3rem 0; margin: 0;
-        }
-        .sound-item label.selected-label { color: var(--accent); font-weight: 700; }
-        .play-preview-btn {
-            background: var(--secondary); border: none; color: #fff;
-            border-radius: 50%; width: 2.4rem; height: 2.4rem;
-            font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
-            display: flex; align-items: center; justify-content: center;
-            transition: background 0.15s, transform 0.1s;
-            padding: 0; line-height: 1;
-        }
-        .play-preview-btn:active { transform: scale(0.9); }
-        .play-preview-btn:hover { background: var(--accent); }
-        .play-preview-btn.playing { background: var(--accent); }
-        .play-preview-btn.playing::after { content: '⏹'; font-size: 0.9rem; }
-        .play-preview-btn:not(.playing)::after { content: '▶'; font-size: 1rem; }
-        .share-url-input {
-            width: 100%; padding: 0.75rem; font-size: 1rem;
-            border: none; border-radius: 0.8rem;
-            background: var(--display-bg); color: var(--text);
-            margin: 0.5rem 0; text-align: center; font-weight: 500;
-        }
-        .copy-btn {
-            width: 100%; margin: 0.5rem 0; background: var(--secondary);
-            border: none; color: #fff; border-radius: 0.8rem;
-            padding: 0.75rem; font-size: 1rem; cursor: pointer; font-weight: 600;
-        }
-        .qr-container { display: flex; justify-content: center; margin: 1rem 0; }
-        .qr-container img {
-            max-width: 200px; max-height: 200px; border-radius: 0.5rem;
-            background: #fff; padding: 0.5rem;
-        }
-        .close-btn {
-            background: transparent; border: 2px solid var(--secondary);
-            color: var(--text); border-radius: 0.8rem; padding: 0.6rem;
-            width: 100%; margin-top: 0.5rem; font-size: 1rem;
-            cursor: pointer; transition: background 0.15s;
-        }
-        .close-btn:hover { background: rgba(83, 52, 131, 0.2); }
-        .confirm-dialog .dialog-actions,
-        .update-dialog .dialog-actions {
-            display: flex; gap: 0.75rem; margin-top: 1.5rem;
-        }
-        .confirm-dialog .dialog-actions button,
-        .update-dialog .dialog-actions button {
-            flex: 1; padding: 0.8rem; font-size: 1.1rem; font-weight: 600;
-            border: none; border-radius: 0.8rem; cursor: pointer;
-            transition: background 0.15s, transform 0.05s;
-        }
-        .confirm-dialog .dialog-actions button:active,
-        .update-dialog .dialog-actions button:active { transform: scale(0.97); }
-        .confirm-dialog .dialog-actions .btn-yes,
-        .update-dialog .dialog-actions .btn-yes { background: var(--accent); color: #fff; }
-        .confirm-dialog .dialog-actions .btn-no,
-        .update-dialog .dialog-actions .btn-no { background: var(--secondary); color: #fff; }
-        .confirm-dialog p, .update-dialog p {
-            color: var(--text); font-size: 1.1rem; text-align: center;
-            margin: 0.5rem 0; line-height: 1.5;
-        }
-        .help-content { color: var(--text); text-align: left; padding: 0 0.2rem; }
-        .help-content ul { padding-left: 1.2rem; margin: 0.5rem 0 1rem; line-height: 1.7; }
-        .help-content ul li { margin-bottom: 0.3rem; }
-        .version-info {
-            text-align: center; padding: 0.8rem 0 0.2rem;
-            border-top: 1px solid rgba(255,255,255,0.08); margin-top: 0.8rem;
-        }
-        .version-info .version-label { color: #888; font-size: 0.85rem; }
-        .version-info .version-link {
-            color: var(--accent); font-weight: 600; text-decoration: underline;
-            cursor: pointer; transition: color 0.15s; font-size: 1rem;
-            background: none; border: none; padding: 0.2rem 0.6rem;
-        }
-        .version-info .version-link:hover { color: #ff7a92; }
-        .alarm-reset-btn {
-            background: var(--secondary) !important; color: #fff !important;
-            border: none !important; padding: 0.8rem 2rem !important;
-            font-size: 1.2rem !important; border-radius: 2rem !important;
-            cursor: pointer !important; font-weight: 600 !important;
-            transition: background 0.15s, transform 0.05s !important;
-        }
-        .alarm-reset-btn:active { transform: scale(0.95) !important; }
-        body.running-mode.dim-mode .container .buttons .alarm-reset-btn {
-            background: #1a1a1a !important; color: #666 !important;
-        }
-        #cancelBtn { display: none; }
-        body.running-mode .container .buttons #cancelBtn { display: inline-block; }
-        body.running-mode .container #startBtn,
-        body.running-mode .container #soundSettingsBtn,
-        body.running-mode .container #dimToggleBtn { display: none !important; }
-        #pauseBtn, #resumeBtn, #cancelBtn, #alarmResetBtn { display: none; }
-        body.running-mode .container #pauseBtn { display: inline-block; }
-        body.running-mode.paused-mode .container #pauseBtn { display: none !important; }
-        body.running-mode.paused-mode .container #resumeBtn { display: inline-block; }
-        body.running-mode.paused-mode .container #cancelBtn { display: inline-block; }
-        body.running-mode.alarm-mode .container #pauseBtn,
-        body.running-mode.alarm-mode .container #resumeBtn,
-        body.running-mode.alarm-mode .container #cancelBtn { display: none !important; }
-        body.running-mode.alarm-mode .container #alarmResetBtn { display: inline-block; }
-        body.running-mode .container .inputs { display: none !important; }
-        body.running-mode .container .display { display: block !important; }
-        @media (max-width: 400px) {
-            .display { font-size: 3.2rem; }
-            body.running-mode .container .display { font-size: min(25vw, 25vh, 8rem); }
-            body.running-mode .container .buttons .pause-btn {
-                font-size: 1.5rem; padding: 1rem 2.5rem; min-width: 10rem;
-            }
-        }
-        @media (min-width: 600px) {
-            body.running-mode .container .display { font-size: min(25vw, 25vh, 18rem); }
-            body.running-mode .container .buttons .pause-btn {
-                font-size: 2.5rem; padding: 1.5rem 4rem; min-width: 14rem;
-            }
-        }
+
+        .modal-actions .btn { flex: 1; }
     </style>
 </head>
 <body>
-<div class="container" id="appContainer">
-    <div class="header">
-        <div class="left-group">
-            <button id="closeAppBtn" class="close-app-btn" title="Sulje sovellus" aria-label="Sulje sovellus">✕</button>
+<div class="app">
+
+    <!-- ═══════════════ VIEW 1 & 2: TIMER (idle / running) ═══════════════ -->
+    <section class="view view-timer active" id="viewTimer" data-state="idle">
+        <button class="icon-btn settings-icon-btn" id="openSettingsBtn" aria-label="Avaa asetukset">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+        </button>
+
+        <div class="display-wrap">
+            <div class="timer-display" id="display">05:00</div>
         </div>
-        <h1>Ajastin</h1>
-        <div class="right-group">
-            <button id="helpBtn" class="help-icon-btn" title="Ohje" aria-label="Käyttöohje">?</button>
-            <button id="shareBtn" class="share-icon-btn" title="Jaa" aria-label="Jaa sovellus">🔗</button>
+
+        <div class="controls">
+            <button class="btn btn-primary" id="startBtn">Käynnistä</button>
+            <button class="btn btn-secondary" id="pauseBtn">Tauko</button>
+            <button class="btn btn-danger" id="cancelBtn">Keskeytä</button>
+            <button class="btn btn-primary" id="resumeBtn">Jatka</button>
+            <button class="btn btn-secondary" id="alarmResetBtn">Nollaa</button>
+        </div>
+    </section>
+
+    <!-- ═══════════════ VIEW 3: SETTINGS ═══════════════ -->
+    <section class="view view-settings" id="viewSettings">
+        <header class="settings-header">
+            <button class="icon-btn" id="backBtn" aria-label="Takaisin">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"/>
+                    <polyline points="12 19 5 12 12 5"/>
+                </svg>
+            </button>
+            <h1>Asetukset</h1>
+            <div class="spacer"></div>
+        </header>
+
+        <div class="settings-content">
+
+            <!-- Aika -->
+            <div class="setting-group">
+                <label class="setting-label">Aika</label>
+                <div class="time-inputs">
+                    <div class="time-input">
+                        <input id="minutesInput" type="number" inputmode="numeric" min="0" max="999" step="1" value="5">
+                        <span>min</span>
+                    </div>
+                    <div class="time-sep">:</div>
+                    <div class="time-input">
+                        <input id="secondsInput" type="number" inputmode="numeric" min="0" max="59" step="1" value="0">
+                        <span>s</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Soittoääni -->
+            <div class="setting-group">
+                <label class="setting-label">Soittoääni</label>
+                <div class="sound-list" id="soundList"></div>
+            </div>
+
+            <!-- Näyttö -->
+            <div class="setting-group">
+                <label class="setting-label">Näyttö</label>
+                <label class="toggle-row">
+                    <div class="toggle-text">
+                        <span class="toggle-title">Himmennä näyttö ajon aikana</span>
+                        <span class="toggle-desc">Säästää akkua erityisesti OLED-näytöillä</span>
+                    </div>
+                    <input type="checkbox" id="dimToggle" class="switch">
+                </label>
+            </div>
+
+            <!-- Jaa -->
+            <div class="setting-group">
+                <label class="setting-label">Jaa</label>
+                <button class="btn btn-secondary" id="openShareBtn" style="width:100%;">Jaa sovellus</button>
+            </div>
+
+            <div class="version-footer">
+                Versio <button id="versionBtn" type="button">1.7.0</button>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ═══════════════ CONFIRM MODAL ═══════════════ -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal">
+            <h2>Keskeytetäänkö ajastus?</h2>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="confirmNo">Peruuta</button>
+                <button class="btn btn-primary" id="confirmYes">Keskeytä</button>
+            </div>
         </div>
     </div>
 
-    <div id="display" class="display">00:00</div>
-
-    <div class="inputs">
-        <div class="input-group">
-            <label for="minutes">Minuutit</label>
-            <input id="minutes" type="number" inputmode="numeric" min="0" max="999" step="1" value="5">
-        </div>
-        <div class="input-group">
-            <label for="seconds">Sekunnit</label>
-            <input id="seconds" type="number" inputmode="numeric" min="0" max="59" step="1" value="0">
-        </div>
-    </div>
-
-    <div class="buttons" id="buttonsArea">
-        <button id="startBtn">Käynnistä</button>
-        <button id="soundSettingsBtn" class="settings-btn">🔔 Summeri</button>
-        <button id="dimToggleBtn" class="settings-btn" title="Näytön tila ajastuksen aikana">🔅 Himmeä</button>
-        <button id="pauseBtn" class="pause-btn">Tauko</button>
-        <button id="resumeBtn" class="pause-btn">Jatka</button>
-        <button id="cancelBtn" class="pause-btn cancel-btn">Keskeytä</button>
-        <button id="alarmResetBtn" class="alarm-reset-btn">Nollaa</button>
-    </div>
-</div>
-
-<!-- Modaalit -->
-<div id="soundModal" class="modal-overlay">
-    <div class="modal">
-        <h2>Valitse summeriääni</h2>
-        <div id="soundList" class="sound-list"></div>
-        <button id="closeModalBtn" class="close-btn">Sulje</button>
-    </div>
-</div>
-
-<div id="shareModal" class="modal-overlay">
-    <div class="modal">
-        <h2>Jaa sovellus</h2>
-        <input type="text" id="shareUrlInput" class="share-url-input" value="https://samuelkallio.github.io/Ajastin/" readonly onclick="this.select()">
-        <button id="copyUrlBtn" class="copy-btn">Kopioi linkki</button>
-        <div class="qr-container">
-            <img id="qrCode" src="" alt="QR-koodi" width="200" height="200">
-        </div>
-        <button id="closeShareModalBtn" class="close-btn">Sulje</button>
-    </div>
-</div>
-
-<div id="confirmModal" class="modal-overlay">
-    <div class="modal confirm-dialog">
-        <h2>Vahvista</h2>
-        <p>Haluatko varmasti pysäyttää ajastimen?</p>
-        <div class="dialog-actions">
-            <button id="confirmYes" class="btn-yes">Kyllä</button>
-            <button id="confirmNo" class="btn-no">Ei</button>
+    <!-- ═══════════════ SHARE MODAL ═══════════════ -->
+    <div class="modal-overlay" id="shareModal">
+        <div class="modal">
+            <h2>Jaa sovellus</h2>
+            <input type="text" id="shareUrlInput" class="share-url-input" value="https://samuelkallio.github.io/Ajastin/" readonly onclick="this.select()">
+            <button id="copyUrlBtn" class="btn btn-primary" style="width:100%; margin-top:0.5rem;">Kopioi linkki</button>
+            <div class="qr-container">
+                <img id="qrCode" src="" alt="QR-koodi" width="180" height="180">
+            </div>
+            <button id="closeShareModalBtn" class="btn btn-secondary" style="width:100%;">Sulje</button>
         </div>
     </div>
-</div>
 
-<div id="helpModal" class="modal-overlay">
-    <div class="modal">
-        <h2>📖 Käyttöohje</h2>
-        <div class="help-content">
-            <ul>
-                <li>Aseta haluamasi aika <strong>minuutteina</strong> ja <strong>sekunteina</strong>.</li>
-                <li>Paina <strong>Käynnistä</strong> aloittaaksesi ajastuksen.</li>
-                <li>Käynnistyksen yhteydessä kuulet valitun summeriäänen 1 sekunnin ajan.</li>
-                <li>Käynnissä ollessa näet vain <strong>kellon</strong> ja <strong>Tauko</strong>-painikkeen.</li>
-                <li>Tauon aikana voit <strong>Jatkaa</strong> tai <strong>Keskeyttää</strong> ajastuksen.</li>
-                <li>Kellon päätyttyä summeri soi kerran kokonaan täydellä äänenvoimakkuudella.</li>
-                <li><strong>Näyttö-painike:</strong> valitse <em>Himmeä</em> säästääksesi akkua (näyttö himmenee ajastuksen aikana) tai <em>Kirkas</em> seurataksesi kelloa kirkkaana koko ajan.</li>
-                <li>Valitse haluamasi summeriääni <strong>Summeri</strong>-painikkeesta. Oletus: school bell.</li>
-                <li>Näyttö pysyy hereillä koko käytön ajan (Wake Lock).</li>
-                <li>Äänet tallennetaan välimuistiin ja toimivat myös offline-tilassa.</li>
-                <li>Versiopäivitys tyhjentää välimuistit ja lataa sovelluksen puhtaasti uudelleen.</li>
-                <li>Jaa sovellus <strong>linkin</strong> tai <strong>QR-koodin</strong> avulla.</li>
-            </ul>
-            <p style="font-size:0.85rem; color:#999; margin-top:0.5rem;">
-                Huom: Selain ei voi säätää laitteen taustavalon kirkkautta. Himmeä-tila jäljittelee
-                himmennystä tummentamalla käyttöliittymän. OLED-näytöillä musta tausta säästää akkua.
-            </p>
-        </div>
-        <div class="version-info">
-            <span class="version-label">Versio </span>
-            <button id="versionLink" class="version-link">1.6.0</button>
-            <span style="color:#666; font-size:0.8rem; display:block; margin-top:0.2rem;">Päivitä sovellus klikkaamalla versiota</span>
-        </div>
-        <button id="closeHelpBtn" class="close-btn">Sulje</button>
-    </div>
-</div>
-
-<div id="updateModal" class="modal-overlay">
-    <div class="modal update-dialog">
-        <h2>🔄 Päivitys</h2>
-        <p>Haluatko varmasti päivittää sovelluksen uusimpaan versioon?<br><br>Kaikki välimuistit tyhjennetään ja sovellus ladataan kokonaan uudelleen.</p>
-        <div class="dialog-actions">
-            <button id="updateYes" class="btn-yes">Kyllä</button>
-            <button id="updateNo" class="btn-no">Ei</button>
-        </div>
-    </div>
 </div>
 
 <script>
-    /* =========================================================================
-       AJASTIN 1.6.0
-       =========================================================================
-       Uudet ominaisuudet:
-       - Himmeä-tila: ajastuksen aikana käyttöliittymä himmenee (musta tausta,
-         himmeä kello ja painikkeet). Säästää akkua erityisesti OLED-näytöillä.
-       - Kirkas-tila: käyttäjä voi valita, että näkymä pysyy kirkkaana
-         ajastuksen ajan (esim. työasemalla kellon seuraamiseen).
-       - Valinta tallennetaan localStorageen.
-       - Wake Lock pysyy käytössä molemmissa tiloissa (estää näytön sammumisen).
+(function () {
+    'use strict';
 
-       Aiemmat korjaukset säilyvät:
-       - Pysyvä audiopooli (iOS-yhteensopivuus)
-       - Offline-äänet (Cache API)
-       - Välimuistien tyhjennys versiopäivityksessä
-       ========================================================================= */
-
-    // ---------- Asetukset ----------
-    const soundOptions = [
-        { file: 'horn.mp3', label: 'horn' },
-        { file: 'ice hockey.m4a', label: 'ice hockey' },
-        { file: 'school bell.m4a', label: 'school bell' }
+    /* ═══════════════ CONFIG ═══════════════ */
+    const SOUNDS = [
+        { file: 'school bell.m4a', label: 'School bell' },
+        { file: 'horn.mp3',        label: 'Horn' },
+        { file: 'ice hockey.m4a',  label: 'Ice hockey' },
     ];
-    const DEFAULT_SOUND = 'school bell.m4a';
-    const SHARE_URL = 'https://samuelkallio.github.io/Ajastin/';
-    const APP_VERSION = '1.6.0';
-    const AUDIO_CACHE_NAME = 'ajastin-audio-v4';
-    const START_BEEP_DURATION_MS = 1000;
+    const DEFAULT_SOUND         = 'school bell.m4a';
+    const DEFAULT_TOTAL_SECONDS = 300;
+    const MAX_TOTAL_SECONDS     = 999 * 60 + 59;
+    const CACHE_NAME            = 'ajastin-audio-v5';
+    const APP_CACHE_NAME        = 'ajastin-app-v1';
+    const APP_VERSION           = '1.7.0';
+    const START_BEEP_MS         = 1000;
+    const FLASH_DURATION_MS     = 10000;
+    const SHARE_URL             = 'https://samuelkallio.github.io/Ajastin/';
 
-    // ---------- PYSYVÄ AUDIOPOOLI ----------
-    const audioPool = {};
-    const soundUrls = {};
+    /* ═══════════════ STATE ═══════════════ */
+    let mode = 'idle';                  // idle | running | paused | alarm
+    let totalSeconds = DEFAULT_TOTAL_SECONDS;
+    let timerEndTime = 0;
+    let pausedRemainingMs = 0;
+    let intervalId = null;
 
     let currentSound = DEFAULT_SOUND;
-    let audioUnlocked = false;
-
-    // Himmennysasetus (true = himmennä ajastuksen aikana)
     let dimMode = true;
 
-    // Aktiiviset toistot
-    let startFadeTimer = null;
-    let alarmFallbackTimer = null;
+    /* Audio */
+    const audioPool = {};
+    const soundUrls = {};
+    let audioUnlocked = false;
+    let startBeepTimer = null;
     let previewFile = null;
-    let previewPlaying = false;
     let previewTimeout = null;
 
-    // Fallback-oskillaattori
+    /* Web Audio boost */
     let audioCtx = null;
-    let fallbackOscillator = null;
+    let masterGain = null;
+    let mediaSources = {};
+    let audioBoostInitialized = false;
+
+    /* Fallback beep */
+    let fallbackOsc = null;
     let fallbackGain = null;
 
-    // ---------- DOM-elementit ----------
-    const display = document.getElementById('display');
-    const minutesInput = document.getElementById('minutes');
-    const secondsInput = document.getElementById('seconds');
-    const startBtn = document.getElementById('startBtn');
-    const pauseBtn = document.getElementById('pauseBtn');
-    const resumeBtn = document.getElementById('resumeBtn');
-    const cancelBtn = document.getElementById('cancelBtn');
-    const alarmResetBtn = document.getElementById('alarmResetBtn');
-    const soundSettingsBtn = document.getElementById('soundSettingsBtn');
-    const dimToggleBtn = document.getElementById('dimToggleBtn');
-    const soundModal = document.getElementById('soundModal');
-    const soundListContainer = document.getElementById('soundList');
-    const closeModalBtn = document.getElementById('closeModalBtn');
-    const shareBtn = document.getElementById('shareBtn');
-    const shareModal = document.getElementById('shareModal');
-    const shareUrlInput = document.getElementById('shareUrlInput');
-    const copyUrlBtn = document.getElementById('copyUrlBtn');
-    const qrCodeImg = document.getElementById('qrCode');
-    const closeShareModalBtn = document.getElementById('closeShareModalBtn');
-    const confirmModal = document.getElementById('confirmModal');
-    const confirmYes = document.getElementById('confirmYes');
-    const confirmNo = document.getElementById('confirmNo');
-    const helpBtn = document.getElementById('helpBtn');
-    const helpModal = document.getElementById('helpModal');
-    const closeHelpBtn = document.getElementById('closeHelpBtn');
-    const versionLink = document.getElementById('versionLink');
-    const updateModal = document.getElementById('updateModal');
-    const updateYes = document.getElementById('updateYes');
-    const updateNo = document.getElementById('updateNo');
-    const closeAppBtn = document.getElementById('closeAppBtn');
+    /* Flash timer */
+    let flashStopTimer = null;
 
-    // ---------- Ajastimen tila ----------
-    let state = 'idle';
-    let initialMinutes = 5;
-    let initialSeconds = 0;
-    let remainingSeconds = initialMinutes * 60 + initialSeconds;
-    let timerInterval = null;
-    let timerStartTime = null;
-    let timerStartRemaining = 0;
-
-    // ---------- Wake Lock ----------
+    /* Wake Lock */
     let wakeLock = null;
     const wakeLockSupported = 'wakeLock' in navigator;
 
-    // =========================================================================
-    // WAKE LOCK
-    // =========================================================================
-    async function requestWakeLock() {
-        if (!wakeLockSupported) return;
-        if (document.visibilityState !== 'visible') return;
-        if (wakeLock) return;
-        try {
-            wakeLock = await navigator.wakeLock.request('screen');
-            wakeLock.addEventListener('release', () => { wakeLock = null; });
-        } catch (err) {
-            wakeLock = null;
+    /* ═══════════════ DOM ═══════════════ */
+    const $ = id => document.getElementById(id);
+    const viewTimer     = $('viewTimer');
+    const viewSettings  = $('viewSettings');
+    const display       = $('display');
+    const startBtn      = $('startBtn');
+    const pauseBtn      = $('pauseBtn');
+    const cancelBtn     = $('cancelBtn');
+    const resumeBtn     = $('resumeBtn');
+    const alarmResetBtn = $('alarmResetBtn');
+    const openSettingsBtn = $('openSettingsBtn');
+    const backBtn       = $('backBtn');
+    const minutesInput  = $('minutesInput');
+    const secondsInput  = $('secondsInput');
+    const soundListEl   = $('soundList');
+    const dimToggle     = $('dimToggle');
+    const confirmModal  = $('confirmModal');
+    const confirmYes    = $('confirmYes');
+    const confirmNo     = $('confirmNo');
+    const versionBtn    = $('versionBtn');
+    const openShareBtn  = $('openShareBtn');
+    const shareModal    = $('shareModal');
+    const shareUrlInput = $('shareUrlInput');
+    const copyUrlBtn    = $('copyUrlBtn');
+    const qrCodeImg     = $('qrCode');
+    const closeShareModalBtn = $('closeShareModalBtn');
+
+    /* ═══════════════ UTILS ═══════════════ */
+    function formatTime(total) {
+        const m = Math.floor(total / 60);
+        const s = total % 60;
+        return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+    }
+
+    function clamp(v, min, max) {
+        return Math.max(min, Math.min(max, v));
+    }
+
+    /* ═══════════════ DISPLAY FITTING ═══════════════ */
+    let measurer = null;
+    let lastLen = 0;
+
+    function fitDisplay() {
+        if (!viewTimer.classList.contains('active')) return;
+        const wrap = display.parentElement;
+        const availW = wrap.clientWidth - 16;
+        const availH = wrap.clientHeight - 16;
+        if (availW <= 0 || availH <= 0) return;
+
+        const cs = getComputedStyle(display);
+
+        if (!measurer) {
+            measurer = document.createElement('span');
+            measurer.style.cssText =
+                'position:fixed;visibility:hidden;white-space:nowrap;' +
+                'left:-9999px;top:-9999px;line-height:1;padding:0;margin:0;';
+            document.body.appendChild(measurer);
+        }
+
+        measurer.style.fontFamily     = cs.fontFamily;
+        measurer.style.fontWeight     = cs.fontWeight;
+        measurer.style.fontVariantNumeric = 'tabular-nums';
+        measurer.style.letterSpacing  = cs.letterSpacing;
+        measurer.style.fontSize       = '100px';
+        measurer.textContent          = display.textContent;
+
+        const tw = measurer.offsetWidth;
+        const th = measurer.offsetHeight;
+        if (tw <= 0 || th <= 0) return;
+
+        const scale = Math.min(availW / tw, availH / th) * 0.98;
+        display.style.fontSize = (100 * scale) + 'px';
+    }
+
+    function setDisplay(seconds) {
+        const text = formatTime(seconds);
+        if (display.textContent !== text) display.textContent = text;
+
+        if (text.length !== lastLen) {
+            lastLen = text.length;
+            requestAnimationFrame(fitDisplay);
         }
     }
 
-    async function releaseWakeLock() {
-        if (wakeLock) {
-            try { await wakeLock.release(); } catch (e) {}
-            wakeLock = null;
+    /* ═══════════════ STATE / VIEW ═══════════════ */
+    function setMode(newMode) {
+        mode = newMode;
+        viewTimer.dataset.state = newMode;
+        document.body.classList.toggle('dim-mode', newMode === 'running' && dimMode);
+    }
+
+    function switchView(name) {
+        viewTimer.classList.toggle('active', name === 'timer');
+        viewSettings.classList.toggle('active', name === 'settings');
+        if (name === 'timer') requestAnimationFrame(fitDisplay);
+    }
+
+    /* ═══════════════ TIMER LOGIC ═══════════════ */
+    function tick() {
+        if (mode !== 'running') return;
+
+        const remainingMs = Math.max(0, timerEndTime - Date.now());
+        const displaySec = Math.ceil(remainingMs / 1000);
+        setDisplay(displaySec);
+
+        if (remainingMs <= 0) {
+            clearInterval(intervalId);
+            intervalId = null;
+            handleAlarm();
         }
     }
 
-    // =========================================================================
-    // AUDIOPOOLIN ALUSTUS
-    // =========================================================================
-    function initAudioPool() {
-        soundOptions.forEach(opt => {
-            const a = new Audio();
-            a.preload = 'auto';
-            a.loop = false;
-            a.volume = 1.0;
-            audioPool[opt.file] = a;
-            updateAudioSrc(opt.file);
-        });
-        console.log('Audiopooli alustettu:', Object.keys(audioPool));
-    }
+    function startTimer() {
+        if (mode === 'running' || mode === 'alarm') return;
+        unlockAudio();
 
-    function updateAudioSrc(file) {
-        const a = audioPool[file];
-        if (!a) return;
-        const url = getSoundUrl(file);
-        if (a._lastSrc !== url) {
-            a._lastSrc = url;
-            a.src = url;
+        if (mode === 'idle') {
+            const total = readInputsAsSeconds();
+            if (total <= 0) return;
+            totalSeconds = total;
+            timerEndTime = Date.now() + total * 1000;
+            playStartBeep();
+        } else if (mode === 'paused') {
+            timerEndTime = Date.now() + pausedRemainingMs;
         }
+
+        setMode('running');
+        tick();
+        intervalId = setInterval(tick, 100);
+        requestWakeLock();
     }
 
-    function updateAllAudioSrcs() {
-        soundOptions.forEach(opt => updateAudioSrc(opt.file));
+    function pauseTimer() {
+        if (mode !== 'running') return;
+        pausedRemainingMs = Math.max(0, timerEndTime - Date.now());
+        clearInterval(intervalId);
+        intervalId = null;
+        stopStartBeep();
+        setMode('paused');
     }
 
-    // =========================================================================
-    // ÄÄNEN VÄLIMUISTI (Cache API)
-    // =========================================================================
-    async function initAudioCache() {
-        let cacheOk = false;
-        if ('caches' in window && location.protocol !== 'file:') {
-            try {
-                const cache = await caches.open(AUDIO_CACHE_NAME);
-                for (const opt of soundOptions) {
-                    try {
-                        let resp = await cache.match(opt.file);
-                        if (!resp) {
-                            await cache.add(opt.file);
-                            resp = await cache.match(opt.file);
-                        }
-                        if (resp) {
-                            const blob = await resp.blob();
-                            const oldUrl = soundUrls[opt.file];
-                            if (oldUrl && oldUrl.startsWith('blob:')) {
-                                URL.revokeObjectURL(oldUrl);
-                            }
-                            soundUrls[opt.file] = URL.createObjectURL(blob);
-                        }
-                    } catch (e) {
-                        console.warn('Äänen välimuistiin tallennus epäonnistui:', opt.file, e);
-                    }
-                }
-                cacheOk = true;
-            } catch (e) {
-                cacheOk = false;
-            }
+    function resumeTimer() {
+        if (mode !== 'paused') return;
+        timerEndTime = Date.now() + pausedRemainingMs;
+        setMode('running');
+        tick();
+        intervalId = setInterval(tick, 100);
+        requestWakeLock();
+    }
+
+    function cancelTimer() {
+        if (mode !== 'paused') return;
+        confirmModal.classList.add('open');
+    }
+
+    function handleAlarm() {
+        setMode('alarm');
+        setDisplay(0);
+        display.classList.add('flash');
+        playAlarmSound();
+
+        // Flash for 10 seconds, then automatically return to the start view.
+        // No reset button press needed after the flash ends.
+        if (flashStopTimer) clearTimeout(flashStopTimer);
+        flashStopTimer = setTimeout(() => {
+            flashStopTimer = null;
+            resetToIdle();
+        }, FLASH_DURATION_MS);
+    }
+
+    function resetToIdle() {
+        stopAlarmSound();
+        display.classList.remove('flash');
+        if (flashStopTimer) {
+            clearTimeout(flashStopTimer);
+            flashStopTimer = null;
         }
-        for (const opt of soundOptions) {
-            if (!soundUrls[opt.file]) soundUrls[opt.file] = opt.file;
-        }
-        updateAllAudioSrcs();
-        console.log('Äänet valmiina. Offline-välimuisti:', cacheOk, soundUrls);
+        clearInterval(intervalId);
+        intervalId = null;
+        timerEndTime = 0;
+        pausedRemainingMs = 0;
+        totalSeconds = readInputsAsSeconds();
+        setDisplay(totalSeconds);
+        setMode('idle');
+        releaseWakeLock();
     }
 
+    /* ═══════════════ INPUTS ═══════════════ */
+    function readInputsAsSeconds() {
+        const m = clamp(parseInt(minutesInput.value, 10) || 0, 0, 999);
+        const s = clamp(parseInt(secondsInput.value, 10) || 0, 0, 59);
+        return m * 60 + s;
+    }
+
+    function onTimeInput() {
+        totalSeconds = readInputsAsSeconds();
+        saveTotalSeconds(totalSeconds);
+        if (mode === 'idle') setDisplay(totalSeconds);
+    }
+
+    function normalizeMinutesInput() {
+        let v = parseInt(minutesInput.value, 10);
+        if (isNaN(v) || v < 0) v = 0;
+        if (v > 999) v = 999;
+        minutesInput.value = v;
+        onTimeInput();
+    }
+
+    function normalizeSecondsInput() {
+        let v = parseInt(secondsInput.value, 10);
+        if (isNaN(v) || v < 0) v = 0;
+        if (v > 59) v = 59;
+        secondsInput.value = v;
+        onTimeInput();
+    }
+
+    /* ═══════════════ PERSISTENCE ═══════════════ */
+    function saveTotalSeconds(v) {
+        try { localStorage.setItem('ajastin_total_seconds', String(v)); } catch (e) {}
+    }
+
+    function loadTotalSeconds() {
+        const v = parseInt(localStorage.getItem('ajastin_total_seconds'), 10);
+        if (isNaN(v) || v < 0) return DEFAULT_TOTAL_SECONDS;
+        return clamp(v, 0, MAX_TOTAL_SECONDS);
+    }
+
+    function saveDimMode() {
+        try { localStorage.setItem('ajastin_dim_mode', dimMode ? '1' : '0'); } catch (e) {}
+    }
+
+    function loadDimMode() {
+        const v = localStorage.getItem('ajastin_dim_mode');
+        dimMode = (v === null) ? true : (v === '1');
+    }
+
+    function saveSound() {
+        try { localStorage.setItem('ajastin_sound', currentSound); } catch (e) {}
+    }
+
+    function loadSound() {
+        const v = localStorage.getItem('ajastin_sound');
+        currentSound = (v && SOUNDS.some(s => s.file === v)) ? v : DEFAULT_SOUND;
+    }
+
+    /* ═══════════════ AUDIO ═══════════════ */
     function getSoundUrl(file) {
         return soundUrls[file] || file;
     }
 
-    // =========================================================================
-    // AUDIO-UNLOCK
-    // =========================================================================
+    function initAudio() {
+        SOUNDS.forEach(s => {
+            const a = new Audio();
+            a.preload = 'auto';
+            a.volume = 1.0;
+            a.loop = false;
+            audioPool[s.file] = a;
+            a.src = getSoundUrl(s.file);
+        });
+    }
+
+    async function cacheAudio() {
+        if (!('caches' in window) || location.protocol === 'file:') {
+            SOUNDS.forEach(s => { soundUrls[s.file] = s.file; });
+            Object.keys(audioPool).forEach(f => { audioPool[f].src = getSoundUrl(f); });
+            return;
+        }
+        try {
+            const cache = await caches.open(CACHE_NAME);
+            for (const s of SOUNDS) {
+                try {
+                    let resp = await cache.match(s.file);
+                    if (!resp) {
+                        await cache.add(s.file);
+                        resp = await cache.match(s.file);
+                    }
+                    if (resp) {
+                        const blob = await resp.blob();
+                        const oldUrl = soundUrls[s.file];
+                        if (oldUrl && oldUrl.startsWith('blob:')) URL.revokeObjectURL(oldUrl);
+                        soundUrls[s.file] = URL.createObjectURL(blob);
+                    }
+                } catch (e) {
+                    console.warn('Cache failed for', s.file, e);
+                }
+            }
+        } catch (e) {
+            console.warn('Cache init failed', e);
+        }
+        SOUNDS.forEach(s => {
+            if (!soundUrls[s.file]) soundUrls[s.file] = s.file;
+            if (audioPool[s.file]) audioPool[s.file].src = getSoundUrl(s.file);
+        });
+    }
+
+    /* ── Web Audio boost ── */
+    function initAudioContext() {
+        if (audioCtx) return;
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return;
+        try {
+            audioCtx = new AC();
+            masterGain = audioCtx.createGain();
+            masterGain.gain.value = 1.5; // boost
+            masterGain.connect(audioCtx.destination);
+        } catch (e) {
+            console.warn('AudioContext init failed', e);
+        }
+    }
+
+    function setupAudioBoost() {
+        if (!audioCtx || !masterGain) return;
+        if (audioBoostInitialized) return;
+        audioBoostInitialized = true;
+        Object.keys(audioPool).forEach(file => {
+            if (mediaSources[file]) return;
+            try {
+                const el = audioPool[file];
+                const src = audioCtx.createMediaElementSource(el);
+                src.connect(masterGain);
+                mediaSources[file] = src;
+            } catch (e) {
+                console.warn('MediaElementSource failed for', file, e);
+            }
+        });
+    }
+
     function unlockAudio() {
         if (audioUnlocked) return;
         audioUnlocked = true;
-        console.log('Avataan audiopooli...');
-        soundOptions.forEach(opt => {
-            const a = audioPool[opt.file];
+        initAudioContext();
+        if (audioCtx && audioCtx.state === 'suspended') {
+            audioCtx.resume().catch(() => {});
+        }
+        setupAudioBoost();
+        SOUNDS.forEach(s => {
+            const a = audioPool[s.file];
             if (!a) return;
             try {
-                const originalVolume = a.volume;
+                const v = a.volume;
                 a.volume = 0.001;
                 const p = a.play();
                 if (p && p.then) {
                     p.then(() => {
                         setTimeout(() => {
                             try { a.pause(); a.currentTime = 0; } catch (e) {}
-                            a.volume = originalVolume;
-                        }, 50);
-                    }).catch(() => {
-                        a.volume = originalVolume;
-                    });
+                            a.volume = v;
+                        }, 30);
+                    }).catch(() => { a.volume = v; });
                 } else {
                     setTimeout(() => {
                         try { a.pause(); a.currentTime = 0; } catch (e) {}
-                        a.volume = originalVolume;
-                    }, 50);
+                        a.volume = v;
+                    }, 30);
                 }
-            } catch (e) {
-                console.warn('Unlock epäonnistui:', opt.file, e);
-            }
+            } catch (e) {}
         });
     }
 
-    // =========================================================================
-    // KÄYNNISTYSÄÄNI (1 sekunti)
-    // =========================================================================
     function playStartBeep() {
-        stopPreview();
         stopStartBeep();
         const a = audioPool[currentSound];
         if (!a) return;
@@ -689,331 +1076,193 @@
         a.volume = 1.0;
         a.loop = false;
         const p = a.play();
-        if (p && p.catch) p.catch((e) => console.warn('Start-ääni estetty:', e));
-
-        const startedAt = Date.now();
-        startFadeTimer = setInterval(() => {
-            const elapsed = Date.now() - startedAt;
-            if (elapsed >= START_BEEP_DURATION_MS) {
-                clearInterval(startFadeTimer);
-                startFadeTimer = null;
-                try { a.pause(); a.currentTime = 0; } catch (e) {}
-            } else if (elapsed > START_BEEP_DURATION_MS - 200) {
-                a.volume = Math.max(0, 1 - (elapsed - (START_BEEP_DURATION_MS - 200)) / 200);
-            }
-        }, 50);
+        if (p && p.catch) p.catch(() => {});
+        startBeepTimer = setTimeout(() => {
+            try { a.pause(); a.currentTime = 0; } catch (e) {}
+            startBeepTimer = null;
+        }, START_BEEP_MS);
     }
 
     function stopStartBeep() {
-        if (startFadeTimer) { clearInterval(startFadeTimer); startFadeTimer = null; }
-        const a = audioPool[currentSound];
-        if (a) {
-            try { a.pause(); a.currentTime = 0; a.volume = 1.0; } catch (e) {}
+        if (startBeepTimer) {
+            clearTimeout(startBeepTimer);
+            startBeepTimer = null;
         }
+        const a = audioPool[currentSound];
+        if (a) { try { a.pause(); a.currentTime = 0; } catch (e) {} }
     }
 
-    // =========================================================================
-    // HÄLYTYSÄÄNI (kerran kokonaan, täysi volyymi)
-    // =========================================================================
     function playAlarmSound() {
-        stopAlarmSound();
         stopStartBeep();
         stopPreview();
-
         const a = audioPool[currentSound];
         if (!a) return;
-
         try { a.pause(); a.currentTime = 0; } catch (e) {}
         a.volume = 1.0;
         a.loop = false;
-
-        const onEnded = () => {
-            a.removeEventListener('ended', onEnded);
-            if (state === 'alarm') finishAlarm();
-        };
-        a.addEventListener('ended', onEnded);
-
         const p = a.play();
         if (p && p.catch) {
-            p.catch((err) => {
-                console.warn('Hälytysääni estetty, käytetään varahälytystä:', err);
-                fallbackBeep(0.6, false);
-                if (alarmFallbackTimer) clearTimeout(alarmFallbackTimer);
-                alarmFallbackTimer = setTimeout(() => {
-                    alarmFallbackTimer = null;
-                    if (state === 'alarm') finishAlarm();
-                }, 3000);
+            p.catch(err => {
+                console.warn('Alarm blocked, fallback', err);
+                fallbackBeep(0.5);
             });
         }
     }
 
     function stopAlarmSound() {
-        if (alarmFallbackTimer) {
-            clearTimeout(alarmFallbackTimer);
-            alarmFallbackTimer = null;
-        }
         const a = audioPool[currentSound];
-        if (a) {
-            try { a.pause(); a.currentTime = 0; } catch (e) {}
-        }
+        if (a) { try { a.pause(); a.currentTime = 0; } catch (e) {} }
+        stopFallback();
     }
 
-    // =========================================================================
-    // ESIKUUNTELU
-    // =========================================================================
-    function playPreview(file) {
-        stopPreview();
-        previewFile = file;
-        const a = audioPool[file];
-        if (!a) return;
-        try { a.pause(); a.currentTime = 0; } catch (e) {}
-        a.volume = 1.0;
-        a.loop = false;
-
-        const onEnded = () => {
-            a.removeEventListener('ended', onEnded);
-            if (previewFile === file) {
-                previewPlaying = false;
-                updatePlayButtons();
-            }
-        };
-        a.addEventListener('ended', onEnded);
-
-        const p = a.play();
-        if (p && p.then) {
-            p.then(() => {
-                previewPlaying = true;
-                updatePlayButtons();
-            }).catch(() => {
-                fallbackBeep(0.4, true);
-                previewPlaying = true;
-                updatePlayButtons();
-            });
-        } else {
-            fallbackBeep(0.4, true);
-            previewPlaying = true;
-            updatePlayButtons();
-        }
-        previewTimeout = setTimeout(() => {
-            if (previewPlaying) stopPreview();
-        }, 3000);
-    }
-
-    function stopPreview() {
-        if (previewTimeout) { clearTimeout(previewTimeout); previewTimeout = null; }
-        if (previewFile) {
-            const a = audioPool[previewFile];
-            if (a) {
-                try { a.pause(); a.currentTime = 0; a.volume = 1.0; } catch (e) {}
-            }
-        }
-        if (fallbackOscillator) {
-            try { fallbackOscillator.stop(); fallbackOscillator.disconnect(); } catch (e) {}
-            fallbackOscillator = null;
-        }
-        if (fallbackGain) {
-            try { fallbackGain.disconnect(); } catch (e) {}
-            fallbackGain = null;
-        }
-        previewPlaying = false;
-        previewFile = null;
-        updatePlayButtons();
-    }
-
-    function updatePlayButtons() {
-        document.querySelectorAll('.play-preview-btn').forEach(btn => {
-            const file = btn.dataset.file;
-            if (previewPlaying && previewFile === file) {
-                btn.classList.add('playing');
-            } else {
-                btn.classList.remove('playing');
-            }
-        });
-    }
-
-    // =========================================================================
-    // FALLBACK-BEEP (Web Audio API)
-    // =========================================================================
-    function fallbackBeep(gainValue = 0.4, isPreview = false) {
+    function fallbackBeep(gain) {
         try {
             if (!audioCtx || audioCtx.state === 'closed') {
                 const AC = window.AudioContext || window.webkitAudioContext;
                 if (!AC) return;
                 audioCtx = new AC();
             }
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume().catch(() => {});
-            }
-            if (fallbackOscillator) {
-                try { fallbackOscillator.stop(); fallbackOscillator.disconnect(); } catch (e) {}
-                fallbackOscillator = null;
-            }
-            if (fallbackGain) {
-                try { fallbackGain.disconnect(); } catch (e) {}
-                fallbackGain = null;
-            }
-            fallbackOscillator = audioCtx.createOscillator();
+            if (audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
+            stopFallback();
+            fallbackOsc  = audioCtx.createOscillator();
             fallbackGain = audioCtx.createGain();
-            fallbackOscillator.type = 'square';
-            fallbackOscillator.frequency.value = 880;
-            fallbackGain.gain.value = gainValue;
-            fallbackOscillator.connect(fallbackGain).connect(audioCtx.destination);
-            fallbackOscillator.start();
-            if (!isPreview) {
-                setTimeout(() => {
-                    if (fallbackOscillator) {
-                        try { fallbackOscillator.stop(); fallbackOscillator.disconnect(); } catch (e) {}
-                        fallbackOscillator = null;
-                    }
-                    if (fallbackGain) {
-                        try { fallbackGain.disconnect(); } catch (e) {}
-                        fallbackGain = null;
-                    }
-                }, 3000);
-            }
+            fallbackOsc.type = 'square';
+            fallbackOsc.frequency.value = 880;
+            fallbackGain.gain.value = gain;
+            // Connect to masterGain if available, else destination
+            const dest = masterGain || audioCtx.destination;
+            fallbackOsc.connect(fallbackGain).connect(dest);
+            fallbackOsc.start();
+            setTimeout(() => stopFallback(), 3000);
         } catch (e) {}
     }
 
-    // =========================================================================
-    // ÄÄNEN VALINTA
-    // =========================================================================
-    function loadSelectedSound() {
-        let saved = null;
-        try { saved = localStorage.getItem('selectedSound'); } catch (e) {}
-        if (saved && soundOptions.some(s => s.file === saved)) {
-            currentSound = saved;
-        } else {
-            currentSound = DEFAULT_SOUND;
+    function stopFallback() {
+        if (fallbackOsc) {
+            try { fallbackOsc.stop(); fallbackOsc.disconnect(); } catch (e) {}
+            fallbackOsc = null;
         }
-        console.log('Valittu ääni:', currentSound);
-    }
-
-    function saveSelectedSound(file) {
-        try { localStorage.setItem('selectedSound', file); } catch (e) {}
-        currentSound = file;
-    }
-
-    // =========================================================================
-    // HIMMENNYSASETUS
-    // =========================================================================
-    function loadDimMode() {
-        let saved = null;
-        try { saved = localStorage.getItem('dimMode'); } catch (e) {}
-        // Oletus: himmennys päällä (akunsäästö)
-        dimMode = (saved === null) ? true : (saved === '1');
-        updateDimButton();
-        console.log('Himmennystila:', dimMode ? 'Himmeä' : 'Kirkas');
-    }
-
-    function saveDimMode() {
-        try { localStorage.setItem('dimMode', dimMode ? '1' : '0'); } catch (e) {}
-    }
-
-    function toggleDimMode() {
-        dimMode = !dimMode;
-        saveDimMode();
-        updateDimButton();
-        // Päivitä body-luokka, jos ajastin on käynnissä
-        updateUI();
-        console.log('Himmennystila vaihdettu:', dimMode ? 'Himmeä' : 'Kirkas');
-    }
-
-    function updateDimButton() {
-        if (!dimToggleBtn) return;
-        if (dimMode) {
-            dimToggleBtn.textContent = '🔅 Himmeä';
-            dimToggleBtn.title = 'Näyttö himmenee ajastuksen aikana (akunsäästö). Klikkaa vaihtaaksesi kirkkaaseen.';
-            dimToggleBtn.classList.add('active-dim');
-        } else {
-            dimToggleBtn.textContent = '☀️ Kirkas';
-            dimToggleBtn.title = 'Näyttö pysyy kirkkaana ajastuksen aikana. Klikkaa vaihtaaksesi himmeään.';
-            dimToggleBtn.classList.remove('active-dim');
+        if (fallbackGain) {
+            try { fallbackGain.disconnect(); } catch (e) {}
+            fallbackGain = null;
         }
     }
 
-    dimToggleBtn.addEventListener('click', toggleDimMode);
+    /* ═══════════════ PREVIEW (settings) ═══════════════ */
+    function playPreview(file) {
+        unlockAudio();
+        stopPreview();
+        stopStartBeep();
+        const a = audioPool[file];
+        if (!a) return;
+        try { a.pause(); a.currentTime = 0; } catch (e) {}
+        a.volume = 1.0;
+        a.loop = false;
+        previewFile = file;
 
-    // =========================================================================
-    // ÄÄNIMODAALI
-    // =========================================================================
+        const onEnded = () => {
+            a.removeEventListener('ended', onEnded);
+            if (previewFile === file) {
+                previewFile = null;
+                updateTestButtons();
+            }
+        };
+        a.addEventListener('ended', onEnded);
+
+        const p = a.play();
+        if (p && p.catch) p.catch(() => fallbackBeep(0.3));
+        updateTestButtons();
+
+        previewTimeout = setTimeout(() => {
+            if (previewFile === file) {
+                try { a.pause(); a.currentTime = 0; } catch (e) {}
+                previewFile = null;
+                updateTestButtons();
+            }
+        }, 5000);
+    }
+
+    function stopPreview() {
+        if (previewTimeout) {
+            clearTimeout(previewTimeout);
+            previewTimeout = null;
+        }
+        if (previewFile) {
+            const a = audioPool[previewFile];
+            if (a) { try { a.pause(); a.currentTime = 0; } catch (e) {} }
+            previewFile = null;
+        }
+        stopFallback();
+        updateTestButtons();
+    }
+
+    function updateTestButtons() {
+        document.querySelectorAll('.test-btn').forEach(btn => {
+            const playing = previewFile === btn.dataset.file;
+            btn.classList.toggle('playing', playing);
+            btn.textContent = playing ? '⏹' : '▶';
+        });
+    }
+
+    /* ═══════════════ SOUND LIST ═══════════════ */
     function renderSoundList() {
-        soundListContainer.innerHTML = '';
-        soundOptions.forEach(opt => {
-            const item = document.createElement('div');
+        soundListEl.innerHTML = '';
+        SOUNDS.forEach(s => {
+            const item = document.createElement('label');
             item.className = 'sound-item';
 
             const radio = document.createElement('input');
-            radio.type = 'radio';
-            radio.name = 'soundSelect';
-            radio.value = opt.file;
-            radio.id = 'sound_' + opt.file.replace(/[^a-z0-9]/gi, '_');
-            if (opt.file === currentSound) radio.checked = true;
-
-            const label = document.createElement('label');
-            label.htmlFor = radio.id;
-            label.textContent = opt.label;
-            if (opt.file === currentSound) label.classList.add('selected-label');
-
-            const previewBtn = document.createElement('button');
-            previewBtn.className = 'play-preview-btn';
-            previewBtn.dataset.file = opt.file;
-            previewBtn.setAttribute('aria-label', 'Koesoita ' + opt.label);
-            previewBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (previewPlaying && previewFile === opt.file) {
+            radio.type  = 'radio';
+            radio.name  = 'sound';
+            radio.value = s.file;
+            radio.checked = s.file === currentSound;
+            radio.addEventListener('change', () => {
+                if (radio.checked) {
+                    currentSound = s.file;
+                    saveSound();
                     stopPreview();
-                } else {
-                    playPreview(opt.file);
                 }
             });
 
-            radio.addEventListener('change', () => {
-                if (radio.checked) {
-                    saveSelectedSound(opt.file);
-                    renderSoundList();
-                    closeSoundModal();
-                }
+            const lbl = document.createElement('span');
+            lbl.className   = 'sound-label';
+            lbl.textContent = s.label;
+
+            const testBtn = document.createElement('button');
+            testBtn.type = 'button';
+            testBtn.className = 'test-btn';
+            testBtn.dataset.file = s.file;
+            testBtn.textContent = '▶';
+            testBtn.setAttribute('aria-label', 'Testaa ' + s.label);
+            testBtn.addEventListener('click', e => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (previewFile === s.file) stopPreview();
+                else playPreview(s.file);
             });
 
             item.appendChild(radio);
-            item.appendChild(label);
-            item.appendChild(previewBtn);
-            soundListContainer.appendChild(item);
+            item.appendChild(lbl);
+            item.appendChild(testBtn);
+            soundListEl.appendChild(item);
         });
-        updatePlayButtons();
+        updateTestButtons();
     }
 
-    function openSoundModal() {
-        renderSoundList();
-        soundModal.classList.add('open');
-        stopPreview();
-    }
-
-    function closeSoundModal() {
-        soundModal.classList.remove('open');
-        stopPreview();
-    }
-
-    soundSettingsBtn.addEventListener('click', openSoundModal);
-    closeModalBtn.addEventListener('click', closeSoundModal);
-    soundModal.addEventListener('click', (e) => {
-        if (e.target === soundModal) closeSoundModal();
-    });
-
-    // =========================================================================
-    // JAKOMODAALI
-    // =========================================================================
+    /* ═══════════════ SHARE MODAL ═══════════════ */
     function openShareModal() {
         shareUrlInput.value = SHARE_URL;
-        qrCodeImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(SHARE_URL)}`;
+        qrCodeImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(SHARE_URL)}`;
         shareModal.classList.add('open');
     }
 
-    function closeShareModal() { shareModal.classList.remove('open'); }
+    function closeShareModal() {
+        shareModal.classList.remove('open');
+    }
 
-    shareBtn.addEventListener('click', openShareModal);
+    openShareBtn.addEventListener('click', openShareModal);
     closeShareModalBtn.addEventListener('click', closeShareModal);
-    shareModal.addEventListener('click', (e) => {
+    shareModal.addEventListener('click', e => {
         if (e.target === shareModal) closeShareModal();
     });
 
@@ -1030,336 +1279,150 @@
         }
     });
 
-    // =========================================================================
-    // OHJEMODAALI
-    // =========================================================================
-    function openHelpModal() { helpModal.classList.add('open'); }
-    function closeHelpModal() { helpModal.classList.remove('open'); }
-
-    helpBtn.addEventListener('click', openHelpModal);
-    closeHelpBtn.addEventListener('click', closeHelpModal);
-    helpModal.addEventListener('click', (e) => {
-        if (e.target === helpModal) closeHelpModal();
-    });
-
-    // =========================================================================
-    // VERSIOPÄIVITYS
-    // =========================================================================
-    function openUpdateModal() { updateModal.classList.add('open'); }
-    function closeUpdateModal() { updateModal.classList.remove('open'); }
-
-    versionLink.addEventListener('click', openUpdateModal);
-
-    async function forceUpdateAndReload() {
-        closeUpdateModal();
+    /* ═══════════════ WAKE LOCK ═══════════════ */
+    async function requestWakeLock() {
+        if (!wakeLockSupported) return;
+        if (document.visibilityState !== 'visible') return;
+        if (wakeLock) return;
         try {
-            if ('caches' in window) {
-                const cacheNames = await caches.keys();
-                await Promise.all(cacheNames.map(name => caches.delete(name)));
-                console.log('Tyhjennetyt välimuistit:', cacheNames);
-            }
-            if ('serviceWorker' in navigator) {
-                const regs = await navigator.serviceWorker.getRegistrations();
-                await Promise.all(regs.map(r => r.unregister()));
-                console.log('Poistetut service workerit:', regs.length);
-            }
-            Object.values(soundUrls).forEach(url => {
-                if (url && url.startsWith('blob:')) {
-                    try { URL.revokeObjectURL(url); } catch (e) {}
-                }
-            });
+            wakeLock = await navigator.wakeLock.request('screen');
+            wakeLock.addEventListener('release', () => { wakeLock = null; });
         } catch (e) {
-            console.warn('Välimuistin tyhjennys epäonnistui:', e);
-        }
-        const url = window.location.href.split('?')[0];
-        window.location.href = url + '?v=' + Date.now();
-    }
-
-    updateYes.addEventListener('click', forceUpdateAndReload);
-    updateNo.addEventListener('click', closeUpdateModal);
-    updateModal.addEventListener('click', (e) => {
-        if (e.target === updateModal) closeUpdateModal();
-    });
-
-    // =========================================================================
-    // KESKEYTYSDIALOGI
-    // =========================================================================
-    function openConfirmDialog() { confirmModal.classList.add('open'); }
-    function closeConfirmDialog() { confirmModal.classList.remove('open'); }
-
-    confirmYes.addEventListener('click', () => {
-        closeConfirmDialog();
-        if (state === 'paused') resetToIdle();
-    });
-
-    confirmNo.addEventListener('click', closeConfirmDialog);
-    confirmModal.addEventListener('click', (e) => {
-        if (e.target === confirmModal) closeConfirmDialog();
-    });
-
-    // =========================================================================
-    // APUFUNKTIOT
-    // =========================================================================
-    function formatTime(totalSec) {
-        const mins = Math.floor(totalSec / 60);
-        const secs = totalSec % 60;
-        return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-    }
-
-    function getTotalSeconds() {
-        const min = Math.max(0, Math.min(999, parseInt(minutesInput.value, 10) || 0));
-        const sec = Math.max(0, Math.min(59, parseInt(secondsInput.value, 10) || 0));
-        return min * 60 + sec;
-    }
-
-    function updateDisplay() {
-        display.textContent = formatTime(remainingSeconds);
-    }
-
-    function setInputsDisabled(disabled) {
-        minutesInput.disabled = disabled;
-        secondsInput.disabled = disabled;
-    }
-
-    // =========================================================================
-    // UI-TILAN PÄIVITYS
-    // =========================================================================
-    function updateUI() {
-        const isRunning = state === 'running' || state === 'paused' || state === 'alarm';
-
-        document.body.classList.toggle('running-mode', isRunning);
-        document.body.classList.toggle('paused-mode', state === 'paused');
-        document.body.classList.toggle('alarm-mode', state === 'alarm');
-
-        // Himmennys vain kun ajastin on KÄYNNISSÄ ja asetus on päällä.
-        // Tauko ja hälytys näytetään aina kirkkaana.
-        const shouldDim = (state === 'running') && dimMode;
-        document.body.classList.toggle('dim-mode', shouldDim);
-
-        startBtn.style.display = (state === 'idle') ? 'inline-block' : 'none';
-        soundSettingsBtn.style.display = (state === 'idle') ? 'inline-block' : 'none';
-        dimToggleBtn.style.display = (state === 'idle') ? 'inline-block' : 'none';
-        pauseBtn.style.display = (state === 'running') ? 'inline-block' : 'none';
-        resumeBtn.style.display = (state === 'paused') ? 'inline-block' : 'none';
-        cancelBtn.style.display = (state === 'paused') ? 'inline-block' : 'none';
-        alarmResetBtn.style.display = (state === 'alarm') ? 'inline-block' : 'none';
-
-        setInputsDisabled(isRunning);
-        soundSettingsBtn.disabled = state !== 'idle';
-        dimToggleBtn.disabled = state !== 'idle';
-
-        if (state === 'idle') {
-            startBtn.disabled = getTotalSeconds() <= 0;
-        }
-
-        updateDisplay();
-
-        if (state !== 'alarm') display.classList.remove('flash');
-    }
-
-    // =========================================================================
-    // AJASTIMEN TOIMINNALLISUUS
-    // =========================================================================
-    function startTimer() {
-        if (state === 'running' || state === 'alarm') return;
-
-        unlockAudio();
-
-        const wasIdle = state === 'idle';
-
-        if (wasIdle) {
-            initialMinutes = Math.max(0, Math.min(999, parseInt(minutesInput.value, 10) || 0));
-            initialSeconds = Math.max(0, Math.min(59, parseInt(secondsInput.value, 10) || 0));
-            minutesInput.value = initialMinutes;
-            secondsInput.value = initialSeconds;
-            remainingSeconds = initialMinutes * 60 + initialSeconds;
-            if (remainingSeconds <= 0) return;
-        }
-
-        requestWakeLock();
-
-        if (wasIdle) {
-            playStartBeep();
-        }
-
-        state = 'running';
-        display.classList.remove('flash');
-        updateUI();
-
-        timerStartTime = Date.now();
-        timerStartRemaining = remainingSeconds;
-
-        if (timerInterval) clearInterval(timerInterval);
-        timerInterval = setInterval(() => {
-            const elapsed = Math.floor((Date.now() - timerStartTime) / 1000);
-            remainingSeconds = Math.max(0, timerStartRemaining - elapsed);
-            updateDisplay();
-
-            if (remainingSeconds <= 0) {
-                clearInterval(timerInterval);
-                timerInterval = null;
-                handleAlarm();
-            }
-        }, 100);
-    }
-
-    function pauseTimer() {
-        if (state === 'running') {
-            clearInterval(timerInterval);
-            timerInterval = null;
-            state = 'paused';
-            updateUI();
+            wakeLock = null;
         }
     }
 
-    function resumeTimer() {
-        if (state === 'paused') startTimer();
-    }
-
-    function cancelTimer() {
-        if (state === 'paused') openConfirmDialog();
-    }
-
-    function handleAlarm() {
-        state = 'alarm';
-        display.textContent = '00:00';
-        display.classList.add('flash');
-        updateUI();
-        playAlarmSound();
-    }
-
-    function finishAlarm() {
-        stopAlarmSound();
-        display.classList.remove('flash');
-        resetToIdle();
-    }
-
-    function resetToIdle() {
-        state = 'idle';
-        stopStartBeep();
-        stopAlarmSound();
-        minutesInput.value = initialMinutes;
-        secondsInput.value = initialSeconds;
-        remainingSeconds = initialMinutes * 60 + initialSeconds;
-        display.textContent = formatTime(remainingSeconds);
-        display.classList.remove('flash');
-
-        if (timerInterval) {
-            clearInterval(timerInterval);
-            timerInterval = null;
-        }
-
-        updateUI();
-    }
-
-    function updateIdleDisplay() {
-        if (state === 'idle') {
-            remainingSeconds = getTotalSeconds();
-            display.textContent = formatTime(remainingSeconds);
-            startBtn.disabled = remainingSeconds <= 0;
+    async function releaseWakeLock() {
+        if (wakeLock) {
+            try { await wakeLock.release(); } catch (e) {}
+            wakeLock = null;
         }
     }
 
-    // =========================================================================
-    // TAPAHTUMAKUUNTELIJAT
-    // =========================================================================
+    /* ═══════════════ EVENTS ═══════════════ */
     startBtn.addEventListener('click', startTimer);
     pauseBtn.addEventListener('click', pauseTimer);
     resumeBtn.addEventListener('click', resumeTimer);
     cancelBtn.addEventListener('click', cancelTimer);
-    alarmResetBtn.addEventListener('click', finishAlarm);
+    alarmResetBtn.addEventListener('click', resetToIdle);
 
-    minutesInput.addEventListener('input', updateIdleDisplay);
-    secondsInput.addEventListener('input', updateIdleDisplay);
-
-    minutesInput.addEventListener('change', function() {
-        let val = parseInt(this.value, 10);
-        if (isNaN(val) || val < 0) this.value = 0;
-        if (val > 999) this.value = 999;
-        updateIdleDisplay();
+    confirmYes.addEventListener('click', () => {
+        confirmModal.classList.remove('open');
+        if (mode === 'paused') resetToIdle();
+    });
+    confirmNo.addEventListener('click', () => confirmModal.classList.remove('open'));
+    confirmModal.addEventListener('click', e => {
+        if (e.target === confirmModal) confirmModal.classList.remove('open');
     });
 
-    secondsInput.addEventListener('change', function() {
-        let val = parseInt(this.value, 10);
-        if (isNaN(val) || val < 0) this.value = 0;
-        if (val > 59) this.value = 59;
-        updateIdleDisplay();
+    openSettingsBtn.addEventListener('click', () => switchView('settings'));
+    backBtn.addEventListener('click', () => {
+        stopPreview();
+        switchView('timer');
     });
 
-    // =========================================================================
-    // VISIBILITYCHANGE
-    // =========================================================================
-    document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') {
-            requestWakeLock();
+    minutesInput.addEventListener('input', onTimeInput);
+    secondsInput.addEventListener('input', onTimeInput);
+    minutesInput.addEventListener('blur', normalizeMinutesInput);
+    secondsInput.addEventListener('blur', normalizeSecondsInput);
 
-            if (state === 'running') {
-                const elapsed = Math.floor((Date.now() - timerStartTime) / 1000);
-                remainingSeconds = Math.max(0, timerStartRemaining - elapsed);
-                updateDisplay();
+    dimToggle.addEventListener('change', () => {
+        dimMode = dimToggle.checked;
+        saveDimMode();
+        document.body.classList.toggle('dim-mode', mode === 'running' && dimMode);
+    });
 
-                if (remainingSeconds <= 0) {
-                    clearInterval(timerInterval);
-                    timerInterval = null;
-                    handleAlarm();
-                }
+    versionBtn.addEventListener('click', async () => {
+        if (!confirm('Päivitetäänkö sovellus? Välimuistit tyhjennetään.')) return;
+        try {
+            if ('caches' in window) {
+                const names = await caches.keys();
+                await Promise.all(names.map(n => caches.delete(n)));
             }
-        }
+            if ('serviceWorker' in navigator) {
+                const regs = await navigator.serviceWorker.getRegistrations();
+                await Promise.all(regs.map(r => r.unregister()));
+            }
+            Object.values(soundUrls).forEach(u => {
+                if (u && u.startsWith('blob:')) {
+                    try { URL.revokeObjectURL(u); } catch (e) {}
+                }
+            });
+        } catch (e) {}
+        const url = location.href.split('?')[0];
+        location.href = url + '?v=' + Date.now();
     });
 
-    // Ensimmäinen käyttäjän ele: avaa audiopooli ja pyydä wake lock
-    ['touchstart', 'click', 'keydown', 'pointerdown'].forEach(evt => {
+    /* Unlock on first gesture */
+    ['touchstart', 'click', 'pointerdown', 'keydown'].forEach(evt => {
         window.addEventListener(evt, () => {
-            requestWakeLock();
             unlockAudio();
+            requestWakeLock();
         }, { once: true, passive: true });
     });
 
-    // =========================================================================
-    // SOVELLUKSEN SULKEMINEN
-    // =========================================================================
-    function closeApp() {
+    /* Visibility change */
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+            requestWakeLock();
+            if (mode === 'running') tick();
+        }
+    });
+
+    /* Resize */
+    let resizeTimer = null;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(fitDisplay, 100);
+    });
+    window.addEventListener('orientationchange', () => setTimeout(fitDisplay, 200));
+
+    /* ═══════════════ OFFLINE CACHING (app shell) ═══════════════ */
+    async function cacheAppShell() {
+        if (!('caches' in window) || location.protocol === 'file:') return;
         try {
-            if (window.close) {
-                window.close();
-                setTimeout(() => { if (!window.closed) showCloseInstruction(); }, 500);
-            } else {
-                showCloseInstruction();
-            }
+            const cache = await caches.open(APP_CACHE_NAME);
+            await cache.add(location.href);
+            console.log('App shell cached for offline use');
         } catch (e) {
-            showCloseInstruction();
+            console.warn('App shell cache failed', e);
         }
     }
 
-    function showCloseInstruction() {
-        alert('Sulje sovellus käyttämällä laitteen moniajonäkymää tai pyyhkäisemällä alhaalta ylös (iOS).');
+    /* Try to register a service worker if available (sw.js) */
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
     }
 
-    closeAppBtn.addEventListener('click', closeApp);
+    /* ═══════════════ INIT ═══════════════ */
+    function init() {
+        loadSound();
+        loadDimMode();
 
-    // =========================================================================
-    // ALUSTUS
-    // =========================================================================
-    loadSelectedSound();
-    loadDimMode();       // Lataa himmennysasetus ennen UI:n päivitystä
-    initAudioPool();
-    initAudioCache();
+        const saved = loadTotalSeconds();
+        totalSeconds = saved;
+        minutesInput.value = Math.floor(saved / 60);
+        secondsInput.value = saved % 60;
+        dimToggle.checked  = dimMode;
 
-    initialMinutes = Math.max(0, Math.min(999, parseInt(minutesInput.value, 10) || 0));
-    initialSeconds = Math.max(0, Math.min(59, parseInt(secondsInput.value, 10) || 0));
-    remainingSeconds = initialMinutes * 60 + initialSeconds;
+        renderSoundList();
+        initAudio();
+        cacheAudio();
+        cacheAppShell();
 
-    updateUI();
-    updateIdleDisplay();
+        setDisplay(saved);
+        setMode('idle');
+        versionBtn.textContent = APP_VERSION;
+        requestWakeLock();
 
-    requestWakeLock();
+        console.log('Ajastin ' + APP_VERSION + ' valmis.',
+            '| Ääni:', currentSound,
+            '| Himmennys:', dimMode ? 'päällä' : 'pois',
+            '| Wake Lock:', wakeLockSupported ? 'tuettu' : 'ei tuettu');
+    }
 
-    versionLink.textContent = APP_VERSION;
-    console.log('Ajastin ladattu. Versio:', APP_VERSION,
-                '| Oletusääni:', DEFAULT_SOUND,
-                '| Valittu ääni:', currentSound,
-                '| Himmennystila:', dimMode ? 'Himmeä' : 'Kirkas',
-                '| Wake Lock:', wakeLockSupported ? 'tuettu' : 'ei tuettu');
+    init();
+})();
 </script>
 </body>
 </html>
