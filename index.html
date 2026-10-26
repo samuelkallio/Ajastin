@@ -62,7 +62,6 @@
 
         .view.active { display: flex; }
 
-        /* ============ TIMER VIEW ============ */
         .view-timer { padding: 0; }
 
         .display-wrap {
@@ -128,7 +127,6 @@
 
         .view-timer:not([data-state="idle"]) .settings-icon-btn { display: none; }
 
-        /* ============ CONTROLS ============ */
         .controls {
             display: flex;
             gap: 0.75rem;
@@ -194,7 +192,6 @@
             display: none;
         }
 
-        /* ============ SETTINGS VIEW ============ */
         .view-settings { background: var(--bg); overflow: hidden; }
 
         .settings-header {
@@ -479,7 +476,6 @@
 <body>
 <div class="app">
 
-    <!-- ═══════════════ VIEW 1 & 2: TIMER (idle / running) ═══════════════ -->
     <section class="view view-timer active" id="viewTimer" data-state="idle">
         <button class="icon-btn settings-icon-btn" id="openSettingsBtn" aria-label="Avaa asetukset">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -501,7 +497,6 @@
         </div>
     </section>
 
-    <!-- ═══════════════ VIEW 3: SETTINGS ═══════════════ -->
     <section class="view view-settings" id="viewSettings">
         <header class="settings-header">
             <button class="icon-btn" id="backBtn" aria-label="Takaisin">
@@ -553,13 +548,12 @@
             </div>
 
             <div class="version-footer">
-                Versio <button id="versionBtn" type="button">1.7.1</button>
+                Versio <button id="versionBtn" type="button">1.7.2</button>
             </div>
 
         </div>
     </section>
 
-    <!-- ═══════════════ CONFIRM MODAL ═══════════════ -->
     <div class="modal-overlay" id="confirmModal">
         <div class="modal">
             <h2>Keskeytetäänkö ajastus?</h2>
@@ -570,7 +564,6 @@
         </div>
     </div>
 
-    <!-- ═══════════════ SHARE MODAL ═══════════════ -->
     <div class="modal-overlay" id="shareModal">
         <div class="modal">
             <h2>Jaa sovellus</h2>
@@ -599,12 +592,13 @@
     const DEFAULT_TOTAL_SECONDS = 300;
     const MAX_TOTAL_SECONDS     = 999 * 60 + 59;
     const CACHE_NAME            = 'ajastin-audio-v6';
-    const APP_CACHE_NAME        = 'ajastin-app-v2';
-    const APP_VERSION           = '1.7.1';
+    const APP_CACHE_NAME        = 'ajastin-app-v3';
+    const APP_VERSION           = '1.7.2';
     const START_BEEP_MS         = 1000;
     const FLASH_DURATION_MS     = 10000;
     const SHARE_URL             = 'https://samuelkallio.github.io/Ajastin/';
     const VOLUME_BOOST          = 1.5;
+    const WAKELOCK_KEEP_MS      = 2000;
 
     /* ═══════════════ STATE ═══════════════ */
     let mode = 'idle';
@@ -619,11 +613,10 @@
     /* ── Audio engine ── */
     let audioCtx = null;
     let masterGain = null;
-    const audioBuffers = {};       // file -> AudioBuffer (Web Audio)
-    const htmlAudioEls = {};       // file -> HTMLAudioElement (fallback)
+    const audioBuffers = {};
+    const htmlAudioEls = {};
     let audioUnlocked = false;
 
-    /* Playback handles: { stop: () => void } */
     let startBeepSound = null;
     let alarmSound = null;
     let previewSound = null;
@@ -633,8 +626,10 @@
     /* Flash timer */
     let flashStopTimer = null;
 
-    /* Wake Lock */
+    /* ── Wake Lock (persistent across all states) ── */
     let wakeLock = null;
+    let wakeLockRequesting = false;
+    let wakeLockKeeperId = null;
     const wakeLockSupported = 'wakeLock' in navigator;
 
     /* ═══════════════ DOM ═══════════════ */
@@ -735,18 +730,62 @@
     }
 
     /* ═════════════════════════════════════════════════════════════════
-       AUDIO ENGINE
+       WAKE LOCK — persistent across all screens & states
        ─────────────────────────────────────────────────────────────────
-       iOS Safari bug: createMediaElementSource() on a suspended
-       AudioContext permanently mutes the <audio> element (its output
-       is rerouted to a silent suspended graph). This was the cause of
-       "no sound at all" on iOS.
-       Fix: use AudioBufferSourceNode exclusively for Web Audio (with a
-       GainNode for the 1.5x boost — this DOES work on iOS, unlike
-       HTMLMediaElement.volume). Keep <audio> elements as a plain
-       fallback that is NEVER routed through Web Audio.
-       ═════════════════════════════════════════════════════════════════ */
+       iOS Safari silently releases the Screen Wake Lock when the audio
+       session changes (e.g. when the alarm sound starts). That's why the
+       screen turned off right after the timer ended while it stayed on
+       during the running state.
 
+       Fix strategy:
+       1. A keeper interval re-acquires the lock within 2 s if it was lost.
+       2. Explicit re-acquisition after the alarm audio starts (immediate,
+          300 ms, 1 s, 2.5 s) to cover the audio-session transition.
+       3. Never explicitly release the lock while the app is open — only
+          on `pagehide` / when the page goes hidden.
+       ═════════════════════════════════════════════════════════════════ */
+    async function requestWakeLock() {
+        if (!wakeLockSupported) return;
+        if (document.visibilityState !== 'visible') return;
+        if (wakeLock || wakeLockRequesting) return;
+        wakeLockRequesting = true;
+        try {
+            wakeLock = await navigator.wakeLock.request('screen');
+            console.log('[WakeLock] acquired');
+            wakeLock.addEventListener('release', () => {
+                console.log('[WakeLock] released');
+                wakeLock = null;
+                // Keeper interval will re-acquire; also try shortly here
+                if (document.visibilityState === 'visible') {
+                    setTimeout(requestWakeLock, 400);
+                }
+            });
+        } catch (e) {
+            console.warn('[WakeLock] request failed', e);
+            wakeLock = null;
+        } finally {
+            wakeLockRequesting = false;
+        }
+    }
+
+    function startWakeLockKeeper() {
+        if (!wakeLockSupported) return;
+        if (wakeLockKeeperId) return;
+        wakeLockKeeperId = setInterval(() => {
+            if (document.visibilityState === 'visible' && !wakeLock) {
+                requestWakeLock();
+            }
+        }, WAKELOCK_KEEP_MS);
+    }
+
+    function stopWakeLockKeeper() {
+        if (wakeLockKeeperId) {
+            clearInterval(wakeLockKeeperId);
+            wakeLockKeeperId = null;
+        }
+    }
+
+    /* ═══════════════ AUDIO ENGINE ═══════════════ */
     function initAudioContext() {
         if (audioCtx) return;
         const AC = window.AudioContext || window.webkitAudioContext;
@@ -754,7 +793,7 @@
         try {
             audioCtx = new AC();
             masterGain = audioCtx.createGain();
-            masterGain.gain.value = VOLUME_BOOST;   // 1.5x — works on iOS via GainNode
+            masterGain.gain.value = VOLUME_BOOST;
             masterGain.connect(audioCtx.destination);
         } catch (e) {
             console.warn('AudioContext init failed', e);
@@ -799,11 +838,6 @@
         }
     }
 
-    /*
-     * Plays a sound. Returns a handle { stop() } or null.
-     * Priority: Web Audio (boosted) → HTMLAudio (fallback).
-     * opts: { durationMs, onEnded }
-     */
     function playSound(file, opts) {
         opts = opts || {};
         const durationMs = opts.durationMs || null;
@@ -811,7 +845,6 @@
 
         let manualStop = false;
 
-        /* ── 1. Web Audio path ── */
         if (audioCtx && audioCtx.state === 'running' && audioBuffers[file]) {
             try {
                 const src = audioCtx.createBufferSource();
@@ -834,7 +867,6 @@
             }
         }
 
-        /* ── 2. HTMLAudio fallback (never routed through Web Audio) ── */
         const a = htmlAudioEls[file];
         if (!a) return null;
 
@@ -883,13 +915,12 @@
         }
     }
 
-    /* ── Unlock (resume context + unlock HTMLAudio elements on iOS) ── */
     function unlockAudio() {
         initAudioContext();
         tryResumeAudioContext();
 
         if (audioUnlocked) return;
-        if (Object.keys(htmlAudioEls).length === 0) return; // elements not ready yet
+        if (Object.keys(htmlAudioEls).length === 0) return;
         audioUnlocked = true;
 
         SOUNDS.forEach(s => {
@@ -901,7 +932,7 @@
                 if (p && p.then) {
                     p.then(() => {
                         setTimeout(() => {
-                            if (a.muted) {   // still muted → real playback didn't take over
+                            if (a.muted) {
                                 try { a.pause(); a.currentTime = 0; } catch (e) {}
                                 a.muted = false;
                             }
@@ -914,7 +945,6 @@
         });
     }
 
-    /* ── Start beep (1 s) ── */
     function playStartBeep() {
         stopStartBeep();
         tryResumeAudioContext();
@@ -929,7 +959,6 @@
         startBeepSound = null;
     }
 
-    /* ── Alarm (full sound) ── */
     function playAlarmSound() {
         stopAlarmSound();
         stopStartBeep();
@@ -945,7 +974,6 @@
         alarmSound = null;
     }
 
-    /* ── Preview (settings) ── */
     function playPreview(file) {
         stopPreview();
         stopStartBeep();
@@ -1015,8 +1043,8 @@
             timerEndTime = Date.now() + pausedRemainingMs;
         }
 
-        // Resume context & unlock HTMLAudio — synchronously in the click handler
         unlockAudio();
+        requestWakeLock();
 
         setMode('running');
         tick();
@@ -1055,7 +1083,14 @@
         display.classList.add('flash');
         playAlarmSound();
 
-        // Flash for 10 s → then auto-return to idle (no reset needed)
+        /* iOS releases the Wake Lock when the audio session changes.
+           The alarm start is exactly such a transition. Re-acquire
+           aggressively at several points to cover the transition. */
+        requestWakeLock();
+        setTimeout(requestWakeLock, 300);
+        setTimeout(requestWakeLock, 1000);
+        setTimeout(requestWakeLock, 2500);
+
         if (flashStopTimer) clearTimeout(flashStopTimer);
         flashStopTimer = setTimeout(() => {
             flashStopTimer = null;
@@ -1077,7 +1112,8 @@
         totalSeconds = readInputsAsSeconds();
         setDisplay(totalSeconds);
         setMode('idle');
-        releaseWakeLock();
+        // Keep the screen on while the app is open (all screens).
+        requestWakeLock();
     }
 
     /* ═══════════════ INPUTS ═══════════════ */
@@ -1139,11 +1175,11 @@
     }
 
     /* ═══════════════ AUDIO CACHE ═══════════════ */
+    const soundUrls = {};
+
     function getSoundUrl(file) {
         return soundUrls[file] || file;
     }
-
-    const soundUrls = {};
 
     async function cacheAudio() {
         if (!('caches' in window) || location.protocol === 'file:') {
@@ -1252,26 +1288,6 @@
         }
     });
 
-    /* ═══════════════ WAKE LOCK ═══════════════ */
-    async function requestWakeLock() {
-        if (!wakeLockSupported) return;
-        if (document.visibilityState !== 'visible') return;
-        if (wakeLock) return;
-        try {
-            wakeLock = await navigator.wakeLock.request('screen');
-            wakeLock.addEventListener('release', () => { wakeLock = null; });
-        } catch (e) {
-            wakeLock = null;
-        }
-    }
-
-    async function releaseWakeLock() {
-        if (wakeLock) {
-            try { await wakeLock.release(); } catch (e) {}
-            wakeLock = null;
-        }
-    }
-
     /* ═══════════════ EVENTS ═══════════════ */
     startBtn.addEventListener('click', startTimer);
     pauseBtn.addEventListener('click', pauseTimer);
@@ -1335,12 +1351,21 @@
         }, { once: true, passive: true });
     });
 
-    /* Visibility change — resume context when returning to the page */
+    /* Visibility change — resume context + re-acquire wake lock */
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') {
             requestWakeLock();
             tryResumeAudioContext();
             if (mode === 'running') tick();
+        }
+    });
+
+    /* Release wake lock & stop keeper when the page is being unloaded */
+    window.addEventListener('pagehide', () => {
+        stopWakeLockKeeper();
+        if (wakeLock) {
+            try { wakeLock.release(); } catch (e) {}
+            wakeLock = null;
         }
     });
 
@@ -1385,14 +1410,21 @@
         setDisplay(saved);
         setMode('idle');
         versionBtn.textContent = APP_VERSION;
-        requestWakeLock();
 
-        // Async audio setup: cache → create HTML elements → decode buffers
+        /* Wake Lock: acquire immediately, then keep it alive forever
+           via the keeper interval — on every screen and in every state. */
+        requestWakeLock();
+        startWakeLockKeeper();
+
         (async () => {
             await cacheAudio();
             createHtmlAudioEls();
             await decodeBuffers();
-            console.log('Audio engine ready |', 
+            // Audio setup can change the audio session → wake lock may drop.
+            requestWakeLock();
+            setTimeout(requestWakeLock, 500);
+            setTimeout(requestWakeLock, 1500);
+            console.log('Audio engine ready |',
                 'WebAudio:', audioCtx ? audioCtx.state : 'n/a',
                 '| Decoded:', Object.keys(audioBuffers).length + '/' + SOUNDS.length,
                 '| HTMLAudio:', Object.keys(htmlAudioEls).length + '/' + SOUNDS.length);
