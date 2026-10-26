@@ -53,7 +53,6 @@
             overflow: hidden;
         }
 
-        /* ============ VIEWS ============ */
         .view {
             position: absolute;
             inset: 0;
@@ -77,7 +76,7 @@
         }
 
         .timer-display {
-            font-size: 8rem; /* JS overrides */
+            font-size: 8rem;
             font-weight: 700;
             font-variant-numeric: tabular-nums;
             letter-spacing: 0.02em;
@@ -99,7 +98,6 @@
 
         body.dim-mode .timer-display { color: #444; }
 
-        /* Settings icon (top-right) */
         .icon-btn {
             background: none;
             border: none;
@@ -128,7 +126,6 @@
             z-index: 10;
         }
 
-        /* Hide settings icon unless idle */
         .view-timer:not([data-state="idle"]) .settings-icon-btn { display: none; }
 
         /* ============ CONTROLS ============ */
@@ -159,16 +156,10 @@
 
         .btn:active { transform: scale(0.97); }
 
-        .btn-primary {
-            background: var(--accent);
-            color: #fff;
-        }
+        .btn-primary { background: var(--accent); color: #fff; }
         .btn-primary:hover { background: var(--accent-hover); }
 
-        .btn-secondary {
-            background: var(--surface-3);
-            color: var(--text);
-        }
+        .btn-secondary { background: var(--surface-3); color: var(--text); }
         .btn-secondary:hover { background: #3a3a5a; }
 
         .btn-danger {
@@ -178,16 +169,13 @@
         }
         .btn-danger:hover { background: rgba(233, 69, 96, 0.1); }
 
-        /* Larger Start button */
         .view-timer[data-state="idle"] #startBtn {
             padding: 1rem 4rem;
             font-size: 1.2rem;
         }
 
-        /* Dim mode button styling */
         body.dim-mode .btn { opacity: 0.45; }
 
-        /* Button visibility per state */
         .view-timer[data-state="idle"] #pauseBtn,
         .view-timer[data-state="idle"] #cancelBtn,
         .view-timer[data-state="idle"] #resumeBtn,
@@ -207,10 +195,7 @@
         }
 
         /* ============ SETTINGS VIEW ============ */
-        .view-settings {
-            background: var(--bg);
-            overflow: hidden;
-        }
+        .view-settings { background: var(--bg); overflow: hidden; }
 
         .settings-header {
             display: flex;
@@ -244,11 +229,7 @@
             margin: 0 auto;
         }
 
-        .setting-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
+        .setting-group { display: flex; flex-direction: column; gap: 0.75rem; }
 
         .setting-label {
             font-size: 0.85rem;
@@ -258,7 +239,6 @@
             letter-spacing: 0.08em;
         }
 
-        /* Time inputs */
         .time-inputs {
             display: flex;
             align-items: center;
@@ -269,12 +249,7 @@
             padding: 1rem;
         }
 
-        .time-input {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.25rem;
-        }
+        .time-input { display: flex; flex-direction: column; align-items: center; gap: 0.25rem; }
 
         .time-input input {
             width: 5rem;
@@ -292,20 +267,11 @@
         }
 
         .time-input input::-webkit-outer-spin-button,
-        .time-input input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
+        .time-input input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
-        .time-input input:focus {
-            outline: none;
-            border-color: var(--accent);
-        }
+        .time-input input:focus { outline: none; border-color: var(--accent); }
 
-        .time-input span {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
+        .time-input span { font-size: 0.85rem; color: var(--text-muted); }
 
         .time-sep {
             font-size: 2rem;
@@ -314,12 +280,7 @@
             padding-bottom: 1.2rem;
         }
 
-        /* Sound list */
-        .sound-list {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
+        .sound-list { display: flex; flex-direction: column; gap: 0.5rem; }
 
         .sound-item {
             display: flex;
@@ -388,7 +349,6 @@
         .test-btn:active { transform: scale(0.9); }
         .test-btn.playing { background: var(--accent); color: #fff; }
 
-        /* Toggle */
         .toggle-row {
             display: flex;
             align-items: center;
@@ -401,23 +361,9 @@
             margin: 0;
         }
 
-        .toggle-text {
-            display: flex;
-            flex-direction: column;
-            gap: 0.2rem;
-            flex: 1;
-        }
-
-        .toggle-title {
-            font-size: 1rem;
-            font-weight: 500;
-            color: var(--text);
-        }
-
-        .toggle-desc {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
+        .toggle-text { display: flex; flex-direction: column; gap: 0.2rem; flex: 1; }
+        .toggle-title { font-size: 1rem; font-weight: 500; color: var(--text); }
+        .toggle-desc { font-size: 0.85rem; color: var(--text-muted); }
 
         .switch {
             appearance: none;
@@ -448,7 +394,6 @@
         .switch:checked { background: var(--accent); }
         .switch:checked::after { transform: translateX(1.25rem); }
 
-        /* Share modal */
         .share-url-input {
             width: 100%;
             padding: 0.75rem;
@@ -462,11 +407,7 @@
             margin: 0.5rem 0;
         }
 
-        .qr-container {
-            display: flex;
-            justify-content: center;
-            margin: 1rem 0;
-        }
+        .qr-container { display: flex; justify-content: center; margin: 1rem 0; }
 
         .qr-container img {
             max-width: 180px;
@@ -476,7 +417,6 @@
             padding: 0.5rem;
         }
 
-        /* Version footer */
         .version-footer {
             text-align: center;
             padding: 0.5rem 0;
@@ -495,7 +435,6 @@
             padding: 0;
         }
 
-        /* ============ MODAL ============ */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -533,11 +472,7 @@
             line-height: 1.4;
         }
 
-        .modal-actions {
-            display: flex;
-            gap: 0.75rem;
-        }
-
+        .modal-actions { display: flex; gap: 0.75rem; }
         .modal-actions .btn { flex: 1; }
     </style>
 </head>
@@ -581,7 +516,6 @@
 
         <div class="settings-content">
 
-            <!-- Aika -->
             <div class="setting-group">
                 <label class="setting-label">Aika</label>
                 <div class="time-inputs">
@@ -597,13 +531,11 @@
                 </div>
             </div>
 
-            <!-- Soittoääni -->
             <div class="setting-group">
                 <label class="setting-label">Soittoääni</label>
                 <div class="sound-list" id="soundList"></div>
             </div>
 
-            <!-- Näyttö -->
             <div class="setting-group">
                 <label class="setting-label">Näyttö</label>
                 <label class="toggle-row">
@@ -615,14 +547,13 @@
                 </label>
             </div>
 
-            <!-- Jaa -->
             <div class="setting-group">
                 <label class="setting-label">Jaa</label>
                 <button class="btn btn-secondary" id="openShareBtn" style="width:100%;">Jaa sovellus</button>
             </div>
 
             <div class="version-footer">
-                Versio <button id="versionBtn" type="button">1.7.0</button>
+                Versio <button id="versionBtn" type="button">1.7.1</button>
             </div>
 
         </div>
@@ -667,15 +598,16 @@
     const DEFAULT_SOUND         = 'school bell.m4a';
     const DEFAULT_TOTAL_SECONDS = 300;
     const MAX_TOTAL_SECONDS     = 999 * 60 + 59;
-    const CACHE_NAME            = 'ajastin-audio-v5';
-    const APP_CACHE_NAME        = 'ajastin-app-v1';
-    const APP_VERSION           = '1.7.0';
+    const CACHE_NAME            = 'ajastin-audio-v6';
+    const APP_CACHE_NAME        = 'ajastin-app-v2';
+    const APP_VERSION           = '1.7.1';
     const START_BEEP_MS         = 1000;
     const FLASH_DURATION_MS     = 10000;
     const SHARE_URL             = 'https://samuelkallio.github.io/Ajastin/';
+    const VOLUME_BOOST          = 1.5;
 
     /* ═══════════════ STATE ═══════════════ */
-    let mode = 'idle';                  // idle | running | paused | alarm
+    let mode = 'idle';
     let totalSeconds = DEFAULT_TOTAL_SECONDS;
     let timerEndTime = 0;
     let pausedRemainingMs = 0;
@@ -684,23 +616,19 @@
     let currentSound = DEFAULT_SOUND;
     let dimMode = true;
 
-    /* Audio */
-    const audioPool = {};
-    const soundUrls = {};
-    let audioUnlocked = false;
-    let startBeepTimer = null;
-    let previewFile = null;
-    let previewTimeout = null;
-
-    /* Web Audio boost */
+    /* ── Audio engine ── */
     let audioCtx = null;
     let masterGain = null;
-    let mediaSources = {};
-    let audioBoostInitialized = false;
+    const audioBuffers = {};       // file -> AudioBuffer (Web Audio)
+    const htmlAudioEls = {};       // file -> HTMLAudioElement (fallback)
+    let audioUnlocked = false;
 
-    /* Fallback beep */
-    let fallbackOsc = null;
-    let fallbackGain = null;
+    /* Playback handles: { stop: () => void } */
+    let startBeepSound = null;
+    let alarmSound = null;
+    let previewSound = null;
+    let previewFile = null;
+    let previewStopTimer = null;
 
     /* Flash timer */
     let flashStopTimer = null;
@@ -806,6 +734,258 @@
         if (name === 'timer') requestAnimationFrame(fitDisplay);
     }
 
+    /* ═════════════════════════════════════════════════════════════════
+       AUDIO ENGINE
+       ─────────────────────────────────────────────────────────────────
+       iOS Safari bug: createMediaElementSource() on a suspended
+       AudioContext permanently mutes the <audio> element (its output
+       is rerouted to a silent suspended graph). This was the cause of
+       "no sound at all" on iOS.
+       Fix: use AudioBufferSourceNode exclusively for Web Audio (with a
+       GainNode for the 1.5x boost — this DOES work on iOS, unlike
+       HTMLMediaElement.volume). Keep <audio> elements as a plain
+       fallback that is NEVER routed through Web Audio.
+       ═════════════════════════════════════════════════════════════════ */
+
+    function initAudioContext() {
+        if (audioCtx) return;
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return;
+        try {
+            audioCtx = new AC();
+            masterGain = audioCtx.createGain();
+            masterGain.gain.value = VOLUME_BOOST;   // 1.5x — works on iOS via GainNode
+            masterGain.connect(audioCtx.destination);
+        } catch (e) {
+            console.warn('AudioContext init failed', e);
+            audioCtx = null;
+            masterGain = null;
+        }
+    }
+
+    function tryResumeAudioContext() {
+        if (!audioCtx) return;
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume().catch(() => {});
+        }
+    }
+
+    function createHtmlAudioEls() {
+        SOUNDS.forEach(s => {
+            if (htmlAudioEls[s.file]) return;
+            const a = new Audio();
+            a.preload = 'auto';
+            a.loop = false;
+            a.volume = 1.0;
+            a.src = getSoundUrl(s.file);
+            htmlAudioEls[s.file] = a;
+        });
+    }
+
+    async function decodeBuffers() {
+        if (!audioCtx) return;
+        for (const s of SOUNDS) {
+            if (audioBuffers[s.file]) continue;
+            try {
+                const resp = await fetch(getSoundUrl(s.file));
+                if (!resp.ok) throw new Error('HTTP ' + resp.status);
+                const arr = await resp.arrayBuffer();
+                const buf = await audioCtx.decodeAudioData(arr.slice(0));
+                audioBuffers[s.file] = buf;
+                console.log('Decoded via Web Audio:', s.file);
+            } catch (e) {
+                console.warn('Web Audio decode failed for', s.file, '— HTMLAudio fallback will be used');
+            }
+        }
+    }
+
+    /*
+     * Plays a sound. Returns a handle { stop() } or null.
+     * Priority: Web Audio (boosted) → HTMLAudio (fallback).
+     * opts: { durationMs, onEnded }
+     */
+    function playSound(file, opts) {
+        opts = opts || {};
+        const durationMs = opts.durationMs || null;
+        const onEnded = opts.onEnded || null;
+
+        let manualStop = false;
+
+        /* ── 1. Web Audio path ── */
+        if (audioCtx && audioCtx.state === 'running' && audioBuffers[file]) {
+            try {
+                const src = audioCtx.createBufferSource();
+                src.buffer = audioBuffers[file];
+                src.connect(masterGain);
+                src.onended = () => {
+                    if (!manualStop && onEnded) onEnded();
+                };
+                const t = audioCtx.currentTime;
+                src.start(t);
+                if (durationMs) src.stop(t + durationMs / 1000);
+                return {
+                    stop: () => {
+                        manualStop = true;
+                        try { src.stop(); src.disconnect(); } catch (e) {}
+                    }
+                };
+            } catch (e) {
+                console.warn('Web Audio playback failed', e);
+            }
+        }
+
+        /* ── 2. HTMLAudio fallback (never routed through Web Audio) ── */
+        const a = htmlAudioEls[file];
+        if (!a) return null;
+
+        try {
+            a.muted = false;
+            a.pause();
+            a.currentTime = 0;
+            a.volume = 1.0;
+            a.loop = false;
+
+            const endedHandler = () => {
+                a.removeEventListener('ended', endedHandler);
+                if (!manualStop && onEnded) onEnded();
+            };
+            a.addEventListener('ended', endedHandler);
+
+            const p = a.play();
+            if (p && p.catch) p.catch(err => console.warn('HTMLAudio play blocked:', err));
+
+            let durTimer = null;
+            if (durationMs) {
+                durTimer = setTimeout(() => {
+                    if (!manualStop) {
+                        try { a.pause(); a.currentTime = 0; } catch (e) {}
+                    }
+                }, durationMs);
+            }
+
+            return {
+                stop: () => {
+                    manualStop = true;
+                    if (durTimer) clearTimeout(durTimer);
+                    a.removeEventListener('ended', endedHandler);
+                    try { a.pause(); a.currentTime = 0; } catch (e) {}
+                }
+            };
+        } catch (e) {
+            console.warn('HTMLAudio playback threw', e);
+            return null;
+        }
+    }
+
+    function stopSound(handle) {
+        if (handle && typeof handle.stop === 'function') {
+            try { handle.stop(); } catch (e) {}
+        }
+    }
+
+    /* ── Unlock (resume context + unlock HTMLAudio elements on iOS) ── */
+    function unlockAudio() {
+        initAudioContext();
+        tryResumeAudioContext();
+
+        if (audioUnlocked) return;
+        if (Object.keys(htmlAudioEls).length === 0) return; // elements not ready yet
+        audioUnlocked = true;
+
+        SOUNDS.forEach(s => {
+            const a = htmlAudioEls[s.file];
+            if (!a) return;
+            try {
+                a.muted = true;
+                const p = a.play();
+                if (p && p.then) {
+                    p.then(() => {
+                        setTimeout(() => {
+                            if (a.muted) {   // still muted → real playback didn't take over
+                                try { a.pause(); a.currentTime = 0; } catch (e) {}
+                                a.muted = false;
+                            }
+                        }, 25);
+                    }).catch(() => { a.muted = false; });
+                }
+            } catch (e) {
+                a.muted = false;
+            }
+        });
+    }
+
+    /* ── Start beep (1 s) ── */
+    function playStartBeep() {
+        stopStartBeep();
+        tryResumeAudioContext();
+        startBeepSound = playSound(currentSound, {
+            durationMs: START_BEEP_MS,
+            onEnded: () => { startBeepSound = null; }
+        });
+    }
+
+    function stopStartBeep() {
+        stopSound(startBeepSound);
+        startBeepSound = null;
+    }
+
+    /* ── Alarm (full sound) ── */
+    function playAlarmSound() {
+        stopAlarmSound();
+        stopStartBeep();
+        stopPreview();
+        tryResumeAudioContext();
+        alarmSound = playSound(currentSound, {
+            onEnded: () => { alarmSound = null; }
+        });
+    }
+
+    function stopAlarmSound() {
+        stopSound(alarmSound);
+        alarmSound = null;
+    }
+
+    /* ── Preview (settings) ── */
+    function playPreview(file) {
+        stopPreview();
+        stopStartBeep();
+        unlockAudio();
+        tryResumeAudioContext();
+
+        previewFile = file;
+        previewSound = playSound(file, {
+            onEnded: () => {
+                previewSound = null;
+                previewFile = null;
+                updateTestButtons();
+            }
+        });
+        updateTestButtons();
+
+        previewStopTimer = setTimeout(() => {
+            if (previewFile === file) stopPreview();
+        }, 5000);
+    }
+
+    function stopPreview() {
+        if (previewStopTimer) {
+            clearTimeout(previewStopTimer);
+            previewStopTimer = null;
+        }
+        stopSound(previewSound);
+        previewSound = null;
+        previewFile = null;
+        updateTestButtons();
+    }
+
+    function updateTestButtons() {
+        document.querySelectorAll('.test-btn').forEach(btn => {
+            const playing = previewFile === btn.dataset.file;
+            btn.classList.toggle('playing', playing);
+            btn.textContent = playing ? '⏹' : '▶';
+        });
+    }
+
     /* ═══════════════ TIMER LOGIC ═══════════════ */
     function tick() {
         if (mode !== 'running') return;
@@ -823,22 +1003,27 @@
 
     function startTimer() {
         if (mode === 'running' || mode === 'alarm') return;
-        unlockAudio();
 
-        if (mode === 'idle') {
+        const wasIdle = mode === 'idle';
+
+        if (wasIdle) {
             const total = readInputsAsSeconds();
             if (total <= 0) return;
             totalSeconds = total;
             timerEndTime = Date.now() + total * 1000;
-            playStartBeep();
         } else if (mode === 'paused') {
             timerEndTime = Date.now() + pausedRemainingMs;
         }
+
+        // Resume context & unlock HTMLAudio — synchronously in the click handler
+        unlockAudio();
 
         setMode('running');
         tick();
         intervalId = setInterval(tick, 100);
         requestWakeLock();
+
+        if (wasIdle) playStartBeep();
     }
 
     function pauseTimer() {
@@ -870,8 +1055,7 @@
         display.classList.add('flash');
         playAlarmSound();
 
-        // Flash for 10 seconds, then automatically return to the start view.
-        // No reset button press needed after the flash ends.
+        // Flash for 10 s → then auto-return to idle (no reset needed)
         if (flashStopTimer) clearTimeout(flashStopTimer);
         flashStopTimer = setTimeout(() => {
             flashStopTimer = null;
@@ -954,26 +1138,16 @@
         currentSound = (v && SOUNDS.some(s => s.file === v)) ? v : DEFAULT_SOUND;
     }
 
-    /* ═══════════════ AUDIO ═══════════════ */
+    /* ═══════════════ AUDIO CACHE ═══════════════ */
     function getSoundUrl(file) {
         return soundUrls[file] || file;
     }
 
-    function initAudio() {
-        SOUNDS.forEach(s => {
-            const a = new Audio();
-            a.preload = 'auto';
-            a.volume = 1.0;
-            a.loop = false;
-            audioPool[s.file] = a;
-            a.src = getSoundUrl(s.file);
-        });
-    }
+    const soundUrls = {};
 
     async function cacheAudio() {
         if (!('caches' in window) || location.protocol === 'file:') {
             SOUNDS.forEach(s => { soundUrls[s.file] = s.file; });
-            Object.keys(audioPool).forEach(f => { audioPool[f].src = getSoundUrl(f); });
             return;
         }
         try {
@@ -1000,207 +1174,6 @@
         }
         SOUNDS.forEach(s => {
             if (!soundUrls[s.file]) soundUrls[s.file] = s.file;
-            if (audioPool[s.file]) audioPool[s.file].src = getSoundUrl(s.file);
-        });
-    }
-
-    /* ── Web Audio boost ── */
-    function initAudioContext() {
-        if (audioCtx) return;
-        const AC = window.AudioContext || window.webkitAudioContext;
-        if (!AC) return;
-        try {
-            audioCtx = new AC();
-            masterGain = audioCtx.createGain();
-            masterGain.gain.value = 1.5; // boost
-            masterGain.connect(audioCtx.destination);
-        } catch (e) {
-            console.warn('AudioContext init failed', e);
-        }
-    }
-
-    function setupAudioBoost() {
-        if (!audioCtx || !masterGain) return;
-        if (audioBoostInitialized) return;
-        audioBoostInitialized = true;
-        Object.keys(audioPool).forEach(file => {
-            if (mediaSources[file]) return;
-            try {
-                const el = audioPool[file];
-                const src = audioCtx.createMediaElementSource(el);
-                src.connect(masterGain);
-                mediaSources[file] = src;
-            } catch (e) {
-                console.warn('MediaElementSource failed for', file, e);
-            }
-        });
-    }
-
-    function unlockAudio() {
-        if (audioUnlocked) return;
-        audioUnlocked = true;
-        initAudioContext();
-        if (audioCtx && audioCtx.state === 'suspended') {
-            audioCtx.resume().catch(() => {});
-        }
-        setupAudioBoost();
-        SOUNDS.forEach(s => {
-            const a = audioPool[s.file];
-            if (!a) return;
-            try {
-                const v = a.volume;
-                a.volume = 0.001;
-                const p = a.play();
-                if (p && p.then) {
-                    p.then(() => {
-                        setTimeout(() => {
-                            try { a.pause(); a.currentTime = 0; } catch (e) {}
-                            a.volume = v;
-                        }, 30);
-                    }).catch(() => { a.volume = v; });
-                } else {
-                    setTimeout(() => {
-                        try { a.pause(); a.currentTime = 0; } catch (e) {}
-                        a.volume = v;
-                    }, 30);
-                }
-            } catch (e) {}
-        });
-    }
-
-    function playStartBeep() {
-        stopStartBeep();
-        const a = audioPool[currentSound];
-        if (!a) return;
-        try { a.pause(); a.currentTime = 0; } catch (e) {}
-        a.volume = 1.0;
-        a.loop = false;
-        const p = a.play();
-        if (p && p.catch) p.catch(() => {});
-        startBeepTimer = setTimeout(() => {
-            try { a.pause(); a.currentTime = 0; } catch (e) {}
-            startBeepTimer = null;
-        }, START_BEEP_MS);
-    }
-
-    function stopStartBeep() {
-        if (startBeepTimer) {
-            clearTimeout(startBeepTimer);
-            startBeepTimer = null;
-        }
-        const a = audioPool[currentSound];
-        if (a) { try { a.pause(); a.currentTime = 0; } catch (e) {} }
-    }
-
-    function playAlarmSound() {
-        stopStartBeep();
-        stopPreview();
-        const a = audioPool[currentSound];
-        if (!a) return;
-        try { a.pause(); a.currentTime = 0; } catch (e) {}
-        a.volume = 1.0;
-        a.loop = false;
-        const p = a.play();
-        if (p && p.catch) {
-            p.catch(err => {
-                console.warn('Alarm blocked, fallback', err);
-                fallbackBeep(0.5);
-            });
-        }
-    }
-
-    function stopAlarmSound() {
-        const a = audioPool[currentSound];
-        if (a) { try { a.pause(); a.currentTime = 0; } catch (e) {} }
-        stopFallback();
-    }
-
-    function fallbackBeep(gain) {
-        try {
-            if (!audioCtx || audioCtx.state === 'closed') {
-                const AC = window.AudioContext || window.webkitAudioContext;
-                if (!AC) return;
-                audioCtx = new AC();
-            }
-            if (audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
-            stopFallback();
-            fallbackOsc  = audioCtx.createOscillator();
-            fallbackGain = audioCtx.createGain();
-            fallbackOsc.type = 'square';
-            fallbackOsc.frequency.value = 880;
-            fallbackGain.gain.value = gain;
-            // Connect to masterGain if available, else destination
-            const dest = masterGain || audioCtx.destination;
-            fallbackOsc.connect(fallbackGain).connect(dest);
-            fallbackOsc.start();
-            setTimeout(() => stopFallback(), 3000);
-        } catch (e) {}
-    }
-
-    function stopFallback() {
-        if (fallbackOsc) {
-            try { fallbackOsc.stop(); fallbackOsc.disconnect(); } catch (e) {}
-            fallbackOsc = null;
-        }
-        if (fallbackGain) {
-            try { fallbackGain.disconnect(); } catch (e) {}
-            fallbackGain = null;
-        }
-    }
-
-    /* ═══════════════ PREVIEW (settings) ═══════════════ */
-    function playPreview(file) {
-        unlockAudio();
-        stopPreview();
-        stopStartBeep();
-        const a = audioPool[file];
-        if (!a) return;
-        try { a.pause(); a.currentTime = 0; } catch (e) {}
-        a.volume = 1.0;
-        a.loop = false;
-        previewFile = file;
-
-        const onEnded = () => {
-            a.removeEventListener('ended', onEnded);
-            if (previewFile === file) {
-                previewFile = null;
-                updateTestButtons();
-            }
-        };
-        a.addEventListener('ended', onEnded);
-
-        const p = a.play();
-        if (p && p.catch) p.catch(() => fallbackBeep(0.3));
-        updateTestButtons();
-
-        previewTimeout = setTimeout(() => {
-            if (previewFile === file) {
-                try { a.pause(); a.currentTime = 0; } catch (e) {}
-                previewFile = null;
-                updateTestButtons();
-            }
-        }, 5000);
-    }
-
-    function stopPreview() {
-        if (previewTimeout) {
-            clearTimeout(previewTimeout);
-            previewTimeout = null;
-        }
-        if (previewFile) {
-            const a = audioPool[previewFile];
-            if (a) { try { a.pause(); a.currentTime = 0; } catch (e) {} }
-            previewFile = null;
-        }
-        stopFallback();
-        updateTestButtons();
-    }
-
-    function updateTestButtons() {
-        document.querySelectorAll('.test-btn').forEach(btn => {
-            const playing = previewFile === btn.dataset.file;
-            btn.classList.toggle('playing', playing);
-            btn.textContent = playing ? '⏹' : '▶';
         });
     }
 
@@ -1353,18 +1326,20 @@
         location.href = url + '?v=' + Date.now();
     });
 
-    /* Unlock on first gesture */
+    /* First user gesture: resume AudioContext + request Wake Lock */
     ['touchstart', 'click', 'pointerdown', 'keydown'].forEach(evt => {
         window.addEventListener(evt, () => {
-            unlockAudio();
+            initAudioContext();
+            tryResumeAudioContext();
             requestWakeLock();
         }, { once: true, passive: true });
     });
 
-    /* Visibility change */
+    /* Visibility change — resume context when returning to the page */
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') {
             requestWakeLock();
+            tryResumeAudioContext();
             if (mode === 'running') tick();
         }
     });
@@ -1377,7 +1352,7 @@
     });
     window.addEventListener('orientationchange', () => setTimeout(fitDisplay, 200));
 
-    /* ═══════════════ OFFLINE CACHING (app shell) ═══════════════ */
+    /* ═══════════════ OFFLINE APP SHELL ═══════════════ */
     async function cacheAppShell() {
         if (!('caches' in window) || location.protocol === 'file:') return;
         try {
@@ -1389,7 +1364,6 @@
         }
     }
 
-    /* Try to register a service worker if available (sw.js) */
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js').catch(() => {});
     }
@@ -1406,14 +1380,23 @@
         dimToggle.checked  = dimMode;
 
         renderSoundList();
-        initAudio();
-        cacheAudio();
-        cacheAppShell();
+        initAudioContext();
 
         setDisplay(saved);
         setMode('idle');
         versionBtn.textContent = APP_VERSION;
         requestWakeLock();
+
+        // Async audio setup: cache → create HTML elements → decode buffers
+        (async () => {
+            await cacheAudio();
+            createHtmlAudioEls();
+            await decodeBuffers();
+            console.log('Audio engine ready |', 
+                'WebAudio:', audioCtx ? audioCtx.state : 'n/a',
+                '| Decoded:', Object.keys(audioBuffers).length + '/' + SOUNDS.length,
+                '| HTMLAudio:', Object.keys(htmlAudioEls).length + '/' + SOUNDS.length);
+        })().catch(e => console.warn('Audio setup failed', e));
 
         console.log('Ajastin ' + APP_VERSION + ' valmis.',
             '| Ääni:', currentSound,
